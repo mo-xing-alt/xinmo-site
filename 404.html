@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>页面不存在 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<style>
+  .notfound { min-height: 100dvh; display: grid; place-items: center; padding: 40px 20px; }
+  .notfound-card { width: min(520px, 100%); text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 44px 32px; }
+  .notfound-code { font-size: 72px; line-height: 1; font-weight: 800; letter-spacing: -3px; background: linear-gradient(120deg, #4f6bed, #18a98a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .notfound-card h1 { margin: 18px 0 8px; font-size: 20px; color: var(--heading); }
+  .notfound-card p { margin: 0 0 26px; font-size: 13.5px; line-height: 1.8; color: var(--muted); }
+  .notfound-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<main class="notfound">
+  <div class="notfound-card">
+    <div class="notfound-code">404</div>
+    <h1>这里还没有东西</h1>
+    <p>这个地址不存在，或者资源已经搬走了。<br />回仓库首页看看现在有什么吧。</p>
+    <div class="notfound-actions">
+      <a class="btn btn-primary" href="./index.html">返回资源仓库</a>
+      <a class="btn btn-ghost" href="./index.html#catalog">浏览资源列表</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

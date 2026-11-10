@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="xinmo.work 资源仓库 —— 收录自制的学习资源与实用小工具，打开即用，无需登录。" />
+<meta name="theme-color" content="#f6f8fd" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="xinmo.work · 资源仓库" />
+<meta property="og:description" content="我做过的东西都放在这儿，朋友自取，打开即用。" />
+<title>xinmo.work · 资源仓库</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/site.css" />
+<script>
+  // 提前应用主题，避免刷新时闪屏
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="grid-lines"></span></div>
+
+<header class="topbar" id="top">
+  <div class="shell topbar-inner">
+    <a class="brand" href="./index.html" aria-label="返回首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-text"><strong>xinmo.work</strong><small>资源仓库</small></span>
+    </a>
+    <nav class="topnav" aria-label="站内导航">
+      <a href="#catalog">资源</a>
+      <a href="#add">如何添加</a>
+      <a href="#about">关于</a>
+    </nav>
+    <button class="theme-btn" id="themeToggle" type="button" aria-label="切换深浅色主题" title="切换深浅色主题">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A8.6 8.6 0 1 1 11.2 3a6.7 6.7 0 0 0 9.8 9.8Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> PERSONAL RESOURCE HUB</p>
+      <h1>我做过的东西，<br /><em>都放在这儿。</em></h1>
+      <p class="hero-desc">一个随手可得的资源仓库：学习题库、实用小工具，往后做的新东西也会陆续放进来。不用注册、不用登录，点开就能用，也欢迎直接把链接转给朋友。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#catalog">浏览资源
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#about">先看看说明</a>
+      </div>
+    </div>
+    <div class="hero-panel" aria-label="仓库概览">
+      <div class="panel-head">
+        <span class="panel-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="panel-path">xinmo.work / index</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><b id="statItems">—</b><span>在线资源</span></div>
+        <div class="stat"><b id="statCats">—</b><span>分类</span></div>
+        <div class="stat"><b>0</b><span>登录步骤</span></div>
+        <div class="stat"><b>24/7</b><span>随时可用</span></div>
+      </div>
+      <div class="panel-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <p><strong>本地运行，文件不上传</strong><br />工具都在浏览器里处理，用完即走，不留下你的数据。</p>
+      </div>
+      <p class="panel-updated">最近更新：<span id="updatedAt">—</span></p>
+    </div>
+  </section>
+
+  <section class="catalog shell" id="catalog">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">COLLECTION</p>
+        <h2>资源列表</h2>
+        <p class="section-sub">全部资源都可以直接在线打开，部分支持手机使用。</p>
+      </div>
+      <span class="result-count" id="resultCount" aria-live="polite"></span>
+    </div>
+
+    <div class="toolbar">
+      <label class="search" for="searchInput">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="searchInput" type="search" placeholder="搜索名称、标签或描述…" autocomplete="off" spellcheck="false" />
+        <kbd>/</kbd>
+      </label>
+      <div class="chips" id="chips" role="group" aria-label="按分类筛选"></div>
+    </div>
+
+    <div class="card-grid" id="resourceGrid"></div>
+    <div class="empty" id="emptyState" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6M8.5 11h5"/></svg>
+      <h3>没有找到匹配的资源</h3>
+      <p>换个关键词，或者点「全部」重新看看。</p>
+      <button type="button" class="btn btn-ghost" id="resetFilter">清空筛选</button>
+    </div>
+
+    <noscript>
+      <div class="noscript-box">
+        <p>当前浏览器未启用 JavaScript，资源卡片无法显示。可以直接打开：</p>
+        <ul>
+          <li><a href="./resources/info-security-quiz/index.html">信息安全题库练习</a></li>
+          <li><a href="./tools/file-toolbox/index.html">本地文件工具箱</a></li>
+        </ul>
+      </div>
+    </noscript>
+  </section>
+
+  <section class="add shell" id="add">
+    <div class="add-copy">
+      <p class="section-kicker">KEEP GROWING</p>
+      <h2>往仓库里加新东西</h2>
+      <p>这个站是纯静态的，新增资源只要两步：把做好的页面放进独立文件夹，再在资源清单里登记一条。不需要改首页代码，也不用重新构建。</p>
+      <ol class="steps">
+        <li><span>1</span>把新页面放到 <code>resources/</code> 或 <code>tools/</code> 下的新文件夹，入口文件命名为 <code>index.html</code>。</li>
+        <li><span>2</span>打开 <code>assets/js/resources.js</code>，在 <code>items</code> 数组里复制一段并改成新资源的信息。</li>
+        <li><span>3</span>把更新后的整个站点文件夹重新上传 / 发布即可。想让子页面也能跳回首页，照抄现有页面底部的 <code>repo-back</code> 链接就行。</li>
+      </ol>
+    </div>
+    <div class="code-card" aria-label="资源条目示例">
+      <div class="code-head"><span class="panel-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>assets/js/resources.js</span></div>
+      <pre><code><span class="c-p">// 在 items 数组里新增一条</span>
+{
+  <span class="c-k">id</span>: <span class="c-s">"my-new-tool"</span>,
+  <span class="c-k">title</span>: <span class="c-s">"我的新工具"</span>,
+  <span class="c-k">subtitle</span>: <span class="c-s">"一句话副标题"</span>,
+  <span class="c-k">description</span>: <span class="c-s">"简单说明它能做什么。"</span>,
+  <span class="c-k">category</span>: <span class="c-s">"tool"</span>,   <span class="c-p">// study / tool / doc</span>
+  <span class="c-k">icon</span>: <span class="c-s">"tool"</span>,
+  <span class="c-k">accent</span>: <span class="c-s">"indigo"</span>,
+  <span class="c-k">url</span>: <span class="c-s">"./tools/my-new-tool/index.html"</span>,
+  <span class="c-k">tags</span>: [<span class="c-s">"在线用"</span>, <span class="c-s">"免登录"</span>],
+  <span class="c-k">meta</span>: <span class="c-s">"单页应用"</span>,
+  <span class="c-k">status</span>: <span class="c-s">"可用"</span>,
+  <span class="c-k">updated</span>: <span class="c-s">"2026-11-10"</span>
+}</code></pre>
+    </div>
+  </section>
+
+  <section class="about shell" id="about">
+    <p class="section-kicker">GOOD TO KNOW</p>
+    <h2>给来逛的朋友</h2>
+    <div class="feature-grid">
+      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg></span><h3>打开即用</h3><p>没有注册、没有登录、没有下载安装，浏览器点开就是完整功能。</p></article>
+      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></span><h3>隐私优先</h3><p>文件类工具全部在浏览器本地运算，你的文件不会被上传到任何服务器。</p></article>
+      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><h3>手机也能用</h3><p>页面做了移动端适配，路上刷题、临时改个文件都顺手。</p></article>
+    </div>
+    <p class="about-note">内容还在慢慢攒，如果某个页面打不开或者你有想加的东西，直接告诉站主就好。</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="shell footer-inner">
+    <div class="footer-brand"><span class="footer-dot" aria-hidden="true"></span><strong>xinmo.work</strong><span>资源仓库</span></div>
+    <p>收录自制资源 · 供朋友随手取用</p>
+    <a href="#top" class="to-top">回到顶部 ↑</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="./assets/js/resources.js"></script>
+<script src="./assets/js/app.js"></script>
+</body>
+</html>
