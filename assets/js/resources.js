@@ -98,6 +98,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-11"
     },
     {
+      id: "piano-jianpu",
+      title: "钢琴简谱库",
+      subtitle: "1000 简谱 + 1000 中文热曲",
+      description: "1000 首公有领域传统曲调的双手简谱，每首都是可弹奏的真实旋律，支持检索、Web Audio 试听、移调、打印导出与收藏；另收录 1000 首中文爆款曲目目录（事实元数据 + 官方找谱入口，不含受版权保护的谱面）。两块内容各有独立的「分析数据」统计面板。",
+      category: "tool",
+      icon: "tool",
+      accent: "indigo",
+      url: "./tools/piano-jianpu/index.html",
+      tags: ["1000 首简谱", "1000 首中文热曲", "双手简谱", "试听", "移调", "分析数据", "打印导出"],
+      meta: "纯前端 · 公有领域谱 + 中文曲目索引",
+      status: "可用",
+      updated: "2026-11-11"
+    },
+    {
       id: "riskguard",
       title: "RiskGuard 行为风控控制台",
       subtitle: "实时风控 · 案件复核 · 规则热更新",

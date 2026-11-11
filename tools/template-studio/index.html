@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="轻画布：纯前端模板编辑器，支持文字、形状、图片、图层、拖拽缩放旋转、撤销重做与 PNG 导出，素材全部留在浏览器本地。" />
+<title>轻画布 · 模板编辑器 | xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Crect x='14' y='14' width='36' height='36' rx='5' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='24' cy='25' r='4' fill='white'/%3E%3Cpath d='M15 43l11-11 8 8 7-6 8 9' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<!-- 访问控制守卫（站点统一登录门） -->
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+<link rel="stylesheet" href="assets/app.css" />
+</head>
+<body>
+<div class="ts-app">
+
+  <header class="ts-header">
+    <div class="ts-brand"><span class="ts-mark">画</span><strong>轻画布</strong></div>
+    <input id="docTitle" class="ts-doc-title" type="text" value="未命名设计" aria-label="设计名称" />
+    <span class="ts-sep"></span>
+    <button id="btnUndo" class="ts-btn icon" title="撤销 Ctrl+Z">↶</button>
+    <button id="btnRedo" class="ts-btn icon" title="重做 Ctrl+Y">↷</button>
+    <button id="btnDup" class="ts-btn icon" title="复制 Ctrl+D">⧉</button>
+    <button id="btnDel" class="ts-btn icon" title="删除 Delete">✕</button>
+    <span class="ts-sep"></span>
+    <select id="selSize" aria-label="画布尺寸"></select>
+    <input id="inpW" type="number" min="100" max="4000" style="width:74px" aria-label="画布宽度" />
+    <span style="color:var(--ts-muted)">×</span>
+    <input id="inpH" type="number" min="100" max="4000" style="width:74px" aria-label="画布高度" />
+    <button id="btnApplySize" class="ts-btn">应用</button>
+    <span class="ts-spacer"></span>
+    <div class="ts-zoom">
+      <select id="selZoom" aria-label="视图缩放">
+        <option value="0.25">25%</option><option value="0.5">50%</option>
+        <option value="0.75">75%</option><option value="1">100%</option>
+        <option value="1.5">150%</option><option value="2">200%</option>
+      </select>
+      <button id="btnFit" class="ts-btn">适应</button>
+    </div>
+    <span class="ts-sep"></span>
+    <button id="btnImport" class="ts-btn">导入工程</button>
+    <button id="btnSave" class="ts-btn">保存工程</button>
+    <button id="btnExport" class="ts-btn primary">导出 PNG</button>
+    <button id="btnHelp" class="ts-btn icon" title="快捷键说明">?</button>
+    <input id="fileImport" type="file" accept="application/json,.json" hidden />
+  </header>
+
+  <div class="ts-main">
+
+    <aside class="ts-left">
+      <nav class="ts-nav" aria-label="工具面板">
+        <button class="on" data-tab="templates"><span class="ic">▦</span>模板</button>
+        <button data-tab="text"><span class="ic">T</span>文字</button>
+        <button data-tab="shapes"><span class="ic">◇</span>元素</button>
+        <button data-tab="upload"><span class="ic">↑</span>上传</button>
+        <button data-tab="bg"><span class="ic">◐</span>背景</button>
+      </nav>
+      <div class="ts-panels">
+
+        <section class="ts-panel on" id="panel-templates">
+          <h3>模板库</h3>
+          <p class="hint">内置原创模板，点一下即可套用。所有内容都可继续编辑。</p>
+          <div class="tpl-grid" id="templateGrid"></div>
+          <div class="ts-group-title">常用画布尺寸</div>
+          <div id="presetList"></div>
+          <div class="ts-group-title">操作</div>
+          <button class="ts-list-btn" id="btnNew"><strong>新建空白画布</strong><small>清空当前内容，尺寸保持不变</small></button>
+        </section>
+
+        <section class="ts-panel" id="panel-text">
+          <h3>添加文字</h3>
+          <p class="hint">添加后双击画布上的文字即可直接修改内容。</p>
+          <button class="ts-list-btn" id="btnAddHeading"><strong style="font-size:22px">添加主标题</strong><small>大号粗体，适合标题</small></button>
+          <button class="ts-list-btn" id="btnAddSubtitle"><strong style="font-size:16px">添加副标题</strong><small>中号文字，适合说明</small></button>
+          <button class="ts-list-btn" id="btnAddBody"><strong>添加正文</strong><small>小号文字，适合段落</small></button>
+          <div class="ts-group-title">快捷文字样式</div>
+          <div id="textStyleList"></div>
+        </section>
+
+        <section class="ts-panel" id="panel-shapes">
+          <h3>形状与装饰</h3>
+          <p class="hint">点击添加到画布，可自由改色、缩放、旋转。</p>
+          <div class="shape-grid" id="shapeGrid"></div>
+          <div class="ts-group-title">新元素默认颜色</div>
+          <input id="newShapeColor" type="color" value="#4f6bed" aria-label="新元素默认颜色" />
+          <div class="ts-group-title">图标贴纸</div>
+          <div class="shape-grid" id="iconGrid"></div>
+        </section>
+
+        <section class="ts-panel" id="panel-upload">
+          <h3>上传图片</h3>
+          <p class="hint">图片只在浏览器本地读取，不会上传到任何服务器。</p>
+          <label class="ts-drop" for="fileImage" id="dropZone">点击选择，或把图片拖到这里<br /><small>支持 PNG / JPG / WEBP / SVG</small></label>
+          <input id="fileImage" type="file" accept="image/*" multiple hidden />
+          <div class="ts-gallery" id="gallery"></div>
+          <div class="ts-group-title">说明</div>
+          <p class="hint">上传的图片会保存在当前工程的 JSON 里；导出 PNG 时一并绘制。工程文件可能因此变大。</p>
+        </section>
+
+        <section class="ts-panel" id="panel-bg">
+          <h3>画布背景</h3>
+          <p class="hint">纯色或双色渐变，导出时会完整保留。</p>
+          <div class="seg" id="bgTypeSeg">
+            <button class="on" data-bg="solid">纯色</button>
+            <button data-bg="gradient">渐变</button>
+          </div>
+          <div class="ts-color-row">
+            <div><label for="bgColor">主色</label><input id="bgColor" type="color" value="#ffffff" /></div>
+            <div id="bgColor2Wrap"><label for="bgColor2">副色</label><input id="bgColor2" type="color" value="#eef2ff" /></div>
+          </div>
+          <div id="bgAngleWrap" class="prop-row">
+            <label for="bgAngle">角度</label>
+            <input id="bgAngle" type="range" min="0" max="360" value="135" />
+            <span id="bgAngleVal" style="width:32px;text-align:right">135°</span>
+          </div>
+          <div class="ts-group-title">常用配色</div>
+          <div class="shape-grid" id="bgSwatches"></div>
+        </section>
+
+      </div>
+    </aside>
+
+    <main class="ts-stage" id="stage">
+      <div class="ts-stage-inner">
+        <div id="canvasFrame">
+          <div id="canvasWrap"><div id="canvas"></div></div>
+          <div class="ts-guide-v" id="guideV"></div>
+          <div class="ts-guide-h" id="guideH"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="ts-right">
+      <h3>属性</h3>
+      <div id="propEmpty" class="ts-empty">在画布上选中一个元素<br />即可调整它的属性</div>
+      <div id="propForm" hidden>
+        <div class="prop-two">
+          <div class="prop-row"><label>X</label><input class="ts-prop grow" data-prop="x" type="number" /></div>
+          <div class="prop-row"><label>Y</label><input class="ts-prop grow" data-prop="y" type="number" /></div>
+        </div>
+        <div class="prop-two" style="margin-top:9px">
+          <div class="prop-row"><label>宽</label><input class="ts-prop grow" data-prop="w" type="number" /></div>
+          <div class="prop-row"><label>高</label><input class="ts-prop grow" data-prop="h" type="number" /></div>
+        </div>
+        <div class="prop-row" style="margin-top:9px"><label>旋转</label><input class="ts-prop grow" data-prop="rot" type="range" min="-180" max="180" /><span style="width:38px;text-align:right" id="rotVal">0°</span></div>
+        <div class="prop-row"><label>透明度</label><input class="ts-prop grow" data-prop="opacity" type="range" min="0" max="1" step="0.01" /><span style="width:38px;text-align:right" id="opVal">100%</span></div>
+
+        <div class="ts-section" id="shapeSection">
+          <div class="ts-label">填充与描边</div>
+          <div class="prop-row"><label>填充</label><input class="ts-prop grow" data-prop="fill" type="color" /></div>
+          <div class="prop-row"><label>描边</label><input class="ts-prop grow" data-prop="stroke" type="color" /><input class="ts-prop" data-prop="strokeW" type="number" min="0" style="width:60px" title="描边宽度" /></div>
+          <div class="prop-row"><label>圆角</label><input class="ts-prop grow" data-prop="radius" type="range" min="0" max="200" /><span style="width:38px;text-align:right" id="radVal">0</span></div>
+          <div class="prop-row"><label>阴影</label><input class="ts-prop" data-prop="shadowOn" type="checkbox" /><span style="flex:1;font-size:11px;color:var(--ts-muted)">柔和投影</span></div>
+        </div>
+
+        <div class="ts-section" id="textSection">
+          <div class="ts-label">文字</div>
+          <textarea class="ts-prop" data-prop="text" rows="3" style="width:100%;resize:vertical"></textarea>
+          <div class="prop-two" style="margin-top:9px">
+            <div class="prop-row"><label>字号</label><input class="ts-prop grow" data-prop="fontSize" type="number" min="8" /></div>
+            <div class="prop-row"><label>字色</label><input class="ts-prop grow" data-prop="color" type="color" /></div>
+          </div>
+          <div class="prop-row" style="margin-top:9px"><label>字体</label>
+            <select class="ts-prop grow" data-prop="font">
+              <option value="&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif">系统黑体</option>
+              <option value="&quot;Songti SC&quot;,&quot;SimSun&quot;,serif">宋体 / 衬线</option>
+              <option value="Georgia,serif">Georgia</option>
+              <option value="Arial,Helvetica,sans-serif">Arial</option>
+              <option value="ui-monospace,Consolas,monospace">等宽字体</option>
+            </select>
+          </div>
+          <div class="prop-row"><label>字重</label>
+            <select class="ts-prop grow" data-prop="fontWeight">
+              <option value="300">细</option><option value="400">常规</option>
+              <option value="600">半粗</option><option value="700">加粗</option><option value="900">特粗</option>
+            </select>
+            <select class="ts-prop grow" data-prop="align">
+              <option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option>
+            </select>
+          </div>
+          <div class="prop-two" style="margin-top:9px">
+            <div class="prop-row"><label>行距</label><input class="ts-prop grow" data-prop="lineHeight" type="number" step="0.05" min="0.8" /></div>
+            <div class="prop-row"><label>字距</label><input class="ts-prop grow" data-prop="letterSpacing" type="number" /></div>
+          </div>
+          <div class="prop-row"><label>样式</label><label style="width:auto;display:flex;align-items:center;gap:4px"><input class="ts-prop" data-prop="italic" type="checkbox" />斜体</label><label style="width:auto;display:flex;align-items:center;gap:4px"><input class="ts-prop" data-prop="underline" type="checkbox" />下划线</label></div>
+        </div>
+
+        <div class="ts-section">
+          <div class="ts-label">图层顺序</div>
+          <div class="ts-mini-btns">
+            <button class="ts-btn" data-layer="up">上移</button>
+            <button class="ts-btn" data-layer="down">下移</button>
+            <button class="ts-btn" data-layer="top">置顶</button>
+            <button class="ts-btn" data-layer="bottom">置底</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ts-section">
+        <div class="ts-label">图层 <span id="layerCount" style="float:right"></span></div>
+        <div id="layerList"></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="ts-footer">
+    <span id="statusText">就绪</span>
+    <span class="ts-spacer" style="flex:1"></span>
+    <span>纯前端 · 工程自动保存在本机浏览器 · 图片不上传</span>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="helpPanel">
+  <div class="help-card">
+    <h3>快捷键与操作</h3>
+    <dl>
+      <dt>单击 / 拖拽</dt><dd>选中并移动元素（自动吸附画布中心）</dd>
+      <dt>双击文字</dt><dd>直接编辑文本内容</dd>
+      <dt>八个小方块</dt><dd>缩放元素；顶部圆点可旋转</dd>
+      <dt>Delete / Backspace</dt><dd>删除选中元素</dd>
+      <dt>Ctrl / ⌘ + Z</dt><dd>撤销</dd>
+      <dt>Ctrl / ⌘ + Y</dt><dd>重做</dd>
+      <dt>Ctrl / ⌘ + D</dt><dd>复制选中元素</dd>
+      <dt>方向键</dt><dd>微调 1px；按住 Shift 为 10px</dd>
+      <dt>Ctrl / ⌘ + S</dt><dd>保存工程 JSON</dd>
+      <dt>Esc</dt><dd>取消选中</dd>
+    </dl>
+    <p style="font-size:12px;color:var(--ts-muted);line-height:1.8;margin:0 0 16px">导出 PNG 按画布原始像素尺寸渲染；工程文件是标准 JSON，可随时导入继续编辑。所有素材与工程都留在你的浏览器里。</p>
+    <button class="ts-btn primary" id="btnHelpClose" style="width:100%;justify-content:center">知道了</button>
+  </div>
+</div>
+
+<script src="assets/templates.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

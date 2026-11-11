@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="1000 首公有领域经典曲调的双手钢琴简谱库：检索、试听、移调、打印，附完整曲库数据分析。" />
+<title>钢琴简谱库 · 1000 首 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M18 40V20h5v14l7-14h5l-7 15 8 9h-6l-7-8v8z' fill='%23fff'/%3E%3Ccircle cx='44' cy='24' r='4' fill='%2338d9a9'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../../assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<!-- 访问控制守卫 -->
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+<style>
+  .pj-wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 80px; }
+  .pj-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+  .pj-brand { display: flex; align-items: center; gap: 11px; }
+  .pj-mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #4f6bed, #7a4fd0); box-shadow: 0 8px 22px rgba(79,107,237,.28); font-size: 21px; font-weight: 700; }
+  .pj-brand strong { display: block; font-size: 15px; color: var(--heading); line-height: 1.2; }
+  .pj-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+  .pj-top-right { display: flex; align-items: center; gap: 8px; }
+  .pj-back { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); padding: 7px 13px; border-radius: 999px; background: var(--surface); }
+  .pj-back:hover { color: var(--accent); border-color: var(--accent); }
+  .pj-ico { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 10px; cursor: pointer; font-size: 15px; }
+  .pj-ico:hover { color: var(--accent); border-color: var(--accent); }
+
+  .pj-hero { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px; margin-bottom: 18px; position: relative; overflow: hidden; }
+  .pj-hero::after { content: "♬"; position: absolute; right: 24px; top: -32px; font-size: 170px; color: var(--accent-soft); opacity: .65; line-height: 1; pointer-events: none; }
+  :root[data-theme="dark"] .pj-hero::after { opacity: .16; }
+  .pj-hero h1 { margin: 0 0 6px; font-size: 27px; color: var(--heading); letter-spacing: -.5px; }
+  .pj-hero p { margin: 0 0 18px; color: var(--muted); font-size: 13.5px; max-width: 720px; position: relative; z-index: 1; }
+  .pj-kpis { display: flex; flex-wrap: wrap; gap: 10px; position: relative; z-index: 1; }
+  .pj-kpi { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 9px 15px; min-width: 112px; }
+  .pj-kpi b { display: block; font-size: 20px; color: var(--heading); font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .pj-kpi span { font-size: 11px; color: var(--muted); }
+
+  .pj-tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .pj-tab { border: 0; background: none; color: var(--muted); padding: 10px 16px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .pj-tab:hover { color: var(--text); }
+  .pj-tab.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .pj-pane { display: none; }
+  .pj-pane.on { display: block; }
+
+  .pj-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; }
+  .pj-filters { display: grid; grid-template-columns: 2fr repeat(5, 1fr); gap: 10px; align-items: end; }
+  .pj-field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+  .pj-field input, .pj-field select { width: 100%; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); border-radius: 10px; padding: 9px 11px; font-size: 13px; outline: none; }
+  .pj-field input:focus, .pj-field select:focus { border-color: var(--accent); }
+  .pj-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 16px 0 12px; }
+  .pj-count { font-size: 13px; color: var(--muted); }
+  .pj-count b { color: var(--heading); font-variant-numeric: tabular-nums; }
+  .pj-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+  .pj-chip { border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+  .pj-chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+  .pj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 12px; }
+  .pj-card { border: 1px solid var(--border); background: var(--surface); border-radius: 15px; padding: 15px 16px; cursor: pointer; transition: transform .16s, border-color .16s, box-shadow .16s; position: relative; }
+  .pj-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--shadow); }
+  .pj-card h3 { margin: 0 0 7px; font-size: 14.5px; color: var(--heading); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 26px; }
+  .pj-card .pj-sub { font-size: 11.5px; color: var(--muted); margin-bottom: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pj-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pj-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+  .pj-tag.t1 { background: var(--teal-soft); color: var(--teal); border-color: transparent; }
+  .pj-tag.t2 { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .pj-tag.t3 { background: var(--amber-soft); color: #b8730a; border-color: transparent; }
+  :root[data-theme="dark"] .pj-tag.t3 { color: #ffc45c; }
+  .pj-fav { position: absolute; right: 12px; top: 13px; border: 0; background: none; color: var(--border-strong); font-size: 17px; cursor: pointer; line-height: 1; padding: 2px; }
+  .pj-fav.on { color: #e8a33d; }
+  .pj-pager { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .pj-pager button { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 9px; padding: 7px 12px; font-size: 12.5px; cursor: pointer; }
+  .pj-pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .pj-pager button:disabled { opacity: .4; cursor: default; }
+  .pj-pager span { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pj-empty { text-align: center; padding: 50px 10px; color: var(--muted); font-size: 13.5px; }
+
+  /* ---- 详情 ---- */
+  .pj-modal { position: fixed; inset: 0; z-index: 60; display: none; }
+  .pj-modal.on { display: block; }
+  .pj-mask { position: absolute; inset: 0; background: rgba(10, 18, 36, .55); backdrop-filter: blur(3px); }
+  :root[data-theme="light"] .pj-mask { background: rgba(30, 45, 80, .38); }
+  .pj-sheet { position: absolute; inset: 18px 18px 18px auto; width: min(940px, calc(100% - 36px)); background: var(--bg); border-radius: 20px; box-shadow: var(--shadow-lg); overflow: auto; padding: 22px 26px 40px; }
+  .pj-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .pj-sheet h2 { margin: 0 0 4px; font-size: 21px; color: var(--heading); }
+  .pj-sheet .pj-alias { font-size: 12px; color: var(--muted); }
+  .pj-close { border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 10px; width: 34px; height: 34px; cursor: pointer; flex: none; font-size: 18px; line-height: 1; }
+  .pj-meta { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 16px; }
+  .pj-meta span { font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 5px 10px; }
+  .pj-meta span b { color: var(--heading); font-weight: 600; }
+  .pj-ctrls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .pj-btn { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 10px; padding: 8px 13px; font-size: 12.5px; cursor: pointer; }
+  .pj-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pj-btn.primary { background: linear-gradient(135deg, #4f6bed, #7a4fd0); color: #fff; border-color: transparent; font-weight: 600; }
+  .pj-btn.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .pj-ctl { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 11px; }
+  .pj-ctl input[type=range] { width: 92px; accent-color: var(--accent); }
+  .pj-ctl b { color: var(--heading); font-variant-numeric: tabular-nums; min-width: 30px; text-align: center; }
+  .pj-step { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); width: 24px; height: 24px; border-radius: 7px; cursor: pointer; font-size: 14px; line-height: 1; }
+
+  .pj-paper { background: #fff; color: #14203a; border-radius: 12px; padding: 22px 24px 26px; box-shadow: var(--shadow); border: 1px solid #e3e9f4; overflow-x: auto; }
+  .pj-paper-title { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .pj-paper-sub { font-size: 11.5px; color: #6b7893; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .pj-staff { margin-bottom: 22px; }
+  .pj-line { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 0; margin-bottom: 14px; min-width: max-content; }
+  .pj-barbox { display: inline-flex; flex-direction: column; justify-content: flex-end; border-right: 1.5px solid #9aa8c2; padding: 8px 9px 0 5px; margin-right: 4px; min-height: 82px; }
+  .pj-barbox.first { border-left: 1.5px solid #9aa8c2; padding-left: 9px; }
+  .pj-chord { font-size: 11px; color: #7a4fd0; font-weight: 600; height: 17px; line-height: 17px; letter-spacing: .3px; }
+  .pj-notes { display: flex; align-items: flex-end; gap: 3px; min-height: 34px; }
+  .pj-bass { display: flex; align-items: flex-end; gap: 3px; min-height: 28px; margin-top: 5px; border-top: 1px dashed #e3e9f4; padding-top: 4px; }
+  .pj-note { position: relative; display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 17px; padding: 0 1px; line-height: 1; }
+  .pj-note .pj-num { font-size: 18px; font-weight: 600; font-family: "Times New Roman", "Songti SC", serif; line-height: 1.05; padding: 0 1px; }
+  .pj-note.u1 .pj-num { border-bottom: 1.5px solid #14203a; padding-bottom: 1px; }
+  .pj-note.u2 .pj-num { border-bottom: 4px double #14203a; padding-bottom: 2px; }
+  .pj-note .pj-dots { position: absolute; left: 0; right: 0; font-size: 9px; letter-spacing: 1px; text-align: center; line-height: 1; color: #14203a; }
+  .pj-note .pj-dots.up { top: -8px; }
+  .pj-note .pj-dots.down { bottom: -8px; }
+  .pj-note .pj-acc { font-size: 11px; vertical-align: top; margin-right: 1px; }
+  .pj-note .pj-dot { position: absolute; right: -3px; top: 1px; font-size: 14px; }
+  .pj-ext { font-size: 17px; color: #14203a; min-width: 17px; text-align: center; align-self: flex-end; padding-bottom: 1px; }
+  .pj-note.playing .pj-num { color: #d33b3b; background: #ffe9e9; border-radius: 4px; }
+  .pj-repeat { font-weight: 800; font-size: 17px; align-self: flex-end; padding: 0 3px 2px; }
+  .pj-bass .pj-note .pj-num { font-size: 15px; color: #4f6bed; }
+  .pj-legend { font-size: 11px; color: #6b7893; margin-top: 10px; line-height: 1.9; }
+  .pj-src { font-size: 11.5px; color: var(--muted); margin-top: 14px; word-break: break-all; }
+  .pj-src a { color: var(--accent); }
+
+  /* ---- 分析数据 ---- */
+  .pj-akpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .pj-akpi { background: var(--surface); border: 1px solid var(--border); border-radius: 15px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .pj-akpi b { display: block; font-size: 25px; color: var(--heading); font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .pj-akpi span { font-size: 11.5px; color: var(--muted); }
+  .pj-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+  .pj-chart { background: var(--surface); border: 1px solid var(--border); border-radius: 15px; padding: 17px 19px; box-shadow: var(--shadow); }
+  .pj-chart h3 { margin: 0 0 3px; font-size: 14px; color: var(--heading); }
+  .pj-chart .pj-hint { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .pj-row { display: grid; grid-template-columns: 96px 1fr 52px; align-items: center; gap: 9px; margin-bottom: 8px; font-size: 12px; }
+  .pj-row .pj-lb { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pj-row .pj-track { height: 10px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+  .pj-row .pj-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #4f6bed, #7a4fd0); min-width: 2px; }
+  .pj-row .pj-fill.c2 { background: linear-gradient(90deg, #0f9c7c, #38d9a9); }
+  .pj-row .pj-fill.c3 { background: linear-gradient(90deg, #e8a33d, #f0c674); }
+  .pj-row .pj-vl { text-align: right; color: var(--heading); font-variant-numeric: tabular-nums; }
+  .pj-insight { background: var(--accent-soft); border: 1px solid var(--border); border-radius: 15px; padding: 17px 20px; margin-bottom: 16px; }
+  .pj-insight h3 { margin: 0 0 8px; font-size: 14px; color: var(--heading); }
+  .pj-insight ul { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text); line-height: 2; }
+  .pj-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .pj-table th, .pj-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  .pj-table th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+  .pj-table td b { color: var(--heading); }
+  .pj-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .pj-cnnote { border-left: 3px solid var(--teal); background: var(--teal-soft); border-radius: 0 12px 12px 0; padding: 12px 17px; margin-bottom: 15px; font-size: 12.5px; line-height: 1.85; color: var(--text); }
+  .pj-cnnote b { color: var(--heading); }
+  .pj-rank { position: absolute; right: 12px; top: 12px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; padding: 2px 7px; }
+  .pj-links { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
+  .pj-links a { font-size: 11.5px; border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 8px; padding: 5px 9px; }
+  .pj-links a:hover { color: var(--accent); border-color: var(--accent); }
+  .pj-links a.hi { color: var(--teal); border-color: var(--teal); }
+
+  .pj-about { max-width: 800px; font-size: 13.5px; line-height: 1.95; }
+  .pj-about h3 { font-size: 15px; color: var(--heading); margin: 20px 0 7px; }
+  .pj-about p { margin: 0 0 10px; color: var(--text); }
+  .pj-about code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; font-size: 12px; }
+  .pj-note-box { border-left: 3px solid var(--accent); background: var(--surface-2); padding: 12px 16px; border-radius: 0 10px 10px 0; margin: 14px 0; font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 820px) {
+    .pj-filters { grid-template-columns: 1fr 1fr; }
+    .pj-filters .pj-field:first-child { grid-column: 1 / -1; }
+    .pj-sheet { inset: 0; width: 100%; border-radius: 0; padding: 18px 16px 40px; }
+  }
+  @media print {
+    body > *:not(.pj-modal) { display: none !important; }
+    .pj-modal { position: static; display: block; }
+    .pj-mask, .pj-close, .pj-ctrls, .pj-sheet-head .pj-close, .pj-legend, .pj-src { display: none !important; }
+    .pj-sheet { position: static; width: 100%; box-shadow: none; padding: 0; overflow: visible; }
+    .pj-paper { box-shadow: none; border: 0; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="pj-wrap">
+  <div class="pj-top">
+    <div class="pj-brand">
+      <div class="pj-mark">♬</div>
+      <div><strong>钢琴简谱库</strong><small>XINMO · JIANPU</small></div>
+    </div>
+    <div class="pj-top-right">
+      <a class="pj-back" href="../../index.html">← 返回首页</a>
+      <button class="pj-ico" id="themeBtn" title="切换主题">◐</button>
+    </div>
+  </div>
+
+  <div class="pj-hero">
+    <h1>1000 首可弹奏的双手钢琴简谱</h1>
+    <p>公有领域传统曲调，按「被收录热度」精选。每首都是真实旋律（非占位数据），带右手主旋律、和弦标记与左手伴奏，可试听、移调、打印。另加 1000 首中文热曲目录与整库真实统计分布。</p>
+    <div class="pj-kpis" id="heroKpis"></div>
+  </div>
+
+  <div class="pj-tabs">
+    <button class="pj-tab on" data-tab="lib">简谱曲库 1000</button>
+    <button class="pj-tab" data-tab="cn">中文热曲 1000</button>
+    <button class="pj-tab" data-tab="ana">分析数据</button>
+    <button class="pj-tab" data-tab="about">来源与版权</button>
+  </div>
+
+  <!-- 曲库 -->
+  <div class="pj-pane on" id="pane-lib">
+    <div class="pj-panel">
+      <div class="pj-filters">
+        <div class="pj-field"><label>搜索曲名 / 别名</label><input id="fq" type="search" placeholder="例如 Cooley's / Drowsy Maggie" autocomplete="off" /></div>
+        <div class="pj-field"><label>曲式</label><select id="ftype"></select></div>
+        <div class="pj-field"><label>调性</label><select id="fkey"></select></div>
+        <div class="pj-field"><label>拍号</label><select id="fmeter"></select></div>
+        <div class="pj-field"><label>难度</label><select id="fdiff"></select></div>
+        <div class="pj-field"><label>排序</label><select id="fsort">
+          <option value="hot">热度（被收录次数）</option>
+          <option value="diff">难度（低→高）</option>
+          <option value="diffd">难度（高→低）</option>
+          <option value="notes">音符数（少→多）</option>
+          <option value="range">音域（窄→宽）</option>
+          <option value="name">曲名 A→Z</option>
+        </select></div>
+      </div>
+      <div class="pj-bar">
+        <div class="pj-count" id="count">载入中…</div>
+        <div class="pj-chips">
+          <button class="pj-chip" id="favOnly">★ 只看收藏</button>
+          <button class="pj-chip on" id="lhDefault">左手伴奏：显示</button>
+        </div>
+      </div>
+      <div class="pj-grid" id="grid"></div>
+      <div class="pj-pager" id="pager"></div>
+    </div>
+  </div>
+
+  <!-- 中文热曲目录 -->
+  <div class="pj-pane" id="pane-cn">
+    <div class="pj-cnnote">
+      <b>这是目录，不是谱面。</b>下面 1000 首是按「被热门歌单收录次数」排出来的中文爆款曲目，只收录曲名、歌手等<strong>事实元数据</strong>，
+      不含歌词、不含受著作权保护的曲谱。点「找钢琴谱」会跳到公开搜索结果，谱面请在虫虫钢琴、弹琴吧等授权平台获取或购买。
+      热度为开放数据集内的相对流行度，不是官方榜单。
+    </div>
+    <div class="pj-akpis" id="cnKpis"></div>
+    <div class="pj-panel">
+      <div class="pj-filters" style="grid-template-columns:2fr 1.2fr 1.2fr">
+        <div class="pj-field"><label>搜索曲名 / 歌手</label><input id="cnq" type="search" placeholder="例如 特别的人 / 周深 / 年轮" autocomplete="off" /></div>
+        <div class="pj-field"><label>歌手</label><select id="cnsinger"></select></div>
+        <div class="pj-field"><label>排序</label><select id="cnsort">
+          <option value="pl">歌单收录（多→少）</option>
+          <option value="h">站内热度（高→低）</option>
+          <option value="len">曲名字数（少→多）</option>
+          <option value="name">曲名 A→Z</option>
+        </select></div>
+      </div>
+      <div class="pj-bar"><div class="pj-count" id="cnCount"></div>
+        <div class="pj-chips"><span class="pj-chip on" style="cursor:default">仅收录事实元数据 · 不含谱面</span></div>
+      </div>
+      <div class="pj-grid" id="cnGrid"></div>
+      <div class="pj-pager" id="cnPager"></div>
+    </div>
+    <div class="pj-charts" id="cnCharts" style="margin-top:14px"></div>
+    <div class="pj-panel" style="margin-top:14px">
+      <h3 style="margin:0 0 12px;font-size:14px;color:var(--heading)">中文热曲 Top 20 · 歌单收录次数</h3>
+      <table class="pj-table"><thead><tr><th>#</th><th>曲名</th><th>歌手</th><th class="num">歌单收录</th><th class="num">站内热度</th></tr></thead><tbody id="cnTopBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- 分析数据 -->
+  <div class="pj-pane" id="pane-ana">
+    <div class="pj-insight">
+      <h3>整库概览（全部由 1000 首曲谱实时计算，非预设数字）</h3>
+      <ul id="insightList"></ul>
+    </div>
+    <div class="pj-akpis" id="aKpis"></div>
+    <div class="pj-charts" id="charts"></div>
+    <div class="pj-panel" style="margin-top:14px">
+      <h3 style="margin:0 0 12px;font-size:14px;color:var(--heading)">被收录次数 Top 15</h3>
+      <table class="pj-table"><thead><tr><th>#</th><th>曲名</th><th>曲式</th><th>调性</th><th>难度</th><th class="num">被收录</th></tr></thead><tbody id="topBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- 关于 -->
+  <div class="pj-pane" id="pane-about">
+    <div class="pj-panel pj-about">
+      <h3>这些谱从哪里来</h3>
+      <p>曲谱来自 <a href="https://thesession.org/" target="_blank" rel="noopener" style="color:var(--accent)">thesession.org</a> 的公开曲调库。这是一个收录传统民谣舞曲的社区站点，曲调本身为世代流传的<strong>公有领域</strong>旋律；本库使用会员贡献的 ABC 记谱，并逐首保留<strong>记谱者署名</strong>、原始链接与贡献日期（对应站点 CC BY-SA 的署名要求）。</p>
+      <div class="pj-note-box">本库<strong>不含</strong>从商业曲谱站批量抓取的流行歌曲谱面。流行/影视曲的简谱通常受词曲著作权与记谱者权利保护，把它们搬到公开站点会带来侵权风险。如果你拥有某批曲谱的合法授权，可以按下面的方式整体替换数据集。</div>
+
+      <h3>「1000 首」是怎么选出来的</h3>
+      <p>抓取约 1500 个曲调条目 → 解析 ABC 记谱 → 过滤掉音符过少、无法成谱的条目 → 按<strong>被社区收录进球本的次数</strong>（tunebooks）降序取前 1000 首 → 按「曲名 + 旋律指纹」去重。热度是真实社区数据，不是人工编的推荐位。</p>
+
+      <h3>简谱是怎么生成的</h3>
+      <p>ABC 的每个音符被解析成绝对 MIDI 音高与十六分音符时值，页面按<strong>首调唱名法</strong>实时换算成 1–7、八度上下加点、增减时值线与休止符 0，因此可以自由移调。变化音用 ♯/♭ 标在数字前。左手伴奏优先采用原谱和弦标注，没有标注时按调式自动生成 I / IV / I / V 分解低音。</p>
+      <p>难度 1–5 由<strong>真实音乐特征</strong>算出综合分（音符数、音域跨度、最短时值、大跳比例、变化音密度），再按全库<strong>五分位</strong>分级：1 = 最容易的 20%，5 = 最难的 20%，可直接按水平选曲。</p>
+
+      <h3>替换成你自己的谱</h3>
+      <p>数据文件是 <code>tools/piano-jianpu/data.js</code>，结构为 <code>window.JIANPU_DATA = { meta, tunes: [...] }</code>。每首曲子包含 <code>n</code> 曲名、<code>k</code> 调性、<code>tp</code> 主音音级、<code>pat</code> 调式音程、<code>m</code> 拍号、<code>d</code> 难度、<code>st</code> 统计、<code>seq</code> 音序（<code>midi/ticks</code> 空格分隔，<code>R/t</code> 休止，<code>|</code> 小节，<code>|:</code> / <code>:|</code> 反复）、<code>ch</code> 每小节和弦、<code>bass</code> 每小节左手音。按同样格式生成即可，页面无需改动。</p>
+
+      <h3>中文热曲 1000 首为什么是目录</h3>
+      <p>「爆火中文钢琴曲」几乎都还在词曲著作权保护期内，谱面（含简谱改编）属于受保护的表达；把它们批量搬到公开静态仓库会构成侵权，
+      商业曲谱站点的服务条款也普遍禁止批量下载。所以这一栏<strong>只放事实元数据</strong>：曲名、歌手、站内热度档、歌单收录次数和原曲链接——
+      这些是可以合法使用的客观信息，不含歌词、不含任何曲谱。</p>
+      <p>数据来自开源研究数据集 <a href="https://github.com/LindiaC/music163-mining" target="_blank" rel="noopener" style="color:var(--accent)">LindiaC/music163-mining</a>（网易云音乐歌单挖掘，24.4 万首华语歌曲、634 个歌单）。
+      热度定义为「被多少个热门歌单收录，并按歌单收藏量/播放量加权」，是数据集内的相对流行度，不是官方榜单。
+      已合并 Live / DJ / 伴奏等版本，只保留录音室原版曲名，剔除虚拟歌手条目，按曲名 + 歌手去重后取前 1000 首。</p>
+      <div class="pj-note-box">这一栏的曲目<strong>不进入可弹奏简谱曲库</strong>，也不参与左侧 1000 首的调性/难度统计；它们有自己独立的统计面板。如果你拥有某批曲谱的合法授权，把它们给我，我可以批量转换成真正可弹奏、可打印的双手简谱并合并进曲库。</div>
+
+      <h3>隐私与依赖</h3>
+      <p>纯前端、零外部 CDN、零网络请求。收藏与筛选状态只存在浏览器 localStorage，试听使用 Web Audio 本地合成，不上传任何数据。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 详情 -->
+<div class="pj-modal" id="modal">
+  <div class="pj-mask" id="mask"></div>
+  <div class="pj-sheet" id="sheet"></div>
+</div>
+
+<script src="./chinese.js"></script>
+<script src="./data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = window.JIANPU_DATA, T = (D && D.tunes) || [];
+  var CD = window.JIANPU_CN, CN = (CD && CD.songs) || [];
+  var PC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); };
+  var fmt = function (n) { return (n || 0).toLocaleString('zh-CN'); };
+
+  var S = { q:'', type:'', key:'', meter:'', diff:'', sort:'hot', favOnly:false, page:1,
+            per:24, shift:0, bpm:96, showLH:true, cur:null, playing:false };
+  var SC = { q:'', singer:'', sort:'pl', page:1, per:24 };
+  var favs = {};
+  try { favs = JSON.parse(localStorage.getItem('pj-favs') || '{}'); } catch (e) { favs = {}; }
+  var saveFavs = function () { try { localStorage.setItem('pj-favs', JSON.stringify(favs)); } catch (e) {} };
+
+  /* ---------- 通用 ---------- */
+  function uniqSorted(arr) {
+    var m = {}; arr.forEach(function (x) { m[x] = (m[x] || 0) + 1; });
+    return Object.keys(m).sort(function (a,b) { return m[b]-m[a] || a.localeCompare(b); });
+  }
+  function keyRoot(k) { var m = /^([A-G][#b]?)/.exec(k || 'C'); return m ? m[1] : 'C'; }
+  function keyMode(k) {
+    k = (k || '').toLowerCase();
+    if (k.indexOf('min') >= 0 || k.indexOf('aeol') >= 0) return '小调';
+    if (k.indexOf('dor') >= 0) return '多利亚';
+    if (k.indexOf('mix') >= 0) return '混合利底亚';
+    if (k.indexOf('phr') >= 0) return '弗里几亚';
+    if (k.indexOf('lyd') >= 0) return '利底亚';
+    return '大调';
+  }
+  function opts(el, list, allLabel) {
+    el.innerHTML = '<option value="">' + allLabel + '</option>' + list.map(function (v) {
+      return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join('');
+  }
+
+  /* ---------- 首调换算 ---------- */
+  function midiToJp(midi, tp, pat) {
+    var pc = ((midi % 12) + 12) % 12, best = 0, bd = 99;
+    for (var d = 0; d < 7; d++) {
+      var e = (tp + pat[d]) % 12;
+      var diff = ((pc - e) % 12 + 12) % 12; if (diff > 6) diff -= 12;
+      if (Math.abs(diff) < Math.abs(bd)) { bd = diff; best = d; }
+    }
+    var deg4 = 60 + tp + pat[best];
+    return { d: best + 1, acc: bd, oct: Math.round((midi - deg4) / 12) };
+  }
+  function durInfo(t) {
+    if (t >= 16) return { dashes:3, ul:0, dotted:false };
+    if (t >= 12) return { dashes:2, ul:0, dotted:false };
+    if (t >= 8)  return { dashes:1, ul:0, dotted:false };
+    if (t === 6) return { dashes:0, ul:0, dotted:true };
+    if (t === 4) return { dashes:0, ul:0, dotted:false };
+    if (t === 3) return { dashes:0, ul:1, dotted:true };
+    if (t === 2) return { dashes:0, ul:1, dotted:false };
+    if (t === 1) return { dashes:0, ul:2, dotted:false };
+    var o = [1,2,3,4,6,8,12,16], best = o[0];
+    o.forEach(function (x) { if (Math.abs(x-t) < Math.abs(best-t)) best = x; });
+    return durInfo(best);
+  }
+  function parseSeq(seq) {
+    var bars = [], cur = { notes:[], sr:false, er:false };
+    seq.split(' ').forEach(function (tk) {
+      if (!tk) return;
+      if (tk === '|') { if (cur.notes.length) bars.push(cur); cur = { notes:[], sr:false, er:false }; }
+      else if (tk === '|:') { if (cur.notes.length) bars.push(cur); cur = { notes:[], sr:true, er:false }; }
+      else if (tk === ':|') { cur.er = true; if (cur.notes.length) bars.push(cur); cur = { notes:[], sr:false, er:false }; }
+      else if (tk.indexOf('R/') === 0) cur.notes.push({ rest:true, ticks:+tk.slice(2) });
+      else { var p = tk.split('/'); cur.notes.push({ rest:false, midi:+p[0], ticks:+p[1] }); }
+    });
+    if (cur.notes.length) bars.push(cur);
+    return bars;
+  }
+
+  /* ---------- 列表 ---------- */
+  function filtered() {
+    var q = S.q.trim().toLowerCase();
+    var r = T.filter(function (t) {
+      if (q && (t.n + ' ' + (t.a || []).join(' ')).toLowerCase().indexOf(q) < 0) return false;
+      if (S.type && t.tz !== S.type) return false;
+      if (S.key && keyRoot(t.k) !== S.key) return false;
+      if (S.meter && t.m !== S.meter) return false;
+      if (S.diff && t.d !== +S.diff) return false;
+      if (S.favOnly && !favs[t.id]) return false;
+      return true;
+    });
+    var cmp = {
+      hot:   function (a,b) { return b.tb - a.tb || a.id - b.id; },
+      diff:  function (a,b) { return a.d - b.d || b.tb - a.tb; },
+      diffd: function (a,b) { return b.d - a.d || b.tb - a.tb; },
+      notes: function (a,b) { return a.st.notes - b.st.notes; },
+      range: function (a,b) { return a.st.range - b.st.range; },
+      name:  function (a,b) { return a.n.localeCompare(b.n); }
+    }[S.sort];
+    return r.sort(cmp);
+  }
+  function renderList() {
+    var list = filtered(), pages = Math.max(1, Math.ceil(list.length / S.per));
+    if (S.page > pages) S.page = pages;
+    $('count').innerHTML = '共匹配 <b>' + fmt(list.length) + '</b> 首 · 第 ' + S.page + ' / ' + pages + ' 页';
+    var start = (S.page - 1) * S.per, slice = list.slice(start, start + S.per);
+    if (!slice.length) { $('grid').innerHTML = '<div class="pj-empty">没有匹配的曲谱，试试放宽筛选条件。</div>'; $('pager').innerHTML = ''; return; }
+    $('grid').innerHTML = slice.map(function (t) {
+      return '<div class="pj-card" data-id="' + t.id + '">' +
+        '<button class="pj-fav ' + (favs[t.id] ? 'on' : '') + '" data-fav="' + t.id + '" title="收藏">' + (favs[t.id] ? '★' : '☆') + '</button>' +
+        '<h3>' + esc(t.n) + '</h3>' +
+        '<div class="pj-sub">' + esc(t.tz) + ' · ' + esc(t.k) + ' · ' + esc(t.m) + ' · ' + t.st.bars + ' 小节</div>' +
+        '<div class="pj-tags"><span class="pj-tag t1">难度 ' + t.d + '/5</span>' +
+        '<span class="pj-tag t2">' + t.st.notes + ' 音</span>' +
+        '<span class="pj-tag t3">收录 ' + fmt(t.tb) + '</span></div></div>';
+    }).join('');
+    var btns = '<button data-pg="' + (S.page-1) + '"' + (S.page<=1?' disabled':'') + '>上一页</button>' +
+      '<span>' + S.page + ' / ' + pages + '</span>' +
+      '<button data-pg="' + (S.page+1) + '"' + (S.page>=pages?' disabled':'') + '>下一页</button>';
+    $('pager').innerHTML = btns;
+  }
+
+  /* ---------- 详情 ---------- */
+  function noteHtml(n, tp, pat, shift, idx, isBass) {
+    var di = durInfo(n.ticks);
+    var body, cls = 'pj-note' + (di.ul === 1 ? ' u1' : di.ul === 2 ? ' u2' : '');
+    if (n.rest) body = '<span class="pj-num">0</span>';
+    else {
+      var j = midiToJp(n.midi + shift, tp, pat);
+      var acc = j.acc > 0 ? '<span class="pj-acc">♯</span>' : j.acc < 0 ? '<span class="pj-acc">♭</span>' : '';
+      var dots = '';
+      if (j.oct > 0) dots += '<span class="pj-dots up">' + '•'.repeat(Math.min(3, j.oct)) + '</span>';
+      if (j.oct < 0) dots += '<span class="pj-dots down">' + '•'.repeat(Math.min(3, -j.oct)) + '</span>';
+      body = dots + '<span class="pj-num">' + acc + j.d + '</span>' + (di.dotted ? '<span class="pj-dot">·</span>' : '');
+    }
+    var ext = '';
+    for (var i = 0; i < di.dashes; i++) ext += '<span class="pj-ext">－</span>';
+    return '<span class="' + cls + '" data-i="' + idx + '">' + body + '</span>' + ext;
+  }
+  function scoreHtml(t) {
+    var tp = (t.tp + S.shift % 12 + 12) % 12, pat = t.pat, bars = parseSeq(t.seq);
+    var keyLabel = '1=' + PC[tp];
+    var groups = [], g = [];
+    bars.forEach(function (b, i) { g.push([b, i]); if (g.length === 4) { groups.push(g); g = []; } });
+    if (g.length) groups.push(g);
+    var html = '<div class="pj-paper" id="scorePaper">' +
+      '<div class="pj-paper-title">' + esc(t.n) + '</div>' +
+      '<div class="pj-paper-sub"><span>' + esc(keyLabel) + '（' + esc(keyMode(t.k)) + '）</span><span>' + esc(t.m) + '</span>' +
+      '<span>♩ = ' + S.bpm + '</span><span>难度 ' + t.d + '/5</span><span>' + esc(t.tz) + '</span>' +
+      (S.shift ? '<span>移调 ' + (S.shift > 0 ? '+' : '') + S.shift + ' 半音</span>' : '') + '</div>';
+    var acc = 0;
+    groups.forEach(function (grp) {
+      html += '<div class="pj-line">';
+      grp.forEach(function (pair, gi) {
+        var b = pair[0], bi = pair[1];
+        var chord = (t.ch && t.ch[bi % t.ch.length]) || '';
+        html += '<div class="pj-barbox' + (gi === 0 ? ' first' : '') + '">';
+        html += '<div class="pj-chord">' + esc(chord) + '</div>';
+        html += '<div class="pj-notes">';
+        if (b.sr) html += '<span class="pj-repeat">‖:</span>';
+        b.notes.forEach(function (n) { html += noteHtml(n, tp, pat, S.shift, acc++, false); });
+        if (b.er) html += '<span class="pj-repeat">:‖</span>';
+        html += '</div>';
+        if (S.showLH && t.bass && t.bass.length) {
+          var bs = t.bass[bi % t.bass.length];
+          var total = b.notes.reduce(function (s, n) { return s + n.ticks; }, 0) || 8;
+          html += '<div class="pj-bass">' +
+            noteHtml({ rest:false, midi:bs[0], ticks:Math.round(total/2) }, tp, pat, S.shift, -1, true) +
+            noteHtml({ rest:false, midi:bs[1], ticks:Math.round(total/2) }, tp, pat, S.shift, -1, true) +
+            '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    html += '<div class="pj-legend">数字 1–7 为首调唱名；数字上/下方的圆点表示高/低八度；下划线表示八分、十六分音符；「－」为延长一拍；0 为休止；♯/♭ 为变化音。紫色为和弦标记，蓝色为左手伴奏低音，‖: :‖ 为反复。</div>';
+    html += '<div class="pj-src">来源：<a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.url) + '</a> · 记谱者 ' + esc(t.by || '社区会员') + ' · 公有领域传统曲调</div>';
+    html += '</div>';
+    return html;
+  }
+  function openDetail(id) {
+    var t = null;
+    for (var i = 0; i < T.length; i++) if (T[i].id === +id) { t = T[i]; break; }
+    if (!t) return;
+    S.cur = t; S.shift = 0; stopPlay();
+    var meta = [
+      ['调性', t.k], ['拍号', t.m], ['曲式', t.tz], ['难度', t.d + ' / 5'],
+      ['小节', t.st.bars], ['音符', t.st.notes], ['音域', t.st.range + ' 半音'],
+      ['大跳', Math.round(t.st.leap * 100) + '%'], ['被收录', fmt(t.tb)],
+      ['录音数', fmt(t.rc)], ['记谱者', t.by || '社区会员'], ['提交日期', t.dt || '—']
+    ];
+    $('sheet').innerHTML =
+      '<div class="pj-sheet-head"><div><h2>' + esc(t.n) + '</h2>' +
+      '<div class="pj-alias">' + ((t.a && t.a.length) ? '别名：' + esc(t.a.join(' / ')) : esc(keyMode(t.k)) + ' · 公有领域传统曲调') + '</div></div>' +
+      '<button class="pj-close" id="closeBtn" title="关闭">×</button></div>' +
+      '<div class="pj-meta">' + meta.map(function (m) { return '<span>' + esc(m[0]) + ' <b>' + esc(m[1]) + '</b></span>'; }).join('') + '</div>' +
+      '<div class="pj-ctrls">' +
+        '<button class="pj-btn primary" id="playBtn">▶ 试听</button>' +
+        '<div class="pj-ctl">速度 <input type="range" id="bpm" min="50" max="180" step="2" value="' + S.bpm + '"><b id="bpmV">' + S.bpm + '</b></div>' +
+        '<div class="pj-ctl">移调 <button class="pj-step" id="down">−</button><b id="shiftV">0</b><button class="pj-step" id="up">+</button></div>' +
+        '<button class="pj-btn on" id="lhBtn">左手伴奏</button>' +
+        '<button class="pj-btn" id="favBtn">' + (favs[t.id] ? '★ 已收藏' : '☆ 收藏') + '</button>' +
+        '<button class="pj-btn" id="copyBtn">复制简谱</button>' +
+        '<button class="pj-btn" id="dlBtn">下载 TXT</button>' +
+        '<button class="pj-btn" id="printBtn">打印 / PDF</button>' +
+      '</div><div id="scoreHost">' + scoreHtml(t) + '</div>';
+    $('modal').classList.add('on');
+    document.body.style.overflow = 'hidden';
+    bindDetail(t);
+  }
+  function refreshScore() {
+    if (!S.cur) return;
+    stopPlay();
+    $('scoreHost').innerHTML = scoreHtml(S.cur);
+  }
+  function closeDetail() {
+    stopPlay(); $('modal').classList.remove('on'); document.body.style.overflow = ''; S.cur = null;
+  }
+  function bindDetail(t) {
+    $('closeBtn').onclick = closeDetail;
+    $('playBtn').onclick = function () { S.playing ? stopPlay() : playScore(t); };
+    $('bpm').oninput = function () { S.bpm = +this.value; $('bpmV').textContent = S.bpm; if (S.playing) { stopPlay(); playScore(t); } else refreshScore(); };
+    $('up').onclick = function () { S.shift = Math.min(12, S.shift + 1); $('shiftV').textContent = S.shift; refreshScore(); };
+    $('down').onclick = function () { S.shift = Math.max(-12, S.shift - 1); $('shiftV').textContent = S.shift; refreshScore(); };
+    $('lhBtn').onclick = function () { S.showLH = !S.showLH; this.classList.toggle('on', S.showLH); refreshScore(); };
+    $('favBtn').onclick = function () { favs[t.id] ? delete favs[t.id] : favs[t.id] = 1; saveFavs(); this.textContent = favs[t.id] ? '★ 已收藏' : '☆ 收藏'; renderList(); };
+    $('copyBtn').onclick = function () { copyText(plainScore(t), this); };
+    $('dlBtn').onclick = function () {
+      var blob = new Blob([plainScore(t)], { type:'text/plain;charset=utf-8' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = '简谱-' + t.n.replace(/[^\w\u4e00-\u9fa5-]/g, '_') + '.txt'; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    };
+    $('printBtn').onclick = function () { window.print(); };
+  }
+  function plainScore(t) {
+    var tp = (t.tp + S.shift % 12 + 12) % 12, bars = parseSeq(t.seq), lines = [];
+    lines.push(t.n);
+    lines.push('1=' + PC[tp] + '  ' + t.m + '  ♩=' + S.bpm + '  难度 ' + t.d + '/5  ' + t.tz);
+    lines.push('（高八度用 ^ 前缀，低八度用 v 前缀；- 延长一拍；_ 为八分音符；0 休止）');
+    bars.forEach(function (b, i) {
+      var parts = [];
+      if (b.sr) parts.push('|:');
+      b.notes.forEach(function (n) {
+        if (n.rest) { parts.push('0'); return; }
+        var j = midiToJp(n.midi + S.shift, tp, t.pat);
+        var mark = j.oct > 0 ? '^'.repeat(Math.min(2, j.oct)) : j.oct < 0 ? 'v'.repeat(Math.min(2, -j.oct)) : '';
+        var a = j.acc > 0 ? '#' : j.acc < 0 ? 'b' : '';
+        var s = mark + a + j.d;
+        if (n.ticks <= 2) s += '_';
+        if (n.ticks >= 8) s += ' -'.repeat(Math.min(3, Math.round(n.ticks / 4) - 1));
+        parts.push(s);
+      });
+      if (b.er) parts.push(':|');
+      lines.push((t.ch && t.ch[i % t.ch.length] ? '[' + t.ch[i % t.ch.length] + '] ' : '') + parts.join(' ') + ' |');
+    });
+    lines.push('');
+    lines.push('来源：' + t.url + ' · 记谱者：' + (t.by || '社区会员') + ' · 公有领域传统曲调');
+    return lines.join('\n');
+  }
+  function copyText(txt, btn) {
+    var done = function () { var old = btn.textContent; btn.textContent = '✓ 已复制'; setTimeout(function () { btn.textContent = old; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function(){ fallback(); });
+    else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(ta);
+    }
+  }
+
+  /* ---------- 试听 ---------- */
+  var actx = null, oscs = [], timer = null;
+  function freq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function tone(ctx, when, dur, hz, type, vol) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = hz;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(vol, when + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.05, dur * 0.92));
+    o.connect(g); g.connect(ctx.destination);
+    o.start(when); o.stop(when + Math.max(0.06, dur));
+    oscs.push(o);
+  }
+  function playScore(t) {
+    stopPlay();
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    var bars = parseSeq(t.seq), sp = 60 / S.bpm / 4, time = 0, marks = [], total = 0;
+    bars.forEach(function (b, bi) {
+      var start = time, sum = 0;
+      b.notes.forEach(function (n, ni) {
+        if (!n.rest) { tone(actx, actx.currentTime + time, n.ticks * sp, freq(n.midi + S.shift), 'triangle', 0.11);
+          marks.push({ t:time, i:bi + '-' + ni }); }
+        time += n.ticks * sp; sum += n.ticks * sp;
+      });
+      if (S.showLH && t.bass && t.bass.length) {
+        var bs = t.bass[bi % t.bass.length];
+        tone(actx, actx.currentTime + start, sum * 0.48, freq(bs[0] + S.shift), 'sine', 0.055);
+        tone(actx, actx.currentTime + start + sum * 0.5, sum * 0.48, freq(bs[1] + S.shift), 'sine', 0.05);
+      }
+      total = time;
+    });
+    S.playing = true; $('playBtn').textContent = '■ 停止';
+    var t0 = performance.now(), p = 0;
+    var nodes = {};
+    Array.prototype.forEach.call(document.querySelectorAll('#scoreHost .pj-note[data-i]'), function (el) { nodes[el.getAttribute('data-i')] = el; });
+    (function tick() {
+      if (!S.playing) return;
+      var el = (performance.now() - t0) / 1000;
+      while (p < marks.length - 1 && marks[p + 1].t <= el) p++;
+      Object.keys(nodes).forEach(function (k) { nodes[k].classList.remove('playing'); });
+      if (marks[p] && nodes[marks[p].i]) nodes[marks[p].i].classList.add('playing');
+      if (el < total + 0.2) timer = requestAnimationFrame(tick);
+      else stopPlay();
+    })();
+  }
+  function stopPlay() {
+    S.playing = false;
+    if (timer) { cancelAnimationFrame(timer); timer = null; }
+    oscs.forEach(function (o) { try { o.stop(); } catch (e) {} });
+    oscs = [];
+    if (actx) { try { actx.close(); } catch (e) {} actx = null; }
+    var b = $('playBtn'); if (b) b.textContent = '▶ 试听';
+    Array.prototype.forEach.call(document.querySelectorAll('.pj-note.playing'), function (el) { el.classList.remove('playing'); });
+  }
+
+  /* ---------- 分析数据 ---------- */
+  function counter(arr) { var m = {}; arr.forEach(function (x) { m[x] = (m[x] || 0) + 1; }); return m; }
+  function topN(m, n) { return Object.keys(m).map(function (k) { return [k, m[k]]; }).sort(function (a,b) { return b[1]-a[1]; }).slice(0, n); }
+  function chart(title, hint, entries, cls) {
+    var max = Math.max.apply(null, entries.map(function (e) { return e[1]; }).concat([1]));
+    return '<div class="pj-chart"><h3>' + esc(title) + '</h3><div class="pj-hint">' + esc(hint) + '</div>' +
+      entries.map(function (e) {
+        return '<div class="pj-row"><div class="pj-lb" title="' + esc(e[0]) + '">' + esc(e[0]) + '</div>' +
+          '<div class="pj-track"><div class="pj-fill ' + (cls || '') + '" style="width:' + (e[1]/max*100).toFixed(1) + '%"></div></div>' +
+          '<div class="pj-vl">' + fmt(e[1]) + '</div></div>';
+      }).join('') + '</div>';
+  }
+  function bucket(v, edges, labels) {
+    for (var i = 0; i < edges.length; i++) if (v < edges[i]) return labels[i];
+    return labels[labels.length - 1];
+  }
+  function renderAnalytics() {
+    if (!T.length) return;
+    var notes = T.reduce(function (s,t) { return s + t.st.notes; }, 0);
+    var bars = T.reduce(function (s,t) { return s + t.st.bars; }, 0);
+    var avgD = (T.reduce(function (s,t) { return s + t.d; }, 0) / T.length).toFixed(2);
+    var diff = counter(T.map(function (t) { return '难度 ' + t.d; }));
+    var meters = counter(T.map(function (t) { return t.m; }));
+    var keys = counter(T.map(function (t) { return '1=' + keyRoot(t.k); }));
+    var modes = counter(T.map(function (t) { return keyMode(t.k); }));
+    var types = counter(T.map(function (t) { return t.tz; }));
+    var ranges = counter(T.map(function (t) { return bucket(t.st.range, [10,15,20,25,100], ['<10 半音','10–14','15–19','20–24','≥25']); }));
+    var lens = counter(T.map(function (t) { return bucket(t.st.notes, [50,100,150,200,10000], ['<50 音','50–99','100–149','150–199','≥200']); }));
+    var hot = T.slice().sort(function (a,b) { return b.tb - a.tb; }).slice(0, 15);
+
+    var kpis = [
+      [fmt(T.length), '曲谱总数'], [fmt(notes), '音符总数'], [fmt(bars), '小节总数'],
+      [(notes/T.length).toFixed(1), '平均每首音符'], [avgD, '平均难度'],
+      [Object.keys(keys).length + ' 种', '调性种类'], [Object.keys(types).length + ' 种', '曲式种类'],
+      [fmt(T.reduce(function (s,t) { return s + t.tb; }, 0)), '累计被收录次数']
+    ];
+    $('aKpis').innerHTML = kpis.map(function (k) { return '<div class="pj-akpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
+
+    var dArr = [1,2,3,4,5].map(function (d) { return ['难度 ' + d, diff['难度 ' + d] || 0]; });
+    var rangeOrder = ['<10 半音','10–14','15–19','20–24','≥25'].map(function (k) { return [k, ranges[k] || 0]; });
+    var lenOrder = ['<50 音','50–99','100–149','150–199','≥200'].map(function (k) { return [k, lens[k] || 0]; });
+    $('charts').innerHTML = [
+      chart('难度分布', '综合音乐特征打分后按全库五分位分级，每档约 20%', dArr, ''),
+      chart('调性分布（首调主音）', '按 1=X 统计，反映曲库调性重心', topN(keys, 12), 'c2'),
+      chart('拍号分布', '舞曲类型决定的拍号构成', topN(meters, 8), 'c3'),
+      chart('曲式分布', '里尔 / 吉格 / 号管等传统舞曲类型', topN(types, 10), 'c2'),
+      chart('调式分布', '大调 / 小调 / 多利亚 / 混合利底亚', topN(modes, 8), ''),
+      chart('音域跨度分布', '最高音与最低音之间的半音数', rangeOrder, 'c3'),
+      chart('每首音符数分布', '篇幅长短，可作练琴时长参考', lenOrder, 'c2'),
+      chart('记谱年代分布', '曲调条目首次提交到社区的年份', topN(counter(T.map(function (t) { return (t.dt || '未知').slice(0,4); })), 10), '')
+    ].join('');
+
+    $('topBody').innerHTML = hot.map(function (t, i) {
+      return '<tr><td>' + (i+1) + '</td><td><b>' + esc(t.n) + '</b></td><td>' + esc(t.tz) + '</td><td>' + esc(t.k) + '</td><td>' + t.d + '/5</td><td class="num">' + fmt(t.tb) + '</td></tr>';
+    }).join('');
+
+    var topMeter = topN(meters, 1)[0], topDiff = Object.keys(diff).sort(function (a,b) { return diff[b]-diff[a]; })[0];
+    var topKey = topN(keys, 1)[0];
+    $('insightList').innerHTML = [
+      '最常见的拍号是 <b>' + topMeter[0] + '</b>（' + topMeter[1] + ' 首，占 ' + (topMeter[1]/T.length*100).toFixed(1) + '%），符合传统舞曲以 4/4 与 6/8 为主的形态。',
+      '难度按综合特征分做五分位分级，<b>' + topDiff + '</b> 有 ' + diff[topDiff] + ' 首；平均难度 <b>' + avgD + '</b>，1–5 档各约 200 首，可按水平循序渐进。',
+      '调性重心为 <b>' + topKey[0] + '</b>（' + topKey[1] + ' 首），共出现 ' + Object.keys(keys).length + ' 种主音，可用「移调」功能统一到常用调练习。',
+      '热度榜首 <b>' + esc(hot[0].n) + '</b> 被社区收录 ' + fmt(hot[0].tb) + ' 次；全库累计被收录 ' + fmt(T.reduce(function (s,t) { return s+t.tb; },0)) + ' 次。',
+      '全库共 ' + fmt(notes) + ' 个音符、' + fmt(bars) + ' 个小节，平均每首 ' + (notes/T.length).toFixed(1) + ' 个音符、' + (bars/T.length).toFixed(1) + ' 个小节。'
+    ].map(function (s) { return '<li>' + s + '</li>'; }).join('');
+  }
+
+  /* ---------- 中文热曲目录 ---------- */
+  var cnRankMap = {};
+  function cnArtist(x) { return (x.a || '').split('|')[0]; }
+  function buildCnRank() {
+    CN.slice().sort(function (a,b) { return b.pl - a.pl || b.w - a.w; })
+      .forEach(function (x,i) { cnRankMap[x.id] = i + 1; });
+  }
+  function cnFiltered() {
+    var q = SC.q.trim().toLowerCase();
+    var r = CN.filter(function (x) {
+      if (q && (x.n + ' ' + x.a).toLowerCase().indexOf(q) < 0) return false;
+      if (SC.singer && cnArtist(x) !== SC.singer) return false;
+      return true;
+    });
+    var cmp = {
+      pl:   function (a,b) { return b.pl - a.pl || b.w - a.w || a.id - b.id; },
+      h:    function (a,b) { return b.h - a.h || b.pl - a.pl; },
+      len:  function (a,b) { return a.n.length - b.n.length || b.pl - a.pl; },
+      name: function (a,b) { return a.n.localeCompare(b.n, 'zh-CN'); }
+    }[SC.sort];
+    return r.sort(cmp);
+  }
+  function renderCN() {
+    var list = cnFiltered(), pages = Math.max(1, Math.ceil(list.length / SC.per));
+    if (SC.page > pages) SC.page = pages;
+    $('cnCount').innerHTML = '共匹配 <b>' + fmt(list.length) + '</b> 首 · 第 ' + SC.page + ' / ' + pages + ' 页';
+    var st = (SC.page - 1) * SC.per, sl = list.slice(st, st + SC.per);
+    if (!sl.length) {
+      $('cnGrid').innerHTML = '<div class="pj-empty">没有匹配的曲目，换个关键词试试。</div>';
+      $('cnPager').innerHTML = ''; return;
+    }
+    $('cnGrid').innerHTML = sl.map(function (x) {
+      var play = 'https://music.163.com/#/song?id=' + x.id;
+      var find = 'https://www.bing.com/search?q=' + encodeURIComponent(x.n + ' ' + cnArtist(x) + ' 钢琴简谱');
+      return '<div class="pj-card" style="cursor:default">' +
+        '<span class="pj-rank">#' + (cnRankMap[x.id] || '-') + '</span>' +
+        '<h3 style="padding-right:44px">' + esc(x.n) + '</h3>' +
+        '<div class="pj-sub">' + esc(cnArtist(x)) + '</div>' +
+        '<div class="pj-tags"><span class="pj-tag t1">歌单收录 ' + x.pl + '</span>' +
+        '<span class="pj-tag t2">站内热度 ' + x.h + '</span>' +
+        '<span class="pj-tag t3">目录 · 不含谱</span></div>' +
+        '<div class="pj-links"><a href="' + esc(play) + '" target="_blank" rel="noopener">▶ 网易云试听</a>' +
+        '<a class="hi" href="' + esc(find) + '" target="_blank" rel="noopener">找钢琴谱 ↗</a></div></div>';
+    }).join('');
+    $('cnPager').innerHTML = '<button data-cpg="' + (SC.page-1) + '"' + (SC.page<=1?' disabled':'') + '>上一页</button>' +
+      '<span>' + SC.page + ' / ' + pages + '</span>' +
+      '<button data-cpg="' + (SC.page+1) + '"' + (SC.page>=pages?' disabled':'') + '>下一页</button>';
+  }
+  function renderCNAnalytics() {
+    if (!CN.length) return;
+    var artists = counter(CN.map(cnArtist));
+    var totalPl = CN.reduce(function (s,x) { return s + x.pl; }, 0);
+    var high = CN.filter(function (x) { return x.h >= 90; }).length;
+    var pure = CN.filter(function (x) { return /^[\u4e00-\u9fff]+$/.test(x.n); }).length;
+    var kpis = [
+      [fmt(CN.length), '中文热曲'], [Object.keys(artists).length + ' 位', '歌手数'],
+      [fmt(totalPl), '累计歌单收录'], [(totalPl/CN.length).toFixed(1), '平均收录次数'],
+      [Math.round(high/CN.length*100) + '%', '站内热度 ≥90'],
+      [Math.round(pure/CN.length*100) + '%', '纯中文曲名']
+    ];
+    $('cnKpis').innerHTML = kpis.map(function (k) {
+      return '<div class="pj-akpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
+
+    var plLabels = ['4 次','5–7','8–11','12–19','≥20'];
+    var plDist = counter(CN.map(function (x) { return bucket(x.pl, [5,8,12,20,10000], plLabels); }));
+    var lenLabels = ['1–3 字','4–5 字','6–8 字','9 字以上'];
+    var lenDist = counter(CN.map(function (x) { return bucket(x.n.length, [4,6,9,10000], lenLabels); }));
+    var kindDist = counter(CN.map(function (x) {
+      if (/[A-Za-z]/.test(x.n)) return '含英文';
+      if (/[0-9]/.test(x.n)) return '含数字';
+      if (/[，。！？、：；,.!?]/.test(x.n)) return '含标点';
+      return '纯中文';
+    }));
+    $('cnCharts').innerHTML = [
+      chart('歌单收录次数分布', '被多少个热门歌单收录，是本节的热度依据', plLabels.map(function (k) { return [k, plDist[k]||0]; }), 'c2'),
+      chart('站内热度档分布', '网易云原始热度分档（5–100）', topN(counter(CN.map(function (x) { return '热度 ' + x.h; })), 10), ''),
+      chart('高产歌手 Top 12', '入选曲目数最多的华语歌手', topN(artists, 12), 'c3'),
+      chart('曲名字数分布', '中文热曲的命名长度', lenLabels.map(function (k) { return [k, lenDist[k]||0]; }), 'c2'),
+      chart('曲名构成', '纯中文 / 含英文 / 含数字 / 含标点', topN(kindDist, 6), '')
+    ].join('');
+
+    var top = CN.slice().sort(function (a,b) { return b.pl - a.pl || b.w - a.w; }).slice(0, 20);
+    $('cnTopBody').innerHTML = top.map(function (x,i) {
+      return '<tr><td>' + (i+1) + '</td><td><b>' + esc(x.n) + '</b></td><td>' + esc(cnArtist(x)) + '</td>' +
+        '<td class="num">' + x.pl + '</td><td class="num">' + x.h + '</td></tr>'; }).join('');
+  }
+
+  /* ---------- 初始化 ---------- */
+  function init() {
+    if (!T.length) { $('count').textContent = '数据未载入'; return; }
+    $('heroKpis').innerHTML = [
+      [fmt(T.length) + ' 首', '精选曲谱'],
+      [fmt(T.reduce(function (s,t) { return s + t.st.notes; }, 0)), '可弹奏音符'],
+      [Object.keys(counter(T.map(function (t) { return keyRoot(t.k); }))).length + ' 种', '调性'],
+      [Object.keys(counter(T.map(function (t) { return t.tz; }))).length + ' 种', '曲式'],
+      [fmt(CN.length) + ' 首', '中文热曲目录'],
+      ['公有领域', '可弹奏谱版权']
+    ].map(function (k) { return '<div class="pj-kpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
+
+    opts($('ftype'), uniqSorted(T.map(function (t) { return t.tz; })), '全部曲式');
+    opts($('fkey'), uniqSorted(T.map(function (t) { return keyRoot(t.k); })), '全部调性');
+    opts($('fmeter'), uniqSorted(T.map(function (t) { return t.m; })), '全部拍号');
+    opts($('fdiff'), ['1','2','3','4','5'], '全部难度');
+    opts($('cnsinger'), uniqSorted(CN.map(cnArtist)), '全部歌手');
+    buildCnRank();
+    renderList(); renderAnalytics(); renderCN(); renderCNAnalytics();
+  }
+
+  /* ---------- 事件 ---------- */
+  $('fq').addEventListener('input', function () { S.q = this.value; S.page = 1; renderList(); });
+  ['ftype','fkey','fmeter','fdiff','fsort'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      S[id.slice(1)] = this.value; S.page = 1; renderList();
+    });
+  });
+  $('favOnly').onclick = function () { S.favOnly = !S.favOnly; this.classList.toggle('on', S.favOnly); S.page = 1; renderList(); };
+  $('lhDefault').onclick = function () { S.showLH = !S.showLH; this.classList.toggle('on', S.showLH); this.textContent = '左手伴奏：' + (S.showLH ? '显示' : '隐藏'); };
+  $('grid').addEventListener('click', function (e) {
+    var f = e.target.closest('[data-fav]');
+    if (f) { var id = f.getAttribute('data-fav'); favs[id] ? delete favs[id] : favs[id] = 1; saveFavs(); renderList(); return; }
+    var c = e.target.closest('.pj-card'); if (c) openDetail(c.getAttribute('data-id'));
+  });
+  $('pager').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-pg]'); if (!b || b.disabled) return;
+    S.page = +b.getAttribute('data-pg'); renderList(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  $('cnq').addEventListener('input', function () { SC.q = this.value; SC.page = 1; renderCN(); });
+  $('cnsinger').addEventListener('change', function () { SC.singer = this.value; SC.page = 1; renderCN(); });
+  $('cnsort').addEventListener('change', function () { SC.sort = this.value; SC.page = 1; renderCN(); });
+  $('cnPager').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cpg]'); if (!b || b.disabled) return;
+    SC.page = +b.getAttribute('data-cpg'); renderCN(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  $('mask').onclick = closeDetail;
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDetail(); });
+  document.querySelectorAll('.pj-tab').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('.pj-tab').forEach(function (x) { x.classList.remove('on'); });
+      document.querySelectorAll('.pj-pane').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); $('pane-' + b.getAttribute('data-tab')).classList.add('on');
+    };
+  });
+  $('themeBtn').onclick = function () {
+    var el = document.documentElement, next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    el.setAttribute('data-theme', next); try { localStorage.setItem('xinmo-theme', next); } catch (e) {}
+  };
+  init();
+})();
+</script>
+</body>
+</html>
