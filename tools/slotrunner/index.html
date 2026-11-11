@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="SlotRunner · 抢位助手：通用、合规的定时任务与表单自动填报配置调度中心。">
+  <title>SlotRunner · 抢位助手</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <!-- 访问控制守卫（由 deploy/inject_guard.py 注入） -->
+<meta name="robots" content="noindex, nofollow" />
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+</head>
+<body data-theme="light">
+
+<div class="app-shell">
+
+  <!-- ===================== 顶部常驻状态栏 ===================== -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+        </svg>
+      </span>
+      <span class="topbar__title">SlotRunner</span>
+      <span class="topbar__sub">抢位助手</span>
+    </div>
+
+    <div class="topbar__center">
+      <span class="topbar__clock" id="topbar-clock" title="当前时间">--:--:--</span>
+      <span class="topbar__status" id="topbar-engine"></span>
+      <span class="topbar__status" id="topbar-compliance" data-action="nav" data-view="help" role="button" tabindex="0" title="点击查看帮助与合规"></span>
+    </div>
+
+    <div class="topbar__actions">
+      <button type="button" class="btn btn--ghost btn--sm" data-action="toggle-theme" id="topbar-theme-btn" title="切换主题">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+        <span id="topbar-theme-label">深色</span>
+      </button>
+      <button type="button" class="btn btn--primary btn--sm" data-action="task-new">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        新建任务
+      </button>
+    </div>
+  </header>
+
+  <div class="body-wrap">
+
+    <!-- ===================== 左侧导航（8 项） ===================== -->
+    <aside class="sidebar">
+      <nav class="nav" aria-label="主导航">
+
+        <button type="button" class="nav-item nav-item--active" data-action="nav" data-view="dashboard">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></span>
+          <span class="nav-item__label">任务中心</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="adapters">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"></path><circle cx="18" cy="17" r="2"></circle></svg></span>
+          <span class="nav-item__label">适配器</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="templates">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></svg></span>
+          <span class="nav-item__label">表单模板</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="policies">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+          <span class="nav-item__label">调度策略</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="sandbox">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><path d="M7.5 15h9"></path></svg></span>
+          <span class="nav-item__label">演练沙箱</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="logs">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"></path><circle cx="4" cy="6" r="1"></circle><circle cx="4" cy="12" r="1"></circle><circle cx="4" cy="18" r="1"></circle></svg></span>
+          <span class="nav-item__label">日志中心</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="exporter">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg></span>
+          <span class="nav-item__label">脚本导出</span>
+        </button>
+
+        <button type="button" class="nav-item" data-action="nav" data-view="help">
+          <span class="nav-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.2 8 9 4.6-.8 8-4 8-9V6z"></path><path d="M9.5 12a2.5 2.5 0 1 1 3.2 2.4c-.7.2-1.2.9-1.2 1.6v.5"></path><circle cx="12" cy="19" r="0.6" fill="currentColor"></circle></svg></span>
+          <span class="nav-item__label">帮助与合规</span>
+        </button>
+
+      </nav>
+
+      <div class="sidebar__foot">
+        <div class="sidebar__notice">配置与调度中心<br><span>不内置任何真实站点适配器</span></div>
+      </div>
+    </aside>
+
+    <!-- ===================== 主内容：8 个视图容器 ===================== -->
+    <main class="main-content">
+      <section class="view" id="view-dashboard" data-view="dashboard"></section>
+      <section class="view" id="view-adapters"  data-view="adapters"  hidden></section>
+      <section class="view" id="view-templates" data-view="templates" hidden></section>
+      <section class="view" id="view-policies"  data-view="policies"  hidden></section>
+      <section class="view" id="view-sandbox"   data-view="sandbox"   hidden></section>
+      <section class="view" id="view-logs"      data-view="logs"      hidden></section>
+      <section class="view" id="view-exporter"  data-view="exporter"  hidden></section>
+      <section class="view" id="view-help"      data-view="help"      hidden></section>
+    </main>
+
+  </div>
+</div>
+
+<!-- ===================== 全局组件容器 ===================== -->
+<div id="modal-root"></div>
+<div id="confirm-root"></div>
+<div class="toast-root" id="toast-root" aria-live="polite"></div>
+<input type="file" id="config-file-input" accept=".json,application/json" data-action="export-config-file" hidden>
+
+<!-- ===================== 普通脚本按依赖顺序引入（无 ES Module / 无 CDN） ===================== -->
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

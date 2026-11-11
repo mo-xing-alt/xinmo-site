@@ -21,7 +21,7 @@
  *   soon        true 时渲染为「筹备中」占位卡，不需要 url
  * ============================================================ */
 window.RESOURCE_CATALOG = {
-  updated: "2026-11-11",
+  updated: "2026-11-12",
   categories: [
     { id: "study", label: "学习练习" },
     { id: "tool", label: "实用工具" }
@@ -138,6 +138,20 @@ window.RESOURCE_CATALOG = {
       meta: "纯前端 · 单页工具 · 原创模板",
       status: "可用",
       updated: "2026-11-11"
+    },
+    {
+      id: "slotrunner",
+      title: "SlotRunner · 抢位助手",
+      subtitle: "定时调度 · 表单填报 · 演练沙箱",
+      description: "「定时任务 + 表单自动填报」的配置与调度控制台：集中管理任务、通用占位适配器、表单模板与调度策略，并提供日志中心、UserScript 脚本导出以及帮助与合规说明。内置演练沙箱只在本机完整跑通状态机，不访问任何外部站点；实际填表需导出脚本后由用户自行安装到自己的浏览器，在本人已登录的页面上运行。仅用于自己拥有合法权限、且服务条款允许此类自动化操作的系统；不内置任何真实平台适配器，不绕过验证码、人机验证与登录鉴权，轮询间隔下限 1000ms，默认模拟提交且提交前需人工确认。",
+      category: "tool",
+      icon: "tool",
+      accent: "indigo",
+      url: "./tools/slotrunner/index.html",
+      tags: ["定时调度", "表单模板", "演练沙箱", "脚本导出", "纯前端"],
+      meta: "纯前端 · 需登录 · 合规演练",
+      status: "可用",
+      updated: "2026-11-12"
     },
     {
       id: "coming-soon",
