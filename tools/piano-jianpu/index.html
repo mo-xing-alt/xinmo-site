@@ -154,13 +154,6 @@
   .pj-table td b { color: var(--heading); }
   .pj-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 
-  .pj-cnnote { border-left: 3px solid var(--teal); background: var(--teal-soft); border-radius: 0 12px 12px 0; padding: 12px 17px; margin-bottom: 15px; font-size: 12.5px; line-height: 1.85; color: var(--text); }
-  .pj-cnnote b { color: var(--heading); }
-  .pj-rank { position: absolute; right: 12px; top: 12px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; padding: 2px 7px; }
-  .pj-links { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
-  .pj-links a { font-size: 11.5px; border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 8px; padding: 5px 9px; }
-  .pj-links a:hover { color: var(--accent); border-color: var(--accent); }
-  .pj-links a.hi { color: var(--teal); border-color: var(--teal); }
 
   .pj-about { max-width: 800px; font-size: 13.5px; line-height: 1.95; }
   .pj-about h3 { font-size: 15px; color: var(--heading); margin: 20px 0 7px; }
@@ -197,13 +190,12 @@
 
   <div class="pj-hero">
     <h1>1000 首可弹奏的双手钢琴简谱</h1>
-    <p>公有领域传统曲调，按「被收录热度」精选。每首都是真实旋律（非占位数据），带右手主旋律、和弦标记与左手伴奏，可试听、移调、打印。另加 1000 首中文热曲目录与整库真实统计分布。</p>
+    <p>公有领域传统曲调，按「被收录热度」精选。每首都是真实旋律（非占位数据），带右手主旋律、和弦标记与左手伴奏，可试听、移调、打印；全部 1000 首都带完整谱面，并附整库真实统计分布。</p>
     <div class="pj-kpis" id="heroKpis"></div>
   </div>
 
   <div class="pj-tabs">
     <button class="pj-tab on" data-tab="lib">简谱曲库 1000</button>
-    <button class="pj-tab" data-tab="cn">中文热曲 1000</button>
     <button class="pj-tab" data-tab="ana">分析数据</button>
     <button class="pj-tab" data-tab="about">来源与版权</button>
   </div>
@@ -238,38 +230,6 @@
     </div>
   </div>
 
-  <!-- 中文热曲目录 -->
-  <div class="pj-pane" id="pane-cn">
-    <div class="pj-cnnote">
-      <b>这是目录，不是谱面。</b>下面 1000 首是按「被热门歌单收录次数」排出来的中文爆款曲目，只收录曲名、歌手等<strong>事实元数据</strong>，
-      不含歌词、不含受著作权保护的曲谱。点「找钢琴谱」会跳到公开搜索结果，谱面请在虫虫钢琴、弹琴吧等授权平台获取或购买。
-      热度为开放数据集内的相对流行度，不是官方榜单。
-    </div>
-    <div class="pj-akpis" id="cnKpis"></div>
-    <div class="pj-panel">
-      <div class="pj-filters" style="grid-template-columns:2fr 1.2fr 1.2fr">
-        <div class="pj-field"><label>搜索曲名 / 歌手</label><input id="cnq" type="search" placeholder="例如 特别的人 / 周深 / 年轮" autocomplete="off" /></div>
-        <div class="pj-field"><label>歌手</label><select id="cnsinger"></select></div>
-        <div class="pj-field"><label>排序</label><select id="cnsort">
-          <option value="pl">歌单收录（多→少）</option>
-          <option value="h">站内热度（高→低）</option>
-          <option value="len">曲名字数（少→多）</option>
-          <option value="name">曲名 A→Z</option>
-        </select></div>
-      </div>
-      <div class="pj-bar"><div class="pj-count" id="cnCount"></div>
-        <div class="pj-chips"><span class="pj-chip on" style="cursor:default">仅收录事实元数据 · 不含谱面</span></div>
-      </div>
-      <div class="pj-grid" id="cnGrid"></div>
-      <div class="pj-pager" id="cnPager"></div>
-    </div>
-    <div class="pj-charts" id="cnCharts" style="margin-top:14px"></div>
-    <div class="pj-panel" style="margin-top:14px">
-      <h3 style="margin:0 0 12px;font-size:14px;color:var(--heading)">中文热曲 Top 20 · 歌单收录次数</h3>
-      <table class="pj-table"><thead><tr><th>#</th><th>曲名</th><th>歌手</th><th class="num">歌单收录</th><th class="num">站内热度</th></tr></thead><tbody id="cnTopBody"></tbody></table>
-    </div>
-  </div>
-
   <!-- 分析数据 -->
   <div class="pj-pane" id="pane-ana">
     <div class="pj-insight">
@@ -301,15 +261,6 @@
       <h3>替换成你自己的谱</h3>
       <p>数据文件是 <code>tools/piano-jianpu/data.js</code>，结构为 <code>window.JIANPU_DATA = { meta, tunes: [...] }</code>。每首曲子包含 <code>n</code> 曲名、<code>k</code> 调性、<code>tp</code> 主音音级、<code>pat</code> 调式音程、<code>m</code> 拍号、<code>d</code> 难度、<code>st</code> 统计、<code>seq</code> 音序（<code>midi/ticks</code> 空格分隔，<code>R/t</code> 休止，<code>|</code> 小节，<code>|:</code> / <code>:|</code> 反复）、<code>ch</code> 每小节和弦、<code>bass</code> 每小节左手音。按同样格式生成即可，页面无需改动。</p>
 
-      <h3>中文热曲 1000 首为什么是目录</h3>
-      <p>「爆火中文钢琴曲」几乎都还在词曲著作权保护期内，谱面（含简谱改编）属于受保护的表达；把它们批量搬到公开静态仓库会构成侵权，
-      商业曲谱站点的服务条款也普遍禁止批量下载。所以这一栏<strong>只放事实元数据</strong>：曲名、歌手、站内热度档、歌单收录次数和原曲链接——
-      这些是可以合法使用的客观信息，不含歌词、不含任何曲谱。</p>
-      <p>数据来自开源研究数据集 <a href="https://github.com/LindiaC/music163-mining" target="_blank" rel="noopener" style="color:var(--accent)">LindiaC/music163-mining</a>（网易云音乐歌单挖掘，24.4 万首华语歌曲、634 个歌单）。
-      热度定义为「被多少个热门歌单收录，并按歌单收藏量/播放量加权」，是数据集内的相对流行度，不是官方榜单。
-      已合并 Live / DJ / 伴奏等版本，只保留录音室原版曲名，剔除虚拟歌手条目，按曲名 + 歌手去重后取前 1000 首。</p>
-      <div class="pj-note-box">这一栏的曲目<strong>不进入可弹奏简谱曲库</strong>，也不参与左侧 1000 首的调性/难度统计；它们有自己独立的统计面板。如果你拥有某批曲谱的合法授权，把它们给我，我可以批量转换成真正可弹奏、可打印的双手简谱并合并进曲库。</div>
-
       <h3>隐私与依赖</h3>
       <p>纯前端、零外部 CDN、零网络请求。收藏与筛选状态只存在浏览器 localStorage，试听使用 Web Audio 本地合成，不上传任何数据。</p>
     </div>
@@ -322,13 +273,11 @@
   <div class="pj-sheet" id="sheet"></div>
 </div>
 
-<script src="./chinese.js"></script>
 <script src="./data.js"></script>
 <script>
 (function () {
   'use strict';
   var D = window.JIANPU_DATA, T = (D && D.tunes) || [];
-  var CD = window.JIANPU_CN, CN = (CD && CD.songs) || [];
   var PC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -337,7 +286,6 @@
 
   var S = { q:'', type:'', key:'', meter:'', diff:'', sort:'hot', favOnly:false, page:1,
             per:24, shift:0, bpm:96, showLH:true, cur:null, playing:false };
-  var SC = { q:'', singer:'', sort:'pl', page:1, per:24 };
   var favs = {};
   try { favs = JSON.parse(localStorage.getItem('pj-favs') || '{}'); } catch (e) { favs = {}; }
   var saveFavs = function () { try { localStorage.setItem('pj-favs', JSON.stringify(favs)); } catch (e) {} };
@@ -713,93 +661,6 @@
     ].map(function (s) { return '<li>' + s + '</li>'; }).join('');
   }
 
-  /* ---------- 中文热曲目录 ---------- */
-  var cnRankMap = {};
-  function cnArtist(x) { return (x.a || '').split('|')[0]; }
-  function buildCnRank() {
-    CN.slice().sort(function (a,b) { return b.pl - a.pl || b.w - a.w; })
-      .forEach(function (x,i) { cnRankMap[x.id] = i + 1; });
-  }
-  function cnFiltered() {
-    var q = SC.q.trim().toLowerCase();
-    var r = CN.filter(function (x) {
-      if (q && (x.n + ' ' + x.a).toLowerCase().indexOf(q) < 0) return false;
-      if (SC.singer && cnArtist(x) !== SC.singer) return false;
-      return true;
-    });
-    var cmp = {
-      pl:   function (a,b) { return b.pl - a.pl || b.w - a.w || a.id - b.id; },
-      h:    function (a,b) { return b.h - a.h || b.pl - a.pl; },
-      len:  function (a,b) { return a.n.length - b.n.length || b.pl - a.pl; },
-      name: function (a,b) { return a.n.localeCompare(b.n, 'zh-CN'); }
-    }[SC.sort];
-    return r.sort(cmp);
-  }
-  function renderCN() {
-    var list = cnFiltered(), pages = Math.max(1, Math.ceil(list.length / SC.per));
-    if (SC.page > pages) SC.page = pages;
-    $('cnCount').innerHTML = '共匹配 <b>' + fmt(list.length) + '</b> 首 · 第 ' + SC.page + ' / ' + pages + ' 页';
-    var st = (SC.page - 1) * SC.per, sl = list.slice(st, st + SC.per);
-    if (!sl.length) {
-      $('cnGrid').innerHTML = '<div class="pj-empty">没有匹配的曲目，换个关键词试试。</div>';
-      $('cnPager').innerHTML = ''; return;
-    }
-    $('cnGrid').innerHTML = sl.map(function (x) {
-      var play = 'https://music.163.com/#/song?id=' + x.id;
-      var find = 'https://www.bing.com/search?q=' + encodeURIComponent(x.n + ' ' + cnArtist(x) + ' 钢琴简谱');
-      return '<div class="pj-card" style="cursor:default">' +
-        '<span class="pj-rank">#' + (cnRankMap[x.id] || '-') + '</span>' +
-        '<h3 style="padding-right:44px">' + esc(x.n) + '</h3>' +
-        '<div class="pj-sub">' + esc(cnArtist(x)) + '</div>' +
-        '<div class="pj-tags"><span class="pj-tag t1">歌单收录 ' + x.pl + '</span>' +
-        '<span class="pj-tag t2">站内热度 ' + x.h + '</span>' +
-        '<span class="pj-tag t3">目录 · 不含谱</span></div>' +
-        '<div class="pj-links"><a href="' + esc(play) + '" target="_blank" rel="noopener">▶ 网易云试听</a>' +
-        '<a class="hi" href="' + esc(find) + '" target="_blank" rel="noopener">找钢琴谱 ↗</a></div></div>';
-    }).join('');
-    $('cnPager').innerHTML = '<button data-cpg="' + (SC.page-1) + '"' + (SC.page<=1?' disabled':'') + '>上一页</button>' +
-      '<span>' + SC.page + ' / ' + pages + '</span>' +
-      '<button data-cpg="' + (SC.page+1) + '"' + (SC.page>=pages?' disabled':'') + '>下一页</button>';
-  }
-  function renderCNAnalytics() {
-    if (!CN.length) return;
-    var artists = counter(CN.map(cnArtist));
-    var totalPl = CN.reduce(function (s,x) { return s + x.pl; }, 0);
-    var high = CN.filter(function (x) { return x.h >= 90; }).length;
-    var pure = CN.filter(function (x) { return /^[\u4e00-\u9fff]+$/.test(x.n); }).length;
-    var kpis = [
-      [fmt(CN.length), '中文热曲'], [Object.keys(artists).length + ' 位', '歌手数'],
-      [fmt(totalPl), '累计歌单收录'], [(totalPl/CN.length).toFixed(1), '平均收录次数'],
-      [Math.round(high/CN.length*100) + '%', '站内热度 ≥90'],
-      [Math.round(pure/CN.length*100) + '%', '纯中文曲名']
-    ];
-    $('cnKpis').innerHTML = kpis.map(function (k) {
-      return '<div class="pj-akpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
-
-    var plLabels = ['4 次','5–7','8–11','12–19','≥20'];
-    var plDist = counter(CN.map(function (x) { return bucket(x.pl, [5,8,12,20,10000], plLabels); }));
-    var lenLabels = ['1–3 字','4–5 字','6–8 字','9 字以上'];
-    var lenDist = counter(CN.map(function (x) { return bucket(x.n.length, [4,6,9,10000], lenLabels); }));
-    var kindDist = counter(CN.map(function (x) {
-      if (/[A-Za-z]/.test(x.n)) return '含英文';
-      if (/[0-9]/.test(x.n)) return '含数字';
-      if (/[，。！？、：；,.!?]/.test(x.n)) return '含标点';
-      return '纯中文';
-    }));
-    $('cnCharts').innerHTML = [
-      chart('歌单收录次数分布', '被多少个热门歌单收录，是本节的热度依据', plLabels.map(function (k) { return [k, plDist[k]||0]; }), 'c2'),
-      chart('站内热度档分布', '网易云原始热度分档（5–100）', topN(counter(CN.map(function (x) { return '热度 ' + x.h; })), 10), ''),
-      chart('高产歌手 Top 12', '入选曲目数最多的华语歌手', topN(artists, 12), 'c3'),
-      chart('曲名字数分布', '中文热曲的命名长度', lenLabels.map(function (k) { return [k, lenDist[k]||0]; }), 'c2'),
-      chart('曲名构成', '纯中文 / 含英文 / 含数字 / 含标点', topN(kindDist, 6), '')
-    ].join('');
-
-    var top = CN.slice().sort(function (a,b) { return b.pl - a.pl || b.w - a.w; }).slice(0, 20);
-    $('cnTopBody').innerHTML = top.map(function (x,i) {
-      return '<tr><td>' + (i+1) + '</td><td><b>' + esc(x.n) + '</b></td><td>' + esc(cnArtist(x)) + '</td>' +
-        '<td class="num">' + x.pl + '</td><td class="num">' + x.h + '</td></tr>'; }).join('');
-  }
-
   /* ---------- 初始化 ---------- */
   function init() {
     if (!T.length) { $('count').textContent = '数据未载入'; return; }
@@ -807,18 +668,14 @@
       [fmt(T.length) + ' 首', '精选曲谱'],
       [fmt(T.reduce(function (s,t) { return s + t.st.notes; }, 0)), '可弹奏音符'],
       [Object.keys(counter(T.map(function (t) { return keyRoot(t.k); }))).length + ' 种', '调性'],
-      [Object.keys(counter(T.map(function (t) { return t.tz; }))).length + ' 种', '曲式'],
-      [fmt(CN.length) + ' 首', '中文热曲目录'],
-      ['公有领域', '可弹奏谱版权']
+      [Object.keys(counter(T.map(function (t) { return t.tz; }))).length + ' 种', '曲式']
     ].map(function (k) { return '<div class="pj-kpi"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>'; }).join('');
 
     opts($('ftype'), uniqSorted(T.map(function (t) { return t.tz; })), '全部曲式');
     opts($('fkey'), uniqSorted(T.map(function (t) { return keyRoot(t.k); })), '全部调性');
     opts($('fmeter'), uniqSorted(T.map(function (t) { return t.m; })), '全部拍号');
     opts($('fdiff'), ['1','2','3','4','5'], '全部难度');
-    opts($('cnsinger'), uniqSorted(CN.map(cnArtist)), '全部歌手');
-    buildCnRank();
-    renderList(); renderAnalytics(); renderCN(); renderCNAnalytics();
+    renderList(); renderAnalytics();
   }
 
   /* ---------- 事件 ---------- */
@@ -838,13 +695,6 @@
   $('pager').addEventListener('click', function (e) {
     var b = e.target.closest('[data-pg]'); if (!b || b.disabled) return;
     S.page = +b.getAttribute('data-pg'); renderList(); window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  $('cnq').addEventListener('input', function () { SC.q = this.value; SC.page = 1; renderCN(); });
-  $('cnsinger').addEventListener('change', function () { SC.singer = this.value; SC.page = 1; renderCN(); });
-  $('cnsort').addEventListener('change', function () { SC.sort = this.value; SC.page = 1; renderCN(); });
-  $('cnPager').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-cpg]'); if (!b || b.disabled) return;
-    SC.page = +b.getAttribute('data-cpg'); renderCN(); window.scrollTo({ top: 0, behavior: 'smooth' });
   });
   $('mask').onclick = closeDetail;
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDetail(); });
