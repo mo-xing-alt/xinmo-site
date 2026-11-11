@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="受邀访问 · xinmo.work 资源仓库" />
+<title>受邀访问 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<style>
+  .gate { min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; }
+  .gate-card { width: min(420px, 100%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 38px 32px 30px; }
+  .gate-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 26px; }
+  .gate-mark { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#4f6bed,#7a4fd0); }
+  .gate-mark svg { width: 22px; height: 22px; }
+  .gate-brand strong { font-size: 15px; color: var(--heading); }
+  .gate-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+  .gate h1 { margin: 0 0 6px; font-size: 21px; color: var(--heading); }
+  .gate-lead { margin: 0 0 24px; font-size: 13px; line-height: 1.8; color: var(--muted); }
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 7px; }
+  .field input { width: 100%; height: 46px; padding: 0 14px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: 0; transition: border-color .2s, box-shadow .2s; }
+  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .pw-wrap { position: relative; }
+  .pw-wrap input { padding-right: 62px; }
+  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; }
+  .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg,#4f6bed,#6c54df); box-shadow: 0 8px 22px rgba(79,107,237,.26); transition: transform .18s, filter .18s; }
+  .gate-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .gate-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+  .gate-msg { min-height: 20px; margin: 12px 0 0; font-size: 12.5px; color: #c23c3c; }
+  .gate-foot { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.8; color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="gate">
+  <div class="gate-card">
+    <div class="gate-brand">
+      <span class="gate-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      <span><strong>xinmo.work</strong><small>资源仓库</small></span>
+    </div>
+    <h1>受邀访问</h1>
+    <p class="gate-lead">这里存放的是私人分享的资源。请输入站主告知的账号与密码，登录后 7 天内无需重复输入。</p>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="username">账号</label>
+        <input id="username" name="username" type="text" inputmode="text" autocapitalize="off" spellcheck="false" required placeholder="站主告知的账号" />
+      </div>
+      <div class="field">
+        <label for="password">密码</label>
+        <div class="pw-wrap">
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="密码" />
+          <button class="pw-toggle" type="button" id="pwToggle">显示</button>
+        </div>
+      </div>
+      <button class="gate-btn" type="submit" id="submitBtn">进入仓库</button>
+      <p class="gate-msg" id="msg" role="alert" aria-live="polite"></p>
+    </form>
+    <div class="gate-foot">本页不提供注册、找回或改密入口；账号由站主线下告知。<br />请勿在此输入你在其他网站使用的密码。</div>
+  </div>
+</main>
+<script src="./assets/js/auth-config.js"></script>
+<script src="./assets/js/auth-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  // Web Crypto 只在安全上下文可用；http 访问时先切到 https，避免输入密码后才报错
+  if ((!window.crypto || !crypto.subtle) && location.protocol === 'http:') {
+    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
+  var form = document.getElementById('loginForm');
+  var btn = document.getElementById('submitBtn');
+  var msg = document.getElementById('msg');
+  var pwd = document.getElementById('password');
+  var cfg = window.XINMO_ACCESS;
+
+  document.getElementById('pwToggle').addEventListener('click', function () {
+    var show = pwd.type === 'password';
+    pwd.type = show ? 'text' : 'password';
+    this.textContent = show ? '隐藏' : '显示';
+  });
+
+  function say(text) { msg.textContent = text; }
+  function fail(text) { say(text); btn.disabled = false; btn.textContent = '进入仓库'; }
+
+  if (!cfg || !cfg.accounts || !cfg.accounts.length) {
+    say('站主尚未设置访问账号，请稍后再来。');
+    btn.disabled = true;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!cfg || !cfg.accounts || !cfg.accounts.length) { fail('站主尚未设置访问账号。'); return; }
+    if (!window.crypto || !crypto.subtle) {
+      fail('当前不是安全连接，请改用 https 打开本站。');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '校验中…';
+    say('');
+    var user = document.getElementById('username').value;
+    var pass = pwd.value;
+    window.XinmoAuth.verify(user, pass, cfg).then(function (r) {
+      if (!r.ok) {
+        if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
+        setTimeout(function () { fail('账号或密码不正确。'); pwd.select(); }, 350);
+        return;
+      }
+      var exp = Date.now() + (r.days || 7) * 86400000;
+      try {
+        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, exp: exp }));
+      } catch (err) {
+        fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
+        return;
+      }
+      var target = new URLSearchParams(location.search).get('next');
+      var dest = './index.html';
+      if (target) {
+        try {
+          var u = new URL(target, location.href);
+          if (u.origin === location.origin && u.pathname.indexOf('login.html') === -1) dest = u.href;
+        } catch (err) {}
+      }
+      location.replace(dest);
+    }).catch(function () {
+      fail('校验失败，请刷新页面重试。');
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="xinmo.work 资源仓库 —— 收录自制的学习资源与实用小工具，打开即用，无需登录。" />
+<meta name="description" content="xinmo.work 资源仓库 —— 收录自制的学习资源与实用小工具，仅受邀访问。" />
 <meta name="theme-color" content="#f6f8fd" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="xinmo.work · 资源仓库" />
-<meta property="og:description" content="我做过的东西都放在这儿，朋友自取，打开即用。" />
+<meta property="og:description" content="我做过的东西都放在这儿，受邀的朋友登录后自取。" />
 <title>xinmo.work · 资源仓库</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="./assets/css/site.css" />
@@ -19,6 +19,10 @@
     document.documentElement.setAttribute('data-theme', theme);
   } catch (e) {}
 </script>
+<!-- 访问控制守卫（由 deploy/inject_guard.py 注入） -->
+<meta name="robots" content="noindex, nofollow" />
+<script src="./assets/js/auth-config.js"></script>
+<script src="./assets/js/guard.js"></script>
 </head>
 <body>
 <div class="backdrop" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="grid-lines"></span></div>
@@ -48,7 +52,7 @@
     <div class="hero-copy">
       <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> PERSONAL RESOURCE HUB</p>
       <h1>我做过的东西，<br /><em>都放在这儿。</em></h1>
-      <p class="hero-desc">一个随手可得的资源仓库：学习题库、实用小工具，往后做的新东西也会陆续放进来。不用注册、不用登录，点开就能用，也欢迎直接把链接转给朋友。</p>
+      <p class="hero-desc">一个只给受邀朋友准备的资源仓库：学习题库、实用小工具，往后做的新东西也会陆续放进来。用站主告知的账号登录一次，接下来一周打开就能用，链接请不要外传。</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#catalog">浏览资源
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
@@ -64,7 +68,7 @@
       <div class="stat-grid">
         <div class="stat"><b id="statItems">—</b><span>在线资源</span></div>
         <div class="stat"><b id="statCats">—</b><span>分类</span></div>
-        <div class="stat"><b>0</b><span>登录步骤</span></div>
+        <div class="stat"><b>7天</b><span>免重复登录</span></div>
         <div class="stat"><b>24/7</b><span>随时可用</span></div>
       </div>
       <div class="panel-note">
@@ -148,7 +152,7 @@
     <p class="section-kicker">GOOD TO KNOW</p>
     <h2>给来逛的朋友</h2>
     <div class="feature-grid">
-      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg></span><h3>打开即用</h3><p>没有注册、没有登录、没有下载安装，浏览器点开就是完整功能。</p></article>
+      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg></span><h3>一次登录，管一周</h3><p>用站主告知的账号登录一次，7 天内不用重复输入；没有注册入口，也不用下载安装。</p></article>
       <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></span><h3>隐私优先</h3><p>文件类工具全部在浏览器本地运算，你的文件不会被上传到任何服务器。</p></article>
       <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><h3>手机也能用</h3><p>页面做了移动端适配，路上刷题、临时改个文件都顺手。</p></article>
     </div>
@@ -159,7 +163,7 @@
 <footer class="footer">
   <div class="shell footer-inner">
     <div class="footer-brand"><span class="footer-dot" aria-hidden="true"></span><strong>xinmo.work</strong><span>资源仓库</span></div>
-    <p>收录自制资源 · 供朋友随手取用</p>
+    <p>收录自制资源 · 受邀访问，请勿外传</p>
     <a href="#top" class="to-top">回到顶部 ↑</a>
   </div>
 </footer>
