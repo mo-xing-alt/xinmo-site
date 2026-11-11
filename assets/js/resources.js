@@ -70,6 +70,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-11"
     },
     {
+      id: "riskguard",
+      title: "RiskGuard 行为风控控制台",
+      subtitle: "实时风控 · 案件复核 · 规则热更新",
+      description: "面向短视频场景的行为风控控制台：接入滑动、观看、设备指纹等行为窗口，实时评分、分级处置，支持案件复核、规则热更新、告警与 CSV 导出。独立后端部署在香港节点，需管理员账号登录。",
+      category: "tool",
+      icon: "tool",
+      accent: "amber",
+      url: "https://rg.xinmo.work/",
+      tags: ["行为风控", "实时评分", "案件复核", "规则热更新", "CSV 导出"],
+      meta: "独立后端 · 需管理员登录",
+      status: "可用",
+      updated: "2026-11-11"
+    },
+    {
       id: "coming-soon",
       soon: true,
       title: "下一个资源正在路上",
