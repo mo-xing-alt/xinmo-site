@@ -749,7 +749,7 @@ a { color: inherit; text-decoration: none; }
 
 /* 子模块卡片 */
 .sub-grid {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 .sub-card {
@@ -875,7 +875,7 @@ a { color: inherit; text-decoration: none; }
   .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hero-grid { grid-template-columns: 1fr; }
   .headline-panel { min-height: 0; }
-  .sub-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sub-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .learn-note { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .split-grid { grid-template-columns: 1fr; }
 }

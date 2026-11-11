@@ -264,7 +264,7 @@ window.RED = {
     { file: "hero-rocket.jpg", name: "神舟十三号发射", artist: "ForrestXYC（后期：Ib）", license: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Launch_of_Shenzhou_13.jpg" },
     { file: "hero-hsr.jpg", name: "复兴号 CR400AF", artist: "N509FZ", license: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:CR400AF-2001@BJN_(20170626110730).jpg" },
     { file: "cs-hualuogeng.jpg", name: "华罗庚（1956）", artist: "牛畏予", license: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Hua_Luogeng_1956.jpg" },
-    { file: "cs-wangxuan.jpg", name: "青年王选", artist: "佚名", license: "Public domain", page: "https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%AD%A6%E7%94%9F%E7%8E%8B%E9%80%89.jpg" },
+    { file: "cs-wangxuan.jpg", name: "少年王选", artist: "佚名", license: "Public domain", page: "https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%AD%A6%E7%94%9F%E7%8E%8B%E9%80%89.jpg" },
     { file: "cs-yao.jpg", name: "姚期智（2016）", artist: "Sinednov", license: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Andrew_Yao_at_GYSS_19Jan2016.jpg" },
     { file: "med-tuyouyou.jpg", name: "屠呦呦（2015）", artist: "Bengt Nyman", license: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:D810_4987_Tu_Youyou,_medicine_(22945001843)_(cropped).jpg" },
     { file: "med-linqiaozhi.jpg", name: "林巧稚（1934）", artist: "佚名", license: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Lin_Qiaozhi_in_1934.jpg" },
