@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="上传资料 · xinmo.work 资源仓库" />
+<title>上传资料 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<style>
+  .up { min-height: 100dvh; display: grid; place-items: start center; padding: 40px 18px 80px; }
+  .up-card { width: min(680px, 100%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 34px 30px 26px; }
+  .up-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
+  .up-mark { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#4f6bed,#7a4fd0); }
+  .up-brand strong { font-size: 15px; color: var(--heading); }
+  .up-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+  .up h1 { margin: 14px 0 4px; font-size: 21px; color: var(--heading); }
+  .up-lead { margin: 0 0 22px; font-size: 13px; line-height: 1.8; color: var(--muted); }
+  .up-lead b { color: var(--text); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 7px; }
+  .field input, .field textarea, .field select { width: 100%; padding: 11px 13px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: 0; transition: border-color .2s, box-shadow .2s; font-family: inherit; }
+  .field textarea { min-height: 74px; resize: vertical; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 540px){ .grid2 { grid-template-columns: 1fr; } }
+  .pickers { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .picker { flex: 1 1 200px; }
+  .picker span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .picker label.btn { display: block; text-align: center; padding: 12px; border: 1px dashed var(--border); border-radius: 11px; cursor: pointer; font-size: 13px; color: var(--text); background: var(--surface-2); }
+  .picker label.btn:hover { border-color: var(--accent); color: var(--accent); }
+  .picker input { display: none; }
+  ul#fileList { list-style: none; margin: 6px 0 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); max-height: 200px; overflow: auto; font-size: 12.5px; }
+  ul#fileList li { display: flex; gap: 10px; align-items: baseline; padding: 4px 0; flex-wrap: wrap; }
+  ul#fileList .empty-tip { color: var(--muted); }
+  ul#fileList .fl-name { font-weight: 600; color: var(--text); }
+  ul#fileList .fl-size { color: var(--muted); white-space: nowrap; }
+  ul#fileList .fl-path { color: var(--accent); flex: 1 1 100%; font-size: 11.5px; word-break: break-all; }
+  .up-btn { width: 100%; height: 48px; margin-top: 10px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg,#4f6bed,#6c54df); box-shadow: 0 8px 22px rgba(79,107,237,.26); transition: transform .18s, filter .18s; }
+  .up-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .up-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+  .progress { min-height: 18px; margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+  .gate-msg { min-height: 20px; margin: 8px 0 0; font-size: 12.5px; color: #c23c3c; }
+  .gate-msg.ok { color: #1f9d5b; }
+  .up-foot { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.8; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .up-foot a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<main class="up">
+  <div class="up-card">
+    <div class="up-brand">
+      <span class="up-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      <span><strong>xinmo.work</strong><small>资源仓库</small></span>
+    </div>
+    <h1>上传资料</h1>
+    <p class="up-lead">登录账号：<b id="who">—</b>。<br />
+      选好文件 / 文件夹并填好信息，提交后会直接写进仓库、自动出现在首页资源列表里（GitHub Pages 约 1 分钟重建）。文件会被放进 <code>uploads/</code> 目录，不会覆盖站主原有的资源。</p>
+
+    <form id="uploadForm" autocomplete="off">
+      <div class="grid2">
+        <div class="field">
+          <label for="fTitle">资源标题 *</label>
+          <input id="fTitle" type="text" required placeholder="例如：图片批量改名工具" />
+        </div>
+        <div class="field">
+          <label for="fCategory">分类</label>
+          <select id="fCategory">
+            <option value="tool">实用工具</option>
+            <option value="study">学习练习</option>
+            <option value="doc">文档</option>
+            <option value="link">链接</option>
+            <option value="code">代码</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fSubtitle">副标题（一句话）</label>
+        <input id="fSubtitle" type="text" placeholder="例如：拖进去就能批量改名" />
+      </div>
+      <div class="field">
+        <label for="fDesc">简介</label>
+        <textarea id="fDesc" placeholder="简单说说这个资源是干什么的、怎么用。"></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="fTags">标签（逗号分隔）</label>
+          <input id="fTags" type="text" placeholder="例如：批量, 改名, 离线" />
+        </div>
+        <div class="field">
+          <label for="fEntry">入口文件名</label>
+          <input id="fEntry" type="text" value="index.html" placeholder="index.html" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>选择文件 / 文件夹</label>
+        <div class="pickers">
+          <div class="picker">
+            <span>整文件夹（保留目录结构）</span>
+            <label class="btn" for="folderInput">选择文件夹</label>
+            <input id="folderInput" type="file" webkitdirectory directory multiple />
+          </div>
+          <div class="picker">
+            <span>零散文件</span>
+            <label class="btn" for="filesInput">选择文件</label>
+            <input id="filesInput" type="file" multiple />
+          </div>
+        </div>
+        <ul id="fileList"></ul>
+      </div>
+
+      <button class="up-btn" type="submit" id="submitBtn">提交到仓库</button>
+      <p class="progress" id="progress"></p>
+      <p class="gate-msg" id="msg" role="alert" aria-live="polite"></p>
+    </form>
+
+    <div class="up-foot">
+      <a href="./index.html">← 返回首页</a>
+      <span>提交即表示你愿意把它分享给其他受邀朋友。</span>
+    </div>
+  </div>
+</main>
+
+<!-- 访问控制守卫：未登录会被跳到登录页 -->
+<script src="./assets/js/auth-config.js"></script>
+<script src="./assets/js/guard.js"></script>
+<!-- 上传配置（写令牌） -->
+<script src="./assets/js/upload-config.js"></script>
+<script src="./assets/js/upload.js"></script>
+</body>
+</html>

@@ -115,7 +115,8 @@
       }
       var exp = Date.now() + (r.days || 7) * 86400000;
       try {
-        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, exp: exp }));
+        // 同时保存账号名，供上传资料时署名
+        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, u: user, exp: exp }));
       } catch (err) {
         fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
         return;

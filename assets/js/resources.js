@@ -21,7 +21,7 @@
  *   soon        true 时渲染为「筹备中」占位卡，不需要 url
  * ============================================================ */
 window.RESOURCE_CATALOG = {
-  updated: "2026-11-10",
+  updated: "2026-11-11",
   categories: [
     { id: "study", label: "学习练习" },
     { id: "tool", label: "实用工具" }
@@ -54,6 +54,20 @@ window.RESOURCE_CATALOG = {
       meta: "纯前端 · 插件化可扩展",
       status: "可用",
       updated: "2026-11-10"
+    },
+    {
+      id: "filesmith",
+      title: "FileSmith 文件工坊",
+      subtitle: "格式转换 · 批量重命名",
+      description: "图片 PNG/JPG/WEBP 互转、图片转 PDF 与 PDF 合并、TXT/CSV/JSON 互转；12 类文件名规则自由组合，带实时预览、冲突检测、撤销重做与 ZIP 导出。批量任务显示进度、支持失败重试。全部在浏览器本地完成，文件不上传。",
+      category: "tool",
+      icon: "tool",
+      accent: "violet",
+      url: "./tools/filesmith/index.html",
+      tags: ["格式转换", "批量重命名", "图片转 PDF", "CSV/JSON", "ZIP 打包", "文件不上传"],
+      meta: "纯前端 · Web Worker · 插件化可扩展",
+      status: "可用",
+      updated: "2026-11-11"
     },
     {
       id: "coming-soon",

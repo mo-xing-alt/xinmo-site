@@ -2,10 +2,12 @@
 (function () {
   'use strict';
 
-  var catalog = window.RESOURCE_CATALOG || { updated: '', categories: [], items: [] };
-  var items = catalog.items || [];
-  var categories = [{ id: 'all', label: '全部' }].concat(catalog.categories || []);
+  // 种子目录来自 resources.js（站主维护）；用户上传内容来自 manifest.json（运行时合并）
+  var seed = window.RESOURCE_CATALOG || { updated: '', categories: [], items: [] };
   var state = { q: '', cat: 'all' };
+  var items = [];        // 合并后：种子 + 用户上传
+  var categories = [];   // 合并后：含「全部」
+  var lastUpdated = seed.updated || '';
 
   var ICONS = {
     quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5Z"/><path d="m9.5 8.5 1.8 1.8 3.2-3.4M9.5 13.5h5"/></svg>',
@@ -74,7 +76,7 @@
       '<p class="card-subtitle">' + esc(item.subtitle) + '</p>' +
       '<p class="card-desc">' + esc(item.description) + '</p>' +
       '<div class="card-tags">' + tags + '</div>' +
-      '<div class="card-meta">' + ICONS.calendar + '<span>' + esc(item.meta || '') + ' · 更新于 ' + esc(item.updated || catalog.updated) + '</span></div>' +
+      '<div class="card-meta">' + ICONS.calendar + '<span>' + esc(item.meta || '') + ' · 更新于 ' + esc(item.updated || lastUpdated) + '</span></div>' +
       '<div class="card-foot">' +
         '<a class="open-link" href="' + esc(item.url) + '">打开资源 ' + ICONS.arrow + '</a>' +
         '<button class="share-btn" type="button" data-share="' + esc(item.url) + '" title="复制资源链接" aria-label="复制 ' + esc(item.title) + ' 的链接">' + ICONS.share + '</button>' +
@@ -179,10 +181,35 @@
     if (meta) meta.setAttribute('content', next === 'dark' ? '#0b1220' : '#f6f8fd');
   });
 
-  // 初始化
-  $('#statItems').textContent = realItems().length;
-  $('#statCats').textContent = (catalog.categories || []).length;
-  $('#updatedAt').textContent = catalog.updated || '—';
-  renderChips();
-  render();
+  // 合并种子目录与用户上传清单
+  function mergeManifest(manifest) {
+    var seedItems = seed.items || [];
+    var seedSoon = seedItems.filter(function (it) { return it.soon; });
+    var seedReal = seedItems.filter(function (it) { return !it.soon; });
+    var upReal = (manifest && manifest.items ? manifest.items : [])
+      .filter(function (it) { return !it.soon; });
+    items = seedReal.concat(upReal).concat(seedSoon);
+    var seen = {};
+    categories = [{ id: 'all', label: '全部' }];
+    function add(c) { if (!c || seen[c.id]) return; seen[c.id] = 1; categories.push(c); }
+    (seed.categories || []).forEach(add);
+    (manifest && manifest.categories ? manifest.categories : []).forEach(add);
+    lastUpdated = (manifest && manifest.updated) || seed.updated || '';
+  }
+
+  function init() {
+    $('#statItems').textContent = items.filter(function (it) { return !it.soon; }).length;
+    $('#statCats').textContent = Math.max(0, categories.length - 1);
+    $('#updatedAt').textContent = lastUpdated || '—';
+    renderChips();
+    render();
+  }
+
+  // 先渲染种子目录，再尝试拉取用户上传清单（拿不到则保持种子）
+  mergeManifest(null);
+  init();
+  fetch('./manifest.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (m) { if (m) { mergeManifest(m); init(); } })
+    .catch(function () {});
 })();
