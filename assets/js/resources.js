@@ -70,6 +70,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-11"
     },
     {
+      id: "video-speed",
+      title: "视频多倍速播放器",
+      subtitle: "1–100× · 本地播放",
+      description: "导入本地视频，1–100 倍速自由调节，带预设档位、精确输入、循环、静音与保留音调；支持拖拽和快捷键。浏览器原生上限约 16×，更高倍速用跳帧补偿逼近。文件不上传，全部在浏览器本地播放。",
+      category: "tool",
+      icon: "tool",
+      accent: "teal",
+      url: "./tools/video-speed/index.html",
+      tags: ["1-100倍速", "本地播放", "快捷键", "拖拽导入", "文件不上传"],
+      meta: "纯前端 · 单文件",
+      status: "可用",
+      updated: "2026-11-11"
+    },
+    {
       id: "riskguard",
       title: "RiskGuard 行为风控控制台",
       subtitle: "实时风控 · 案件复核 · 规则热更新",
