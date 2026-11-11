@@ -107,7 +107,7 @@ window.RESOURCE_CATALOG = {
       accent: "amber",
       url: "https://rg.xinmo.work/",
       tags: ["行为风控", "实时评分", "案件复核", "规则热更新", "CSV 导出"],
-      meta: "独立后端 · 需管理员登录",
+      meta: "香港节点 · 需管理员登录 · 部分网络需加速器",
       status: "可用",
       updated: "2026-11-11"
     },

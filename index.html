@@ -23,6 +23,26 @@
 <meta name="robots" content="noindex, nofollow" />
 <script src="./assets/js/auth-config.js"></script>
 <script src="./assets/js/guard.js"></script>
+<style>
+  .hk-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 18px 0 0; padding: 11px 14px;
+    border: 1px solid rgba(201, 130, 10, .28);
+    background: var(--amber-soft);
+    border-radius: 12px;
+    font-size: 12.5px; line-height: 1.7; color: var(--text);
+  }
+  .hk-notice b { color: #b8730a; }
+  :root[data-theme="dark"] .hk-notice b { color: #ffc45c; }
+  .hk-notice .hk-ico { flex: none; margin-top: 2px; color: #c9820a; }
+  .hk-notice p { margin: 0; flex: 1; }
+  .hk-notice button {
+    flex: none; border: 0; background: transparent; color: var(--muted);
+    font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px;
+  }
+  .hk-notice button:hover { color: var(--text); }
+  .hk-notice[hidden] { display: none; }
+</style>
 </head>
 <body>
 <div class="backdrop" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="grid-lines"></span></div>
@@ -49,6 +69,15 @@
 </header>
 
 <main>
+  <div class="shell">
+    <div class="hk-notice" id="hkNotice" role="note">
+      <span class="hk-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+      </span>
+      <p>由于成本问题，服务器设在了香港，有些工具需要<b>开加速器</b>才能用。</p>
+      <button type="button" id="hkClose" aria-label="关闭提示" title="本次关闭">×</button>
+    </div>
+  </div>
   <section class="hero shell">
     <div class="hero-copy">
       <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> PERSONAL RESOURCE HUB</p>

@@ -269,4 +269,18 @@
     .catch(function () {});
 
   loadSupabase().then(function () { rebuild(); init(); });
+
+  // 香港节点提示：本次会话可关闭，下次访问再出现
+  (function () {
+    var box = document.getElementById('hkNotice');
+    if (!box) return;
+    try {
+      if (sessionStorage.getItem('xinmo-hk-notice') === 'off') { box.hidden = true; return; }
+    } catch (e) {}
+    var btn = document.getElementById('hkClose');
+    if (btn) btn.addEventListener('click', function () {
+      box.hidden = true;
+      try { sessionStorage.setItem('xinmo-hk-notice', 'off'); } catch (e) {}
+    });
+  })();
 })();
