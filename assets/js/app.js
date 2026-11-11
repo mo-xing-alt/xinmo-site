@@ -8,6 +8,8 @@
   var items = [];        // 合并后：种子 + 用户上传
   var categories = [];   // 合并后：含「全部」
   var lastUpdated = seed.updated || '';
+  var manifestData = null;   // GitHub manifest.json（历史上传清单，可选）
+  var remoteItems = [];      // Supabase tools 表（朋友提交的链接）
 
   var ICONS = {
     quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5Z"/><path d="m9.5 8.5 1.8 1.8 3.2-3.4M9.5 13.5h5"/></svg>',
@@ -181,20 +183,72 @@
     if (meta) meta.setAttribute('content', next === 'dark' ? '#0b1220' : '#f6f8fd');
   });
 
-  // 合并种子目录与用户上传清单
-  function mergeManifest(manifest) {
+  // 把 Supabase 行映射成站内卡片结构（表字段：id / name / url / description）
+  var SB_ACCENTS = ['indigo', 'teal', 'violet', 'amber'];
+
+  function safeUrl(u) {
+    u = String(u == null ? '' : u).trim();
+    return /^https?:\/\//i.test(u) ? u : '';
+  }
+
+  function hostOf(u) {
+    try { return new URL(u).hostname.replace(/^www\./i, ''); } catch (e) { return ''; }
+  }
+
+  function mapSupabaseRow(row, i) {
+    var url = safeUrl(row && row.url);
+    var name = String((row && row.name) || '').trim();
+    if (!url || !name) return null;           // 跳过非法/空行，避免坏卡片
+    return {
+      id: 'sb-' + (row.id != null ? row.id : i),
+      title: name,
+      subtitle: hostOf(url) || '朋友提交的链接',
+      description: String((row && row.description) || '').trim(),
+      category: 'tool',
+      icon: 'link',
+      accent: SB_ACCENTS[i % SB_ACCENTS.length],
+      url: url,
+      tags: [],
+      meta: '朋友提交',
+      status: '可用',
+      updated: ''
+    };
+  }
+
+  // 从 Supabase 拉取 tools 表（失败则静默保留种子目录，不影响页面）
+  function loadSupabase() {
+    var cfg = window.XINMO_SUPABASE;
+    if (!cfg || !cfg.url || !cfg.key) return Promise.resolve();
+    var ep = String(cfg.url).replace(/\/+$/, '') + '/rest/v1/' +
+      (cfg.table || 'tools') + '?select=id,name,url,description';
+    return fetch(ep, {
+      headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key },
+      cache: 'no-store'
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rows) {
+        if (!Array.isArray(rows)) return;
+        remoteItems = rows.map(mapSupabaseRow).filter(Boolean);
+      })
+      .catch(function () {});
+  }
+
+  // 三源合并：种子（站主）+ manifest（历史上传）+ Supabase（朋友提交）
+  function rebuild() {
     var seedItems = seed.items || [];
     var seedSoon = seedItems.filter(function (it) { return it.soon; });
     var seedReal = seedItems.filter(function (it) { return !it.soon; });
-    var upReal = (manifest && manifest.items ? manifest.items : [])
+    var upReal = (manifestData && manifestData.items ? manifestData.items : [])
       .filter(function (it) { return !it.soon; });
-    items = seedReal.concat(upReal).concat(seedSoon);
+    items = seedReal.concat(upReal).concat(remoteItems).concat(seedSoon);
+
     var seen = {};
     categories = [{ id: 'all', label: '全部' }];
     function add(c) { if (!c || seen[c.id]) return; seen[c.id] = 1; categories.push(c); }
     (seed.categories || []).forEach(add);
-    (manifest && manifest.categories ? manifest.categories : []).forEach(add);
-    lastUpdated = (manifest && manifest.updated) || seed.updated || '';
+    if (remoteItems.length && !seen.tool) add({ id: 'tool', label: '实用工具' });
+    if (manifestData && manifestData.categories) manifestData.categories.forEach(add);
+    lastUpdated = (manifestData && manifestData.updated) || seed.updated || '';
   }
 
   function init() {
@@ -205,11 +259,14 @@
     render();
   }
 
-  // 先渲染种子目录，再尝试拉取用户上传清单（拿不到则保持种子）
-  mergeManifest(null);
+  // 先渲染种子目录，再并行拉取「GitHub 清单」与「Supabase 链接目录」
+  rebuild();
   init();
+
   fetch('./manifest.json?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (m) { if (m) { mergeManifest(m); init(); } })
+    .then(function (m) { if (m) { manifestData = m; rebuild(); init(); } })
     .catch(function () {});
+
+  loadSupabase().then(function () { rebuild(); init(); });
 })();
