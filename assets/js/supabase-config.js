@@ -10,5 +10,7 @@
 window.XINMO_SUPABASE = {
   url: "https://monwlglwpwwbejrifwmj.supabase.co",
   key: "sb_publishable_ruUIXDxjj_LyZysCMf0_FQ_2ewm-cRq",
-  table: "tools"
+  table: "tools",          // 朋友提交的「链接」
+  uploadsTable: "uploads", // 朋友上传的「资料」（文件 + 文字）
+  bucket: "uploads"        // Supabase Storage 存储桶
 };

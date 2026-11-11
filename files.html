@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="资料详情 · xinmo.work 资源仓库" />
+<title>资料详情 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/site.css" />
+<link rel="stylesheet" href="./assets/css/upload.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+</head>
+<body>
+<main class="files-wrap">
+  <div class="files-card">
+    <div class="crumb">
+      <div class="crumb-left">
+        <span class="brand-mark-sm" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" style="width:22px;height:22px"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+        <a class="up-back" href="./index.html">← 返回资源列表</a>
+      </div>
+      <a class="up-back" href="./upload.html">上传我的资料</a>
+    </div>
+
+    <div id="loading" style="padding:36px 0;text-align:center;color:var(--muted);font-size:13px">正在加载…</div>
+
+    <div id="errorBox" hidden style="padding:34px 0;text-align:center">
+      <h1 style="margin:0 0 8px">资料不存在</h1>
+      <p style="margin:0 0 18px;color:var(--muted);font-size:13px" id="errorText">它可能已经被清理，或者链接不完整。</p>
+      <a class="up-back" href="./index.html" style="display:inline-flex">返回资源列表</a>
+    </div>
+
+    <article id="content" hidden>
+      <h1 class="files-title" id="dTitle">—</h1>
+      <p class="files-sub" id="dSubtitle"></p>
+      <div class="meta-row" id="dMeta"></div>
+
+      <section class="detail-block" id="descBlock" hidden>
+        <h2>简介</h2>
+        <p class="detail-desc" id="dDesc"></p>
+      </section>
+
+      <section class="detail-block" id="noteBlock" hidden>
+        <h2>文字内容</h2>
+        <div class="note-box" id="dNote"></div>
+        <div class="note-tools">
+          <button class="copy-btn" type="button" id="copyNote">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>
+            复制文字
+          </button>
+        </div>
+      </section>
+
+      <section class="detail-block">
+        <h2 id="filesHead">文件</h2>
+        <div class="file-grid" id="fileGrid"></div>
+        <p class="empty-note" id="fileEmpty" hidden>这次提交只有文字，没有附件。</p>
+      </section>
+    </article>
+
+    <div class="up-foot">
+      <a href="./index.html">← 返回资源列表</a>
+      <span>资料由受邀朋友上传，请勿外传。</span>
+    </div>
+  </div>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片预览">
+  <button type="button" id="lightboxClose" aria-label="关闭">×</button>
+  <img alt="" id="lightboxImg" />
+</div>
+
+<!-- 访问控制守卫：未登录会被跳到登录页 -->
+<script src="./assets/js/auth-config.js"></script>
+<script src="./assets/js/guard.js"></script>
+<script src="./assets/js/supabase-config.js"></script>
+<script src="./assets/js/file-detail.js"></script>
+</body>
+</html>

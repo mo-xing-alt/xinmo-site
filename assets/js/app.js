@@ -10,6 +10,7 @@
   var lastUpdated = seed.updated || '';
   var manifestData = null;   // GitHub manifest.json（历史上传清单，可选）
   var remoteItems = [];      // Supabase tools 表（朋友提交的链接）
+  var uploadItems = [];      // Supabase uploads 表（朋友上传的资料）
 
   var ICONS = {
     quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5Z"/><path d="m9.5 8.5 1.8 1.8 3.2-3.4M9.5 13.5h5"/></svg>',
@@ -245,22 +246,93 @@
       .catch(function () {});
   }
 
-  // 三源合并：种子（站主）+ manifest（历史上传）+ Supabase（朋友提交）
+  // ---- 朋友上传的资料（Supabase uploads 表） ----
+  var KIND_LABEL = { study: '学习资料', image: '图片', archive: '压缩包', doc: '文档', other: '资料' };
+
+  function fmtSize(n) {
+    n = Number(n) || 0;
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(1) + ' MB';
+  }
+
+  function extOf(name) {
+    var m = String(name || '').match(/\.([a-z0-9]{1,6})$/i);
+    return m ? m[1].toUpperCase() : '';
+  }
+
+  function mapUploadRow(row, i) {
+    var id = row && row.id;
+    var title = String((row && row.title) || '').trim();
+    if (!id || !title) return null;
+    var files = Array.isArray(row && row.files) ? row.files.filter(function (f) { return f && f.name; }) : [];
+    var size = files.reduce(function (s, f) { return s + (Number(f.size) || 0); }, 0);
+    var kind = (row && row.kind) || 'other';
+    var label = KIND_LABEL[kind] || '资料';
+    var note = String((row && row.note) || '').replace(/\s+/g, ' ').trim();
+    var desc = String((row && row.description) || '').trim() || note.slice(0, 120);
+    var exts = [];
+    files.forEach(function (f) {
+      var e = extOf(f.name);
+      if (e && exts.indexOf(e) === -1 && exts.length < 3) exts.push(e);
+    });
+    return {
+      id: 'up-' + id,
+      title: title,
+      subtitle: String((row && row.subtitle) || '').trim() ||
+        (label + (files.length ? ' · ' + files.length + ' 个文件' : ' · 纯文字')),
+      description: desc,
+      category: 'files',
+      icon: kind === 'study' ? 'quiz' : 'doc',
+      accent: kind === 'image' ? 'violet' : kind === 'archive' ? 'amber' : kind === 'study' ? 'teal' : 'indigo',
+      url: './files.html?id=' + encodeURIComponent(id),
+      tags: [label].concat(exts),
+      meta: '朋友上传 · by ' + String((row && row.uploader) || 'friend') + ' · ' +
+        (files.length ? files.length + ' 个文件 ' + fmtSize(size) : '纯文字'),
+      status: '可用',
+      updated: String((row && row.created_at) || '').slice(0, 10)
+    };
+  }
+
+  function loadUploads() {
+    var cfg = window.XINMO_SUPABASE;
+    if (!cfg || !cfg.url || !cfg.key) return Promise.resolve();
+    var ep = String(cfg.url).replace(/\/+$/, '') + '/rest/v1/' +
+      (cfg.uploadsTable || 'uploads') +
+      '?select=id,title,subtitle,description,note,kind,files,uploader,created_at&order=created_at.desc&limit=100';
+    return fetch(ep, {
+      headers: { apikey: cfg.key, Authorization: 'Bearer ' + cfg.key },
+      cache: 'no-store'
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rows) {
+        if (!Array.isArray(rows)) return;
+        uploadItems = rows.map(mapUploadRow).filter(Boolean);
+      })
+      .catch(function () {});
+  }
+
+  // 四源合并：种子（站主）+ 朋友上传的资料 + manifest（历史上传）+ Supabase 链接
   function rebuild() {
     var seedItems = seed.items || [];
     var seedSoon = seedItems.filter(function (it) { return it.soon; });
     var seedReal = seedItems.filter(function (it) { return !it.soon; });
     var upReal = (manifestData && manifestData.items ? manifestData.items : [])
       .filter(function (it) { return !it.soon; });
-    items = seedReal.concat(upReal).concat(remoteItems).concat(seedSoon);
+    items = seedReal.concat(uploadItems).concat(upReal).concat(remoteItems).concat(seedSoon);
 
     var seen = {};
     categories = [{ id: 'all', label: '全部' }];
     function add(c) { if (!c || seen[c.id]) return; seen[c.id] = 1; categories.push(c); }
     (seed.categories || []).forEach(add);
+    if (uploadItems.length && !seen.files) add({ id: 'files', label: '朋友资料' });
     if (remoteItems.length && !seen.tool) add({ id: 'tool', label: '实用工具' });
     if (manifestData && manifestData.categories) manifestData.categories.forEach(add);
+
     lastUpdated = (manifestData && manifestData.updated) || seed.updated || '';
+    uploadItems.forEach(function (it) {
+      if (it.updated && it.updated > lastUpdated) lastUpdated = it.updated;
+    });
   }
 
   function init() {
@@ -271,7 +343,7 @@
     render();
   }
 
-  // 先渲染种子目录，再并行拉取「GitHub 清单」与「Supabase 链接目录」
+  // 先渲染种子目录，再并行拉取「GitHub 清单」「Supabase 链接目录」「朋友上传的资料」
   rebuild();
   init();
 
@@ -280,8 +352,7 @@
     .then(function (m) { if (m) { manifestData = m; rebuild(); init(); } })
     .catch(function () {});
 
-  loadSupabase().then(function () { rebuild(); init(); });
-
+  Promise.all([loadSupabase(), loadUploads()]).then(function () { rebuild(); init(); });
   // 香港节点提示：本次会话可关闭，下次访问再出现
   (function () {
     var box = document.getElementById('hkNotice');
