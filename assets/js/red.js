@@ -212,9 +212,10 @@
     var assetBase = location.pathname.indexOf("/modules/") > -1 ? "../" : "./";
     m.people.forEach(function (p, i) {
       var layer = el("div", "photo-layer" + (i === 0 ? " is-active" : ""));
+      var imgSrc = assetBase + p.img.replace(/^\.\//, "");
       layer.innerHTML =
-        '<img src="' + assetBase + p.img.replace(/^\.\//, "") + '" alt="' + p.name + ' 影像" loading="' + (i === 0 ? "eager" : "lazy") + '"' +
-        ' style="object-position:' + (p.pos || "50% 15%") + '">' +
+        '<img class="photo-bg" src="' + imgSrc + '" alt="" aria-hidden="true" loading="lazy">' +
+        '<img class="photo-main" src="' + imgSrc + '" alt="' + p.name + ' 影像" loading="' + (i === 0 ? "eager" : "lazy") + '">' +
         '<span class="photo-tag">' + ICONS.star + "红色记忆 · 人物影像</span>" +
         '<span class="photo-credit">图：' + p.credit + "</span>" +
         '<i class="frame-corner tl"></i><i class="frame-corner br"></i>';
