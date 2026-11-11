@@ -265,6 +265,8 @@
     var id = row && row.id;
     var title = String((row && row.title) || '').trim();
     if (!id || !title) return null;
+    // 自检数据不进公开列表（uploader 固定为 selftest，正式上传不会用到）
+    if (row.uploader === 'selftest') return null;
     var files = Array.isArray(row && row.files) ? row.files.filter(function (f) { return f && f.name; }) : [];
     var size = files.reduce(function (s, f) { return s + (Number(f.size) || 0); }, 0);
     var kind = (row && row.kind) || 'other';

@@ -210,7 +210,7 @@
       return r.json();
     })
     .then(function (rows) {
-      if (!Array.isArray(rows) || !rows.length) {
+      if (!Array.isArray(rows) || !rows.length || (rows[0] && rows[0].uploader === 'selftest')) {
         showError('没有找到这条资料，可能已经被清理。');
         return;
       }

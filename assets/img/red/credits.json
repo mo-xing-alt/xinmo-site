@@ -1,0 +1,162 @@
+{
+  "hero-tiananmen": {
+    "file": "hero-tiananmen.jpg",
+    "title": "File:天安门夜景.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg",
+    "artist": "Charlie fong冯成",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 491
+  },
+  "hero-rocket": {
+    "file": "hero-rocket.jpg",
+    "title": "File:Launch of Shenzhou 13.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Launch_of_Shenzhou_13.jpg",
+    "artist": "Created by ForrestXYC, photoshopped by Ib",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 900,
+    "height": 1350
+  },
+  "hero-hsr": {
+    "file": "hero-hsr.jpg",
+    "title": "File:CR400AF-2001@BJN (20170626110730).jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:CR400AF-2001@BJN_(20170626110730).jpg",
+    "artist": "N509FZ",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 900,
+    "height": 600
+  },
+  "cs-hualuogeng": {
+    "file": "cs-hualuogeng.jpg",
+    "title": "File:Hua Luogeng 1956.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Hua_Luogeng_1956.jpg",
+    "artist": "牛畏予",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1066
+  },
+  "cs-yao": {
+    "file": "cs-yao.jpg",
+    "title": "File:Andrew Yao at GYSS 19Jan2016.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Andrew_Yao_at_GYSS_19Jan2016.jpg",
+    "artist": "Sinednov",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 900,
+    "height": 1378
+  },
+  "cs-wangxuan": {
+    "file": "cs-wangxuan.jpg",
+    "title": "File:Wang Xuan statue, Wuxi Museum.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Wang_Xuan_statue,_Wuxi_Museum.jpg",
+    "artist": "Huangchenhai",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 900,
+    "height": 675
+  },
+  "med-tuyouyou": {
+    "file": "med-tuyouyou.jpg",
+    "title": "File:D810 4987 Tu Youyou, medicine (22945001843) (cropped).jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:D810_4987_Tu_Youyou,_medicine_(22945001843)_(cropped).jpg",
+    "artist": "Bengt Nyman from Vaxholm, Sweden",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 900,
+    "height": 1345
+  },
+  "med-linqiaozhi": {
+    "file": "med-linqiaozhi.jpg",
+    "title": "File:Lin Qiaozhi in 1934.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Lin_Qiaozhi_in_1934.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1133
+  },
+  "med-wumengchao": {
+    "file": "med-wumengchao.jpg",
+    "title": "File:Wu Mengchao.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Wu_Mengchao.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1239
+  },
+  "law-dongbiwu": {
+    "file": "law-dongbiwu.jpg",
+    "title": "File:董必武主席.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:%E8%91%A3%E5%BF%85%E6%AD%A6%E4%B8%BB%E5%B8%AD.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1320
+  },
+  "law-shiliang": {
+    "file": "law-shiliang.jpg",
+    "title": "File:史良.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:%E5%8F%B2%E8%89%AF.jpg",
+    "artist": "政協秘書處",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1212
+  },
+  "law-xiejuezai": {
+    "file": "law-xiejuezai.jpg",
+    "title": "File:Xie Juezai.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Xie_Juezai.jpg",
+    "artist": "吴印咸，Wu Yinxian",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1139
+  },
+  "eng-qianxuesen": {
+    "file": "eng-qianxuesen.jpg",
+    "title": "File:Hsue-shen Tsien at his deportation hearing.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Hsue-shen_Tsien_at_his_deportation_hearing.jpg",
+    "artist": "Los Angeles Times",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "width": 900,
+    "height": 679
+  },
+  "eng-dengjiaxian": {
+    "file": "eng-dengjiaxian.jpg",
+    "title": "File:Deng Jiaxian 1949.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Deng_Jiaxian_1949.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1351
+  },
+  "eng-qiansanqiang": {
+    "file": "eng-qiansanqiang.jpg",
+    "title": "File:年轻的钱三强.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:%E5%B9%B4%E8%BD%BB%E7%9A%84%E9%92%B1%E4%B8%89%E5%BC%BA.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1245
+  },
+  "hero-greatwall": {
+    "file": "hero-greatwall.jpg",
+    "title": "File:The Mutianyu section of the Great Wall of China.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:The_Mutianyu_section_of_the_Great_Wall_of_China.jpg",
+    "artist": "Lloyd Tudor",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 900,
+    "height": 600
+  }
+}
