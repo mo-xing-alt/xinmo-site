@@ -126,6 +126,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-11"
     },
     {
+      id: "template-studio",
+      title: "轻画布 · 模板编辑器",
+      subtitle: "拖拽编辑 · 图层 · 导出 PNG",
+      description: "自研的纯前端画布编辑器：内置原创模板与常用画布尺寸，可添加文字、形状、贴纸与本地图片，支持拖拽移动、八点缩放、旋转、图层顺序、显示锁定、撤销重做、属性微调与画布中心吸附。工程自动保存在浏览器，可导出原始尺寸 PNG 或导入 JSON 继续编辑，素材不上传。",
+      category: "tool",
+      icon: "tool",
+      accent: "violet",
+      url: "./tools/template-studio/index.html",
+      tags: ["模板编辑", "图层管理", "拖拽缩放旋转", "撤销重做", "PNG 导出", "文件不上传"],
+      meta: "纯前端 · 单页工具 · 原创模板",
+      status: "可用",
+      updated: "2026-11-11"
+    },
+    {
       id: "coming-soon",
       soon: true,
       title: "下一个资源正在路上",
