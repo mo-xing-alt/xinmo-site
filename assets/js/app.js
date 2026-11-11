@@ -45,6 +45,15 @@
     });
   }
 
+  // 只允许 http(s) 与站内相对路径，挡住 javascript: / data: 等危险 scheme
+  function safeHref(u) {
+    u = String(u == null ? '' : u).trim();
+    if (/^https?:\/\//i.test(u)) return u;
+    if (/^\.{0,2}\//.test(u)) return u;
+    if (/^[\w.-]+\.html?$/i.test(u)) return u;
+    return '';
+  }
+
   function accentStyle(name) {
     var a = ACCENTS[name] || ACCENTS.indigo;
     return '--icon-color:' + a.color + ';--icon-bg:' + a.bg + ';--glow:' + a.glow;
@@ -69,6 +78,7 @@
         '</article>';
     }
     var tags = (item.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+    var href = safeHref(item.url);
     return '<article class="card" style="' + accentStyle(item.accent) + ';animation-delay:' + (index * 70) + 'ms">' +
       '<div class="card-top">' +
         '<span class="card-icon">' + (ICONS[item.icon] || ICONS.link) + '</span>' +
@@ -80,8 +90,10 @@
       '<div class="card-tags">' + tags + '</div>' +
       '<div class="card-meta">' + ICONS.calendar + '<span>' + esc(item.meta || '') + ' · 更新于 ' + esc(item.updated || lastUpdated) + '</span></div>' +
       '<div class="card-foot">' +
-        '<a class="open-link" href="' + esc(item.url) + '">打开资源 ' + ICONS.arrow + '</a>' +
-        '<button class="share-btn" type="button" data-share="' + esc(item.url) + '" title="复制资源链接" aria-label="复制 ' + esc(item.title) + ' 的链接">' + ICONS.share + '</button>' +
+        (href
+          ? '<a class="open-link" href="' + esc(href) + '">打开资源 ' + ICONS.arrow + '</a>' +
+            '<button class="share-btn" type="button" data-share="' + esc(href) + '" title="复制资源链接" aria-label="复制 ' + esc(item.title) + ' 的链接">' + ICONS.share + '</button>'
+          : '<span class="open-link" style="opacity:.5;cursor:not-allowed">链接不可用</span>') +
       '</div>' +
     '</article>';
   }
