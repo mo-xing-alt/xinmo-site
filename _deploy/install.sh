@@ -17,10 +17,14 @@ DATA_DIR="$APP_DIR/data"
 [ "$(id -u)" = "0" ] || { echo "请用 root 运行（sudo bash install.sh）"; exit 1; }
 [ -f "$BE_DIR/server.py" ] || { echo "缺少 $BE_DIR/server.py，请先把后端代码上传到该目录"; exit 1; }
 
+# 清理上次失败留下的 Caddy 源：keyring 文件名不匹配会让 apt update 直接报 NO_PUBKEY 并中止
+rm -f /etc/apt/sources.list.d/caddy-stable.list
+rm -f /usr/share/keyrings/caddy-stable.gpg
+
 echo "==> 1/6 安装依赖"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y python3 curl gnupg debian-keyring debian-archive-keyring apt-transport-https openssl
+apt-get install -y python3 curl gnupg debian-keyring debian-archive-keyring apt-transport-https openssl ca-certificates
 
 echo "==> 2/6 创建低权用户、数据目录与 swap"
 id -u riskguard >/dev/null 2>&1 || adduser --disabled-password --gecos "" riskguard
@@ -59,10 +63,15 @@ fi
 
 echo "==> 4/6 安装并配置 Caddy"
 if ! command -v caddy >/dev/null 2>&1; then
-  curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --batch --yes --dearmor -o /usr/share/keyrings/caddy-stable.gpg
+  # 注意：keyring 文件名必须与 debian.deb.txt 里的 signed-by 路径一致
+  curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --batch --yes --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
   curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt > /etc/apt/sources.list.d/caddy-stable.list
-  apt-get update -y
-  apt-get install -y caddy
+  if ! apt-get update -y || ! apt-get install -y caddy; then
+    echo "    官方源安装失败，改用 Ubuntu 自带源重试"
+    rm -f /etc/apt/sources.list.d/caddy-stable.list
+    apt-get update -y
+    apt-get install -y caddy
+  fi
 fi
 cat > /etc/caddy/Caddyfile <<EOF
 $DOMAIN {
@@ -104,6 +113,11 @@ systemctl reload caddy 2>/dev/null || systemctl restart caddy
 echo "==> 6/6 运行状态"
 sleep 2
 systemctl --no-pager --lines=0 status riskguard || true
+echo "--- 服务是否 active ---"
+echo "caddy: $(systemctl is-active caddy 2>/dev/null || true)"
+echo "riskguard: $(systemctl is-active riskguard 2>/dev/null || true)"
+echo "--- 端口监听 ---"
+ss -lntp 2>/dev/null | grep -E ':80 |:443 |:8791 ' || echo "（80/443/8791 没有监听）"
 echo
 echo "============================================================"
 echo " 部署完成：https://$DOMAIN/"
