@@ -49,16 +49,6 @@
     "width": 900,
     "height": 1378
   },
-  "cs-wangxuan": {
-    "file": "cs-wangxuan.jpg",
-    "title": "File:Wang Xuan statue, Wuxi Museum.jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:Wang_Xuan_statue,_Wuxi_Museum.jpg",
-    "artist": "Huangchenhai",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "width": 900,
-    "height": 675
-  },
   "med-tuyouyou": {
     "file": "med-tuyouyou.jpg",
     "title": "File:D810 4987 Tu Youyou, medicine (22945001843) (cropped).jpg",
@@ -120,14 +110,14 @@
     "height": 1139
   },
   "eng-qianxuesen": {
-    "file": "eng-qianxuesen.jpg",
-    "title": "File:Hsue-shen Tsien at his deportation hearing.jpg",
-    "page": "https://commons.wikimedia.org/wiki/File:Hsue-shen_Tsien_at_his_deportation_hearing.jpg",
-    "artist": "Los Angeles Times",
-    "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "file": "eng-qianxuesen.png",
+    "title": "File:歸國後的錢學森.png",
+    "page": "https://commons.wikimedia.org/wiki/File:%E6%AD%B8%E5%9C%8B%E5%BE%8C%E7%9A%84%E9%8C%A2%E5%AD%B8%E6%A3%AE.png",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
     "width": 900,
-    "height": 679
+    "height": 1269
   },
   "eng-dengjiaxian": {
     "file": "eng-dengjiaxian.jpg",
@@ -158,5 +148,15 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "width": 900,
     "height": 600
+  },
+  "cs-wangxuan": {
+    "file": "cs-wangxuan.jpg",
+    "title": "File:中学生王选.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%AD%A6%E7%94%9F%E7%8E%8B%E9%80%89.jpg",
+    "artist": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "width": 900,
+    "height": 1203
   }
 }

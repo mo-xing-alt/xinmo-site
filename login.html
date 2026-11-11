@@ -4,9 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="受邀访问 · xinmo.work 资源仓库" />
-<title>受邀访问 · xinmo.work</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
+<meta name="description" content="受邀访问 · 新模学习" />
+<title>受邀访问 · 新模学习</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='m32 12 5.8 12.1 13.2 1.9-9.6 9.2 2.4 13.1L32 42l-11.8 6.3 2.4-13.1-9.6-9.2 13.2-1.9Z' fill='%23f7e6bd'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="./assets/css/site.css" />
 <script>
   try {
@@ -18,7 +18,7 @@
   .gate { min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; }
   .gate-card { width: min(420px, 100%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 38px 32px 30px; }
   .gate-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 26px; }
-  .gate-mark { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#4f6bed,#7a4fd0); }
+  .gate-mark { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #7c0b10; background: radial-gradient(circle at 32% 28%, #fff3d0 0%, #e3b23c 46%, #b8862a 100%); box-shadow: 0 4px 12px rgba(94,7,11,.18); }
   .gate-mark svg { width: 22px; height: 22px; }
   .gate-brand strong { font-size: 15px; color: var(--heading); }
   .gate-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
@@ -31,11 +31,30 @@
   .pw-wrap { position: relative; }
   .pw-wrap input { padding-right: 62px; }
   .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; }
-  .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg,#4f6bed,#6c54df); box-shadow: 0 8px 22px rgba(79,107,237,.26); transition: transform .18s, filter .18s; }
+  .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px; cursor: pointer; background: linear-gradient(135deg,#c8151d,#8c0f14); box-shadow: 0 8px 22px rgba(200,21,29,.26); transition: transform .18s, filter .18s; }
   .gate-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
   .gate-btn:disabled { opacity: .6; cursor: wait; transform: none; }
   .gate-msg { min-height: 20px; margin: 12px 0 0; font-size: 12.5px; color: #c23c3c; }
   .gate-foot { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.8; color: var(--muted); }
+
+  :root {
+    --bg: #fbf9f6; --surface: #ffffff; --surface-2: #f8f1ea;
+    --border: #ece2d7; --border-strong: #e2d3c3;
+    --text: #24211d; --heading: #1b1917; --muted: #7d7469;
+    --accent: #bc141b; --accent-2: #9c1016; --accent-soft: #fdecea;
+  }
+  :root[data-theme="dark"] {
+    --bg: #140d0c; --surface: #1e1413; --surface-2: #271a18;
+    --border: rgba(255,235,220,.10); --border-strong: rgba(255,235,220,.18);
+    --text: #f0e2d9; --heading: #fdf3ec; --muted: #b39c90;
+    --accent: #ff6b5f; --accent-2: #ffa38f; --accent-soft: rgba(255,107,95,.14);
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; height: 4px; z-index: 2;
+    background: linear-gradient(90deg, #7c0b10, #c8151d 40%, #e3b23c 70%, #c8151d);
+  }
+  .gate-card { border-top: 3px solid #bc141b; }
+  .gate h1 { font-family: "Songti SC", "STSong", "SimSun", serif; letter-spacing: 3px; }
 </style>
 </head>
 <body>
@@ -43,10 +62,10 @@
   <div class="gate-card">
     <div class="gate-brand">
       <span class="gate-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
-      <span><strong>xinmo.work</strong><small>资源仓库</small></span>
+      <span><strong>新模学习</strong><small>XINMO STUDY · 学以报国</small></span>
     </div>
     <h1>受邀访问</h1>
-    <p class="gate-lead">这里存放的是私人分享的资源。请输入站主告知的账号与密码，登录后 7 天内无需重复输入。</p>
+    <p class="gate-lead">这里存放的是私人整理的领域知识与工具。请输入站主告知的账号与密码，登录后 7 天内无需重复输入。</p>
     <form id="loginForm" autocomplete="off">
       <div class="field">
         <label for="username">账号</label>
