@@ -334,6 +334,18 @@
     });
   }
 
+  /* 在聊天窗口/预览面板的内嵌框架里，链接可能被沙箱拦成“下载文件”。
+     此时把站内链接改成新标签打开，保证模块能被正常浏览。 */
+  function initFrameLinks() {
+    if (window.top === window.self) return;
+    document.querySelectorAll("a[href]").forEach(function (a) {
+      var href = a.getAttribute("href");
+      if (!href || href.charAt(0) === "#" || /^(https?:|mailto:|javascript:)/i.test(href)) return;
+      a.target = "_blank";
+      a.rel = "noopener";
+    });
+  }
+
   function boot() {
     initQuotes();
     initDate();
@@ -341,6 +353,7 @@
     initModuleGrid();
     initSearch();
     renderModule();
+    initFrameLinks();
     initNav();
     initReveal();
   }

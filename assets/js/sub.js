@@ -144,8 +144,19 @@
     });
   }
 
+  function initFrameLinks() {
+    if (window.top === window.self) return;
+    document.querySelectorAll("a[href]").forEach(function (a) {
+      var href = a.getAttribute("href");
+      if (!href || href.charAt(0) === "#" || /^(https?:|mailto:|javascript:)/i.test(href)) return;
+      a.target = "_blank";
+      a.rel = "noopener";
+    });
+  }
+
   function boot() {
     initNotebook();
+    initFrameLinks();
     initReveal();
     initYear();
   }
