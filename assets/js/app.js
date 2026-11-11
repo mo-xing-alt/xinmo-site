@@ -240,10 +240,7 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (rows) {
         if (!Array.isArray(rows)) return;
-        // 站点已定位为钢琴简谱库：只展示与琴谱相关的提交，其余不渲染
-        remoteItems = rows.map(mapSupabaseRow).filter(function (it) {
-          return it && /谱|钢琴|piano|jianpu|sheet/i.test(it.title + ' ' + it.description + ' ' + it.url);
-        });
+        remoteItems = rows.map(mapSupabaseRow).filter(Boolean);
       })
       .catch(function () {});
   }
