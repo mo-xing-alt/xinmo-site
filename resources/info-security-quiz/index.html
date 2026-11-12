@@ -241,10 +241,11 @@ function load() {
       removed: s.removed || {},
       answerCount: s.answerCount || 0,
       correctCount: s.correctCount || 0,
-      session: s.session || null
+      session: s.session || null,
+      sessionTs: Number(s.sessionTs) || 0
     };
   } catch (e) {
-    return { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null };
+    return { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null, sessionTs: 0 };
   }
 }
 let S = load();
@@ -271,12 +272,13 @@ var QuizSync = (function () {
   var key = '';
   var mode = 'local';          // 'cloud' | 'local'
   var status = 'local';        // 'synced' | 'syncing' | 'local'
-  var lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0 };
+  var lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, sessionTs: 0 };
   var queue = null;            // 串行请求队列
   var timer = null;
   var pending = false;
   var stateEl = null;
   var hasBaseline = false;     // 是否已与云端建立过同步基线（首次 pull 不做 reset 判定）
+  var sessionChanged = false;  // 本次 merge 是否采纳了云端会话（供 init 决定切到哪个视图）
 
   function cloneSet(src) {
     var out = {};
@@ -312,7 +314,8 @@ var QuizSync = (function () {
       seen: cloneSet(S.seen),
       wrong: cloneSet(S.wrong),
       answerCount: Number(S.answerCount) || 0,
-      correctCount: Number(S.correctCount) || 0
+      correctCount: Number(S.correctCount) || 0,
+      sessionTs: Number(S.sessionTs) || 0
     };
   }
 
@@ -365,10 +368,11 @@ var QuizSync = (function () {
    * 若「本地已同步的计数 > 云端计数」，只可能是云端被 p_reset 清过 —— 此时全量以云端为准；
    * 首次与云端交互（hasBaseline 为 false）不做该判定，避免误删本地未推送进度。
    */
-  function mergeCloud(data) {
+  function mergeCloud(data, applySession) {
+    sessionChanged = false;
     if (!data) {
       // 云端还没有该账号记录：基线留空，这样首次 push 会把本地全部进度当作增量上传
-      lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0 };
+      lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, sessionTs: 0 };
       hasBaseline = true;
       return;
     }
@@ -408,39 +412,63 @@ var QuizSync = (function () {
       S.correctCount = Math.max(Number(S.correctCount) || 0, cloudCorrect);
     }
 
+    // 练习会话（session）合并：LWW，只有云端时间戳更新才采纳（数据来自云端快照）。
+    // 且只在 applySession 为 true（页面初始化时的 pull）生效 —— push 前的校准绝不能把
+    // 用户正在做的题换掉。
+    if (applySession === true) {
+      var cloudSessionTs = Number(data.sessionTs || 0);
+      var localSessionTs = Number(S.sessionTs || 0);
+      if (cloudSessionTs > localSessionTs) {
+        S.session = data.session || null;
+        S.sessionTs = cloudSessionTs;
+        sessionChanged = true;
+      } else if (hasBaseline && Number(lastSynced.sessionTs || 0) > 0 &&
+                 cloudSessionTs === 0 && data.session == null && localSessionTs > 0) {
+        // 只有「确实同步过、且云端曾经有过会话、现在被清零」才认定是另一台设备 resetAll：
+        // 首次启用（hasBaseline=false 或 lastSynced.sessionTs===0）一律不清本地会话
+        S.session = null;
+        S.sessionTs = 0;
+        sessionChanged = true;
+      }
+    }
+
     // 同步基线取「云端快照」：push 的 delta 始终等于「本地 - 云端」，
     // 本地尚未推送的增量才不会被 baseline 吃掉
     lastSynced = {
       seen: cloneSet(cloudSeen),
       wrong: cloneSet(cloudWrong),
       answerCount: cloudAnswer,
-      correctCount: cloudCorrect
+      correctCount: cloudCorrect,
+      sessionTs: Number(data.sessionTs) || 0
     };
     hasBaseline = true;
     persist();
     refreshUI();
   }
 
-  // 单次拉取（不含重试、不改状态位）
-  function pullOnce() {
-    return request(RPC_PULL, { p_owner: owner, p_key: key }).then(mergeCloud);
+  // 单次拉取（不含重试、不改状态位）；applySession 控制是否允许用云端会话覆盖本地
+  function pullOnce(applySession) {
+    return request(RPC_PULL, { p_owner: owner, p_key: key }).then(function (data) {
+      mergeCloud(data, applySession === true);
+    });
   }
 
-  // 页面加载 / 手动拉取：带重试与状态位
-  function pull() {
+  // 页面加载 / 手动拉取：带重试与状态位；默认允许采纳云端会话
+  function pull(applySession) {
     if (mode !== 'cloud') return Promise.resolve();
     setStatus('syncing');
-    return retrying(pullOnce).then(function () {
+    return retrying(function () { return pullOnce(applySession !== false); }).then(function () {
       setStatus('synced');
     }).catch(function () {
       setStatus('local');
     });
   }
 
-  // 静默拉取：不改状态位、不弹提示；失败则 reject，调用方据此放弃本次 push
+  // 静默拉取：不改状态位、不弹提示；失败则 reject，调用方据此放弃本次 push。
+  // 注意：push 前的校准绝不采纳云端会话（applySession=false），避免打断正在答题的用户。
   function pullSilent() {
     if (mode !== 'cloud') return Promise.reject(new Error('local-mode'));
-    return pullOnce();
+    return pullOnce(false);
   }
 
   // 用当前 baseline 计算增量并单次推送（不含重试）
@@ -468,7 +496,9 @@ var QuizSync = (function () {
       p_wrong_remove: wrongRemove,
       p_delta_answer: dAnswer,
       p_delta_correct: dCorrect,
-      p_reset: opt.reset === true
+      p_reset: opt.reset === true,
+      p_session: S.session || null,
+      p_session_ts: Number(S.sessionTs) || 0
     };
 
     return request(RPC_PUSH, body).then(function (data) {
@@ -581,7 +611,20 @@ var QuizSync = (function () {
     mode = 'cloud';
     baseline();
     setStatus('syncing');
-    enqueue(function () { return pull(); });
+    enqueue(function () {
+      return pull(true).then(function () {
+        if (!sessionChanged) return;
+        sessionChanged = false;
+        // 云端会话更新：直接切到对应视图；session 为 null 表示另一台设备 resetAll 了
+        if (S.session) {
+          lastMode = S.session.mode || 'random';
+          renderQuiz();   // i >= ids.length 时内部会走 renderDone（结果页）
+        } else {
+          renderHome();
+          show('homeView');
+        }
+      });
+    });
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'hidden') flush();
     });
@@ -598,7 +641,8 @@ var QuizSync = (function () {
     pull: pull,
     push: syncNow,
     status: function () { return status; },
-    mode: function () { return mode; }
+    mode: function () { return mode; },
+    sessionChanged: function () { return sessionChanged; }
   };
 })();
 
@@ -645,6 +689,7 @@ function newSession(mode) {
     if (!ids.length) ids = shuffle(DATA.map(q => q.id));
   }
   S.session = { mode, ids, i: 0, right: 0, bad: 0, answered: false, selected: null };
+  S.sessionTs = Date.now();   // 只有会话真变化才 bump，避免无变化的 save 覆盖另一台设备
   save();
   renderQuiz();
 }
@@ -750,6 +795,7 @@ function pick(k) {
     S.wrong[q.id] = (S.wrong[q.id] || 0) + 1;
   }
   S.seen[q.id] = true;
+  S.sessionTs = Date.now();   // 会话状态（已答 / 选项 / 对错）变了
   save();
   paintAnswer(k, q);
   $('qScore').textContent = `本轮 ✓${sess.right}  ✗${sess.bad}`;
@@ -762,6 +808,7 @@ function nextQuestion() {
   sess.i++;
   sess.answered = false;
   sess.selected = null;
+  S.sessionTs = Date.now();   // 推进到下一题
   save();
   if (sess.i >= sess.ids.length) renderDone(); else renderQuiz();
 }
@@ -784,6 +831,7 @@ function renderDone() {
     ? `<span>再练一轮错题</span><small>${fmt(wrongIds().length)} 题</small>`
     : `<span>继续随机练习</span><small>剩余 ${fmt(left)} 题</small>`;
   again.disabled = sess.mode === 'wrong' && wrongIds().length === 0;
+  S.sessionTs = Date.now();   // 让服务端 LWW 接受这次 null（否则另一台设备会停在最后一题）
   S.session = null;
   save();
 }
@@ -809,7 +857,7 @@ $('resetWrong').onclick = () => {
 $('resetAll').onclick = () => {
   if (confirm('确定重置全部进度吗？已练记录、错题本、正确率都会清空。')) {
     localStorage.removeItem(KEY);
-    S = { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null };
+    S = { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null, sessionTs: 0 };
     renderHome();
     show('homeView');
     if (window.QuizSync) window.QuizSync.resetRemote();
@@ -841,6 +889,7 @@ document.addEventListener('keydown', e => {
 if (S.session && S.session.i < S.session.ids.length && byId[S.session.ids[S.session.i]]) {
   renderQuiz();
 } else {
+  S.sessionTs = Date.now();   // 让服务端 LWW 接受这次 null（否则另一台设备会停在最后一题）
   S.session = null;
   save();
   renderHome();
