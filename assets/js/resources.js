@@ -71,17 +71,17 @@ window.RESOURCE_CATALOG = {
     },
     {
       id: "chaoxing-speed",
-      title: "学习通倍速（油猴脚本）",
-      subtitle: "0.5–16× · 网页视频加速",
-      description: "给学习通（chaoxing.com）的 HTML5 视频加一个悬浮倍速面板，0.5–16× 可调，支持预设、微调、快捷键与记忆。需要先安装 Tampermonkey / Violentmonkey；脚本只改播放速度，不碰账号密码。",
+      title: "网页视频倍速（油猴脚本）",
+      subtitle: "任意平台 · 0.5–16×",
+      description: "给任意网站的 HTML5 视频加一个悬浮倍速面板，0.5–16× 可调：学习通、B站、慕课、YouTube、网盘播放器通用。支持预设、微调、快捷键、拖动位置与记忆，全屏播放时面板也会跟进去。需要先装 Tampermonkey / Violentmonkey；脚本只改播放速度，不碰账号密码。",
       category: "tool",
       icon: "code",
       accent: "amber",
       url: "./tools/chaoxing-speed/index.html",
-      tags: ["学习通", "倍速", "油猴脚本", "Tampermonkey", "0.5-16倍"],
+      tags: ["任意平台", "网页视频", "倍速", "油猴脚本", "0.5-16倍", "全屏可用"],
       meta: "浏览器脚本 · 需装油猴",
       status: "可用",
-      updated: "2026-11-11"
+      updated: "2026-11-12"
     },
     {
       id: "video-speed",

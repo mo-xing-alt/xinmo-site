@@ -31,7 +31,7 @@
   .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
   .pw-wrap { position: relative; }
   .pw-wrap input { padding-right: 62px; }
-  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; }
+  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; min-width: 46px; min-height: 36px; }
   .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px; cursor: pointer; background: linear-gradient(135deg,#c8151d,#8c0f14); box-shadow: 0 8px 22px rgba(200,21,29,.26); transition: transform .18s, filter .18s; }
   .gate-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
   .gate-btn:disabled { opacity: .6; cursor: wait; transform: none; }
@@ -202,8 +202,8 @@
       clearFails();
       var exp = Date.now() + (r.days || 7) * 86400000;
       try {
-        // 同时保存账号名，供上传资料时署名
-        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, u: user, exp: exp }));
+        // 同时保存账号名（统一小写去空格，供署名与进度同步）与派生密钥 k（仅存本机，不进日志）
+        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, u: user.trim().toLowerCase(), exp: exp, k: r.key }));
       } catch (err) {
         fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
         return;

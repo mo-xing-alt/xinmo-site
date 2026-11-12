@@ -175,6 +175,7 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:.5px}
       <div class="stat bad"><b id="sWrong">0</b><span>错题</span></div>
       <div class="stat good"><b id="sRate">—</b><span>正确率</span></div>
     </div>
+    <p class="sub" id="syncState" style="text-align:center;margin:-6px 0 18px">云同步：仅本机</p>
     <div class="actions">
       <button class="btn btn-main" id="startRandom"><span id="startRandomLabel">开始随机练习</span><small id="startRandomMeta"></small></button>
       <button class="btn btn-ghost" id="startWrong"><span>错题重练</span><small id="wrongMeta">暂无错题</small></button>
@@ -247,7 +248,281 @@ function load() {
 }
 let S = load();
 let lastMode = 'random';
-function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(S));
+  if (window.QuizSync) window.QuizSync.schedule();
+}
+
+/* ---- 跨设备进度同步（旁路模块：任何网络失败都退回本地，绝不影响答题） ---- */
+var QuizSync = (function () {
+  'use strict';
+
+  var SB_URL = 'https://monwlglwpwwbejrifwmj.supabase.co';
+  var SB_KEY = 'sb_publishable_ruUIXDxjj_LyZysCMf0_FQ_2ewm-cRq';
+  var RPC_PULL = SB_URL + '/rest/v1/rpc/quiz_pull';
+  var RPC_PUSH = SB_URL + '/rest/v1/rpc/quiz_push';
+  var DEBOUNCE_MS = 1500;
+  var RETRY_DELAYS = [2000, 5000, 10000];
+
+  var owner = '';
+  var key = '';
+  var mode = 'local';          // 'cloud' | 'local'
+  var status = 'local';        // 'synced' | 'syncing' | 'local'
+  var lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0 };
+  var queue = null;            // 串行请求队列
+  var timer = null;
+  var pending = false;
+  var stateEl = null;
+
+  function cloneSet(src) {
+    var out = {};
+    if (src && typeof src === 'object') {
+      Object.keys(src).forEach(function (id) { if (src[id]) out[id] = true; });
+    }
+    return out;
+  }
+
+  function setStatus(next) {
+    status = next;
+    if (!stateEl) stateEl = document.getElementById('syncState');
+    if (!stateEl) return;
+    var text = '云同步：';
+    if (next === 'synced') text += '已同步';
+    else if (next === 'syncing') text += '同步中';
+    else text += '仅本机';
+    if (next === 'local' && mode === 'local') text += ' · 请退出后重新登录一次以启用';
+    stateEl.textContent = text;
+  }
+
+  // 只落盘，不再触发同步调度（避免 pull/push 回写时自激循环）
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  function refreshUI() {
+    try { if (typeof renderHome === 'function') renderHome(); } catch (e) {}
+  }
+
+  function baseline() {
+    lastSynced = {
+      seen: cloneSet(S.seen),
+      wrong: cloneSet(S.wrong),
+      answerCount: Number(S.answerCount) || 0,
+      correctCount: Number(S.correctCount) || 0
+    };
+  }
+
+  function readAuth() {
+    try {
+      var s = JSON.parse(localStorage.getItem('xinmo_access') || 'null');
+      if (!s || typeof s !== 'object') return null;
+      var u = typeof s.u === 'string' ? s.u.trim().toLowerCase() : '';
+      var k = typeof s.k === 'string' ? s.k : '';
+      if (!u || u.length > 64 || !k || k.length < 16) return null;   // 老会话没有 k：降级为仅本机
+      return { u: u, k: k };
+    } catch (e) { return null; }
+  }
+
+  function request(url, body) {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SB_KEY,
+        Authorization: 'Bearer ' + SB_KEY
+      },
+      body: JSON.stringify(body),
+      cache: 'no-store'
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  // 失败最多重试 3 次，退避 2s / 5s / 10s
+  function withRetry(fn, attempt) {
+    var n = attempt || 0;
+    return fn().catch(function (err) {
+      if (n >= RETRY_DELAYS.length) throw err;
+      return new Promise(function (resolve) {
+        setTimeout(resolve, RETRY_DELAYS[n]);
+      }).then(function () { return withRetry(fn, n + 1); });
+    });
+  }
+
+  function pull() {
+    if (mode !== 'cloud') return Promise.resolve();
+    setStatus('syncing');
+    return withRetry(function () {
+      return request(RPC_PULL, { p_owner: owner, p_key: key });
+    }).then(function (data) {
+      if (data) {
+        var cloudSeen = data.seen || {};
+        var cloudWrong = data.wrong || {};
+        // seen 只增不减：直接并集
+        Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+        // wrong 以云端为准（别处已清空的错题不会被并集加回来），
+        // 但保留「本地新增且尚未推送」的错题，避免丢本地进度
+        var pendingWrong = {};
+        Object.keys(S.wrong).forEach(function (id) {
+          if (S.wrong[id] && !lastSynced.wrong[id]) pendingWrong[id] = true;
+        });
+        var mergedWrong = {};
+        Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) mergedWrong[id] = true; });
+        Object.keys(pendingWrong).forEach(function (id) { mergedWrong[id] = true; });
+        S.wrong = mergedWrong;
+        // 计数取两端较大值：本地尚未推送的增量随后由 push 的 delta 补上
+        S.answerCount = Math.max(Number(S.answerCount) || 0, Number(data.answerCount) || 0);
+        S.correctCount = Math.max(Number(S.correctCount) || 0, Number(data.correctCount) || 0);
+        baseline();
+        persist();
+        refreshUI();
+      } else {
+        baseline();   // 云端还没有记录：把本地当前状态作为基线
+      }
+      setStatus('synced');
+    }).catch(function () {
+      setStatus('local');
+    });
+  }
+
+  function push(options) {
+    if (mode !== 'cloud') return Promise.resolve();
+    var opt = options || {};
+    setStatus('syncing');
+
+    var seen = S.seen || {};
+    var wrong = S.wrong || {};
+    var seenAdd = {};
+    var wrongAdd = {};
+    var wrongRemove = [];
+
+    Object.keys(seen).forEach(function (id) { if (seen[id] && !lastSynced.seen[id]) seenAdd[id] = true; });
+    Object.keys(wrong).forEach(function (id) { if (wrong[id] && !lastSynced.wrong[id]) wrongAdd[id] = true; });
+    Object.keys(lastSynced.wrong).forEach(function (id) {
+      if (lastSynced.wrong[id] && !wrong[id]) wrongRemove.push(id);
+    });
+
+    // 只上传未推送的增量，避免多设备重复计数
+    var dAnswer = Math.max(0, (Number(S.answerCount) || 0) - (Number(lastSynced.answerCount) || 0));
+    var dCorrect = Math.max(0, (Number(S.correctCount) || 0) - (Number(lastSynced.correctCount) || 0));
+
+    var body = {
+      p_owner: owner,
+      p_key: key,
+      p_seen_add: seenAdd,
+      p_wrong_add: wrongAdd,
+      p_wrong_remove: wrongRemove,
+      p_delta_answer: dAnswer,
+      p_delta_correct: dCorrect,
+      p_reset: opt.reset === true
+    };
+
+    return withRetry(function () { return request(RPC_PUSH, body); })
+      .then(function (data) {
+        if (data) {
+          var cloudSeen = data.seen || {};
+          var cloudWrong = data.wrong || {};
+          Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+          // 本次 push 已把所有本地增量送达云端，wrong 直接以云端为准（reset / 别处清空能生效）
+          var nextWrong = {};
+          Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) nextWrong[id] = true; });
+          S.wrong = nextWrong;
+          S.answerCount = Number(data.answerCount) || 0;
+          S.correctCount = Number(data.correctCount) || 0;
+          baseline();
+          persist();
+          refreshUI();
+        } else {
+          baseline();
+        }
+        setStatus('synced');
+      })
+      .catch(function () {
+        setStatus('local');
+      });
+  }
+
+  function enqueue(task) {
+    if (!queue) queue = Promise.resolve();
+    queue = queue.then(function () {
+      if (mode !== 'cloud') return null;
+      return task().catch(function () { return null; });
+    });
+    return queue;
+  }
+
+  function cancelTimer() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    pending = false;
+  }
+
+  function schedule() {
+    if (mode !== 'cloud') return;
+    pending = true;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function () {
+      timer = null;
+      if (!pending) return;
+      pending = false;
+      enqueue(function () { return push(); });
+    }, DEBOUNCE_MS);
+  }
+
+  function flush() {
+    if (mode !== 'cloud') return;
+    if (!pending) return;
+    cancelTimer();
+    enqueue(function () { return push(); });
+  }
+
+  // resetWrong：本地 wrong 已清空，push 时把 lastSynced.wrong 的差集作为 p_wrong_remove 上传
+  function resetWrong() {
+    if (mode !== 'cloud') return;
+    cancelTimer();
+    enqueue(function () { return push(); });
+  }
+
+  // resetAll：整库重置
+  function resetRemote() {
+    if (mode !== 'cloud') return;
+    cancelTimer();
+    enqueue(function () { return push({ reset: true }); });
+  }
+
+  function init() {
+    stateEl = document.getElementById('syncState');
+    var auth = readAuth();
+    if (!auth) {
+      mode = 'local';
+      setStatus('local');
+      return;
+    }
+    owner = auth.u;
+    key = auth.k;
+    mode = 'cloud';
+    baseline();
+    setStatus('syncing');
+    enqueue(function () { return pull(); });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flush();
+    });
+    window.addEventListener('pagehide', function () { flush(); });
+  }
+
+  init();
+
+  return {
+    schedule: schedule,
+    flush: flush,
+    resetWrong: resetWrong,
+    resetRemote: resetRemote,
+    pull: pull,
+    push: push,
+    status: function () { return status; },
+    mode: function () { return mode; }
+  };
+})();
 
 const $ = id => document.getElementById(id);
 const fmt = n => n.toLocaleString('zh-CN');
@@ -448,6 +723,7 @@ $('resetWrong').onclick = () => {
     S.wrong = {};
     save();
     renderHome();
+    if (window.QuizSync) window.QuizSync.resetWrong();
   }
 };
 $('resetAll').onclick = () => {
@@ -456,6 +732,7 @@ $('resetAll').onclick = () => {
     S = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, session: null };
     renderHome();
     show('homeView');
+    if (window.QuizSync) window.QuizSync.resetRemote();
   }
 };
 

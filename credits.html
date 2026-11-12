@@ -16,6 +16,18 @@
   .credit-table th { font-size:12px; letter-spacing:1px; color:#7c7c85; background:#fbf7f4; }
   .credit-table td b { font-size:13px; }
   .credit-table a { color:#bc141b; }
+  /* 手机端把 5 列表格改成卡片，避免「来源」列被挤出屏幕 */
+  @media (max-width: 720px) {
+    .credit-table-wrap { padding:0 !important; background:transparent !important; border:0 !important; box-shadow:none !important; }
+    .credit-table, .credit-table tbody, .credit-table tr, .credit-table td { display:block; width:100%; box-sizing:border-box; }
+    .credit-table thead { display:none; }
+    .credit-table tr { border:1px solid rgba(29,29,31,.1); border-radius:10px; padding:10px 12px; margin:0 0 10px; background:#fff; }
+    .credit-table td { display:flex; gap:10px; align-items:baseline; padding:5px 0; border:0; font-size:12.5px; overflow-wrap:anywhere; word-break:break-word; }
+    .credit-table td::before { content:attr(data-label); flex:0 0 52px; color:#8a7a72; font-size:11.5px; letter-spacing:.5px; }
+    .credit-table td:last-child { padding-top:8px; }
+    .credit-table a { display:inline-block; padding:6px 0; }
+  }
+
   .credit-note { background:#fff9f5; border:1px solid rgba(200,20,27,.12); border-radius:10px; padding:14px 16px; font-size:13px; color:#45454c; line-height:1.9; }
   .credit-figure { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:14px; margin-top:18px; }
   .credit-figure figure { margin:0; border:1px solid rgba(29,29,31,.09); border-radius:10px; overflow:hidden; background:#fff; }
@@ -81,26 +93,26 @@
 
   <section class="section">
     <div class="section-head"><div><h2>完整清单</h2><p>共 16 张图片 · 按文件名字母序</p></div></div>
-    <div class="panel" style="padding:6px 8px">
+    <div class="panel credit-table-wrap" style="padding:6px 8px">
       <table class="credit-table">
         <thead><tr><th>文件</th><th>内容</th><th>作者</th><th>许可</th><th>来源</th></tr></thead>
         <tbody>
-          <tr><td>cs-hualuogeng.jpg</td><td><b>华罗庚（1956）</b></td><td>牛畏予</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:Hua_Luogeng_1956.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>cs-wangxuan.jpg</td><td><b>少年王选</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%AD%A6%E7%94%9F%E7%8E%8B%E9%80%89.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>cs-yao.jpg</td><td><b>姚期智（2016）</b></td><td>Sinednov</td><td>CC BY-SA 4.0</td><td><a href="https://commons.wikimedia.org/wiki/File:Andrew_Yao_at_GYSS_19Jan2016.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>eng-dengjiaxian.jpg</td><td><b>邓稼先（1949）</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:Deng_Jiaxian_1949.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>eng-qiansanqiang.jpg</td><td><b>年轻的钱三强</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E5%B9%B4%E8%BD%BB%E7%9A%84%E9%92%B1%E4%B8%89%E5%BC%BA.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>eng-qianxuesen.jpg</td><td><b>钱学森归国后</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E6%AD%B8%E5%9C%8B%E5%BE%8C%E7%9A%84%E9%8C%A2%E5%AD%B8%E6%A3%AE.png" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>hero-greatwall.jpg</td><td><b>慕田峪长城</b></td><td>Lloyd Tudor</td><td>CC BY-SA 4.0</td><td><a href="https://commons.wikimedia.org/wiki/File:The_Mutianyu_section_of_the_Great_Wall_of_China.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>hero-hsr.jpg</td><td><b>复兴号 CR400AF</b></td><td>N509FZ</td><td>CC BY-SA 4.0</td><td><a href="https://commons.wikimedia.org/wiki/File:CR400AF-2001@BJN_(20170626110730).jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>hero-rocket.jpg</td><td><b>神舟十三号发射</b></td><td>Created by ForrestXYC, photoshopped by Ib</td><td>CC BY-SA 4.0</td><td><a href="https://commons.wikimedia.org/wiki/File:Launch_of_Shenzhou_13.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>hero-tiananmen.jpg</td><td><b>天安门夜景</b></td><td>Charlie fong冯成</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>law-dongbiwu.jpg</td><td><b>董必武</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E8%91%A3%E5%BF%85%E6%AD%A6%E4%B8%BB%E5%B8%AD.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>law-shiliang.jpg</td><td><b>史良</b></td><td>政協秘書處</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:%E5%8F%B2%E8%89%AF.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>law-xiejuezai.jpg</td><td><b>谢觉哉</b></td><td>吴印咸，Wu Yinxian</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:Xie_Juezai.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>med-linqiaozhi.jpg</td><td><b>林巧稚（1934）</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:Lin_Qiaozhi_in_1934.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>med-tuyouyou.jpg</td><td><b>屠呦呦（2015）</b></td><td>Bengt Nyman from Vaxholm, Sweden</td><td>CC BY 2.0</td><td><a href="https://commons.wikimedia.org/wiki/File:D810_4987_Tu_Youyou,_medicine_(22945001843)_(cropped).jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
-          <tr><td>med-wumengchao.jpg</td><td><b>吴孟超</b></td><td>佚名佚名</td><td>Public domain</td><td><a href="https://commons.wikimedia.org/wiki/File:Wu_Mengchao.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">cs-hualuogeng.jpg</td><td data-label="内容"><b>华罗庚（1956）</b></td><td data-label="作者">牛畏予</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Hua_Luogeng_1956.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">cs-wangxuan.jpg</td><td data-label="内容"><b>少年王选</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%AD%A6%E7%94%9F%E7%8E%8B%E9%80%89.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">cs-yao.jpg</td><td data-label="内容"><b>姚期智（2016）</b></td><td data-label="作者">Sinednov</td><td data-label="许可">CC BY-SA 4.0</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Andrew_Yao_at_GYSS_19Jan2016.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">eng-dengjiaxian.jpg</td><td data-label="内容"><b>邓稼先（1949）</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Deng_Jiaxian_1949.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">eng-qiansanqiang.jpg</td><td data-label="内容"><b>年轻的钱三强</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E5%B9%B4%E8%BD%BB%E7%9A%84%E9%92%B1%E4%B8%89%E5%BC%BA.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">eng-qianxuesen.jpg</td><td data-label="内容"><b>钱学森归国后</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E6%AD%B8%E5%9C%8B%E5%BE%8C%E7%9A%84%E9%8C%A2%E5%AD%B8%E6%A3%AE.png" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">hero-greatwall.jpg</td><td data-label="内容"><b>慕田峪长城</b></td><td data-label="作者">Lloyd Tudor</td><td data-label="许可">CC BY-SA 4.0</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:The_Mutianyu_section_of_the_Great_Wall_of_China.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">hero-hsr.jpg</td><td data-label="内容"><b>复兴号 CR400AF</b></td><td data-label="作者">N509FZ</td><td data-label="许可">CC BY-SA 4.0</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:CR400AF-2001@BJN_(20170626110730).jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">hero-rocket.jpg</td><td data-label="内容"><b>神舟十三号发射</b></td><td data-label="作者">Created by ForrestXYC, photoshopped by Ib</td><td data-label="许可">CC BY-SA 4.0</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Launch_of_Shenzhou_13.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">hero-tiananmen.jpg</td><td data-label="内容"><b>天安门夜景</b></td><td data-label="作者">Charlie fong冯成</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">law-dongbiwu.jpg</td><td data-label="内容"><b>董必武</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E8%91%A3%E5%BF%85%E6%AD%A6%E4%B8%BB%E5%B8%AD.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">law-shiliang.jpg</td><td data-label="内容"><b>史良</b></td><td data-label="作者">政協秘書處</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:%E5%8F%B2%E8%89%AF.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">law-xiejuezai.jpg</td><td data-label="内容"><b>谢觉哉</b></td><td data-label="作者">吴印咸，Wu Yinxian</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Xie_Juezai.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">med-linqiaozhi.jpg</td><td data-label="内容"><b>林巧稚（1934）</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Lin_Qiaozhi_in_1934.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">med-tuyouyou.jpg</td><td data-label="内容"><b>屠呦呦（2015）</b></td><td data-label="作者">Bengt Nyman from Vaxholm, Sweden</td><td data-label="许可">CC BY 2.0</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:D810_4987_Tu_Youyou,_medicine_(22945001843)_(cropped).jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
+          <tr><td data-label="文件">med-wumengchao.jpg</td><td data-label="内容"><b>吴孟超</b></td><td data-label="作者">佚名佚名</td><td data-label="许可">Public domain</td><td data-label="来源"><a href="https://commons.wikimedia.org/wiki/File:Wu_Mengchao.jpg" target="_blank" rel="noopener noreferrer">Commons ↗</a></td></tr>
         </tbody>
       </table>
     </div>

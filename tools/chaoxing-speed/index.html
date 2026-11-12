@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="学习通倍速油猴脚本：给 chaoxing.com 的 HTML5 视频加 0.5–16× 悬浮倍速面板。" />
-<title>学习通倍速（油猴脚本） · xinmo.work</title>
+<meta name="description" content="网页视频倍速油猴脚本：给任意网站的 HTML5 视频加 0.5–16× 悬浮倍速面板，学习通、B站、慕课、YouTube、网盘播放器通用。" />
+<title>网页视频倍速（油猴脚本） · xinmo.work</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23c9820a'/%3E%3Cpath d='M36 10 22 36h9l-3 18 14-26h-9z' fill='%23fff'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../../assets/css/site.css" />
 <script>
@@ -73,15 +73,15 @@
       <span class="cx-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="currentColor" style="width:19px;height:19px"><path d="M13 2 5 13h5l-1 9 8-11h-5z"/></svg>
       </span>
-      <span><strong>学习通倍速</strong><small>0.5–16× · 油猴脚本</small></span>
+      <span><strong>网页视频倍速</strong><small>任意平台 · 0.5–16×</small></span>
     </div>
     <a class="cx-back" href="../../index.html">← 返回资源仓库</a>
   </div>
 
   <section class="cx-hero">
     <span class="tag">TAMPERMONKEY SCRIPT</span>
-    <h1>给学习通的视频加一个倍速面板</h1>
-    <p>装上脚本后，打开 <code>chaoxing.com</code> 的课程视频，右下角会出现「⚡ 1×」悬浮按钮。0.5–16× 随意调，支持预设、微调、快捷键与记忆。脚本只改 <code>video.playbackRate</code>，<b>不碰账号、密码、课程数据</b>。</p>
+    <h1>给任何网站的视频加一个倍速面板</h1>
+    <p>装上脚本后，只要页面里有 HTML5 视频，右下角就会出现「⚡ 1×」悬浮按钮：学习通、B站、慕课、YouTube、网盘播放器都能用。0.5–16× 随意调，支持预设、微调、快捷键、拖动位置与记忆。脚本只改 <code>video.playbackRate</code>，<b>不碰账号、密码、课程数据</b>。</p>
     <div class="cx-actions">
       <a class="cx-btn" href="./chaoxing-speed.user.js" download>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></svg>
@@ -98,7 +98,7 @@
     <ol class="cx-steps">
       <li>给浏览器装 <b>Tampermonkey</b>（油猴）：Chrome 应用商店 / Edge 加载项里搜「Tampermonkey」，点安装。</li>
       <li>回到本页，点上面的「<b>安装脚本</b>」。油猴会弹出安装页，点「安装」即可。</li>
-      <li>打开学习通的课程视频页，右下角出现「⚡ 1×」就成功了。点它展开倍速面板。</li>
+      <li>随便打开一个有视频的网页（学习通课程、B站、慕课、YouTube 都行），右下角出现「⚡ 1×」就成功了。点它展开倍速面板。</li>
     </ol>
   </section>
 
@@ -108,8 +108,10 @@
       <li>点「⚡」展开面板，点 <code>0.5× / 1× / 1.5× / 2× / 3× / 4× … 16×</code> 直接切换。</li>
       <li><code>−</code> / <code>+</code> 每次调 0.25×；<code>1×</code> 一键复位。</li>
       <li>键盘：<code>[</code> 减速、<code>]</code> 加速、<code>\</code> 复位。</li>
-      <li>倍速会记住，下次打开自动沿用。</li>
-      <li>视频在 iframe 里也能生效（脚本匹配整个 <code>*.chaoxing.com</code>，包含播放器子页）。</li>
+      <li>倍速会记住，下次打开自动沿用；面板展开状态也会记住。</li>
+      <li>胶囊可以拖动，位置会保存，不挡站点自己的按钮。</li>
+      <li>全屏播放时面板会跟着进全屏，照样能调。</li>
+      <li>视频在 iframe / Shadow DOM 里也能识别（脚本对所有站点生效，含播放器子页）。</li>
     </ul>
   </section>
 
@@ -117,26 +119,30 @@
     <h2>常见问题</h2>
     <details>
       <summary>装了但右下角没有「⚡」？</summary>
-      <p>先刷新页面；确认 Tampermonkey 图标上显示脚本已启用；有些课程视频在 iframe 里，脚本会在 iframe 内单独出现面板，留意播放器区域的右下角。仍然没有的话，打开 Tampermonkey 面板看「学习通倍速」是否被禁用，或站点是否在「无匹配」列表里。</p>
+      <p>先刷新页面；确认 Tampermonkey 图标上显示脚本已启用。面板只在页面里存在 HTML5 <code>&lt;video&gt;</code> 时出现，纯 Canvas 自绘播放器、Flash、或完全走 DRM 的封闭播放器可能识别不到。视频在 iframe 里时，面板会出现在 iframe 自己的右下角。仍然没有的话，打开 Tampermonkey 面板看「网页视频倍速」是否被禁用。</p>
     </details>
     <details>
       <summary>倍速被自动改回 1×？</summary>
-      <p>部分课程播放器会在暂停 / 拖动进度 / 切集后重置倍速。脚本会尝试恢复（最多每 600ms 一次）。如果仍然被反复重置，说明该课程有异常倍速检测，别硬来。</p>
+      <p>部分播放器会在暂停 / 拖动进度 / 切集后重置倍速。脚本会尝试恢复（最多每 600ms 一次）。如果仍被反复重置，说明该站点有异常倍速检测，别硬来。</p>
     </details>
     <details>
       <summary>为什么最高只有 16×？</summary>
-      <p>浏览器原生 <code>playbackRate</code> 一般上限就是 16×，再高会被浏览器截断。学习通这类课程视频，16× 已经足够快速过一遍。</p>
+      <p>浏览器原生 <code>playbackRate</code> 一般上限就是 16×，再高会被截断。想要更快只能靠跳帧补偿，那会破坏播放器状态、丢失画面，脚本没有做。</p>
     </details>
     <details>
-      <summary>会封号吗？</summary>
-      <p>脚本本身不修改账号、不伪造进度，只改播放速度。但平台可能把「异常倍速」视为不规范学习行为。是否使用、用到多少倍，请自己权衡。</p>
+      <summary>会不会在所有网站都弹面板？</summary>
+      <p>脚本匹配所有站点，但只有检测到视频才显示面板，普通网页不会出现。如果想让它在某些站彻底不运行，可以在 Tampermonkey 里给这个脚本加「用户排除」（User Exclude）。</p>
+    </details>
+    <details>
+      <summary>装过旧版「学习通倍速」怎么办？</summary>
+      <p>旧版只匹配 <code>chaoxing.com</code>。请先在 Tampermonkey 里把旧版删掉，再装新版，否则两个悬浮球会叠在一起。新版 <code>@name</code> 是「网页视频倍速」，版本号 2.0.0。</p>
     </details>
   </section>
 
   <section class="cx-sec">
     <h2>使用边界</h2>
     <div class="cx-warn">
-      <b>仅用于你自己已选课程的回看加速。</b> 部分课程 / 考试会检测异常倍速，可能导致学习进度无效或账号被标记；不要用于刷课、考试或代替实际学习。由此产生的后果由使用者自负。
+      <b>仅用于你已获得访问权限的内容的个人回看加速。</b> 部分课程 / 考试平台会检测异常倍速，可能导致学习进度无效或账号被标记；不要用于刷课、考试或代替实际学习。由此产生的后果由使用者自负。
     </div>
   </section>
 </main>

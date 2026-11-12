@@ -292,14 +292,21 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", m
 @media (max-width: 940px) {
   .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 0 68px; }
   .hero-panel { max-width: 560px; }
-  .add { grid-template-columns: 1fr; gap: 32px; padding: 40px; }
+  .add { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 40px; }
   .feature-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
+  /* 兜底：装饰性光晕 / 长代码片段都不允许撑出横向滚动 */
+  html, body { overflow-x: clip; }
   .shell { width: min(var(--shell), calc(100% - 32px)); }
-  .topbar-inner { height: 62px; gap: 12px; }
-  .topnav { gap: 16px; }
-  .topnav a:nth-child(2) { display: none; }
+  .topbar-inner { height: 62px; gap: 10px; }
+  .brand { flex: none; }
+  .brand-text strong { white-space: nowrap; }
+  .theme-btn { flex: none; }
+  /* 导航链接不换行、不互相挤压；窄屏只保留关键入口 */
+  .topnav { gap: 12px; margin-left: auto; flex: none; }
+  .topnav a { font-size: 13px; white-space: nowrap; padding: 8px 0; }
+  .topnav a:nth-child(2), .topnav a:nth-child(4) { display: none; }
   .brand-text small { display: none; }
   .hero { padding: 46px 0 56px; }
   .hero h1 { font-size: 34px; }
@@ -308,12 +315,26 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", m
   .card-grid { grid-template-columns: 1fr; }
   .card { min-height: 0; }
   .feature-grid { grid-template-columns: 1fr; }
+  /* grid 子项默认 min-width:auto，会被 <code> 长单词顶开，这里显式归零 */
+  .add, .add-copy, .steps li, .code-card { min-width: 0; }
+  .add > * { min-width: 0; }
+  .add-copy code, .steps code, .code-card code { overflow-wrap: anywhere; word-break: break-word; }
+  .steps li { flex-wrap: wrap; }
   .add { padding: 28px 22px; border-radius: 20px; margin-bottom: 60px; }
-  .code-card pre { font-size: 11px; padding: 16px; }
+  .code-card pre { font-size: 11px; padding: 16px; max-width: 100%; }
   .toolbar { flex-direction: column; align-items: stretch; }
-  .search { flex-basis: auto; }
+  .search { flex-basis: auto; min-height: 40px; }
   .footer-inner { flex-direction: column; align-items: flex-start; gap: 6px; }
-  .to-top { margin-left: 0; }
+  .to-top { margin-left: 0; padding: 8px 0; }
+  .search input { min-height: 38px; }
+}
+@media (max-width: 400px) {
+  .topbar-inner { gap: 8px; }
+  .brand-mark { width: 32px; height: 32px; }
+  .brand-text strong { font-size: 13.5px; }
+  .topnav { gap: 10px; }
+  .topnav a:nth-child(5) { display: none; }
+  .hero h1 { font-size: 29px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }

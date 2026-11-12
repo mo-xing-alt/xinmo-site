@@ -73,7 +73,8 @@
   .hk-notice p { margin: 0; flex: 1; }
   .hk-notice button {
     flex: none; border: 0; background: transparent; color: var(--muted);
-    font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px;
+    font-size: 18px; line-height: 1; cursor: pointer; padding: 0;
+    min-width: 34px; min-height: 34px; display: grid; place-items: center;
   }
   .hk-notice button:hover { color: var(--text); }
   .hk-notice[hidden] { display: none; }

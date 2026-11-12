@@ -57,7 +57,7 @@ window.XinmoAuth = (function () {
       if (!found) return { ok: false, reason: 'bad' };
       return pbkdf2Hex(password, found.s, cfg.iterations).then(function (h) {
         return secureEqual(h, found.h)
-          ? { ok: true, gate: cfg.gate, days: cfg.sessionDays || 7 }
+          ? { ok: true, gate: cfg.gate, days: cfg.sessionDays || 7, key: h }
           : { ok: false, reason: 'bad' };
       });
     });
