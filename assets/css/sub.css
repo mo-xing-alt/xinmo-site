@@ -484,10 +484,16 @@ body[data-theme="t-security"] .card::before {
 }
 
 @media (max-width: 620px) {
+  html, body { overflow-x: clip; }
   .sub-shell { width: min(100% - 26px, 1080px); }
   .sub-hero { padding: 42px 0 20px; }
   .card-grid { grid-template-columns: 1fr; }
   .sub-stats { gap: 22px; }
   .sub-stats div b { font-size: 21px; }
   .sub-crumb { display: none; }
+  /* 返回 / 页脚文字链接：放大手机点击区 */
+  .sub-back, .sub-footer a { position: relative; }
+  .sub-back::after, .sub-footer a::after {
+    content: ""; position: absolute; left: -2px; right: -2px; top: -10px; bottom: -10px;
+  }
 }

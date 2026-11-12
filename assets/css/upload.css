@@ -236,6 +236,7 @@
 }
 
 @media (max-width: 640px) {
+  html, body { overflow-x: clip; }
   .up-wrap, .files-wrap { padding: 18px 12px 64px; }
   .up-card, .files-card { padding: 22px 18px 20px; border-radius: 16px; }
   .field-row { grid-template-columns: 1fr; }
@@ -243,4 +244,6 @@
   .up-tab { flex: 1; }
   .file-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
   .up-head-row { flex-wrap: wrap; }
+  .up-back { min-height: 40px; }
+  .up-foot a { display: inline-block; padding: 9px 0; }
 }

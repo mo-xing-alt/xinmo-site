@@ -253,7 +253,9 @@ function save() {
   if (window.QuizSync) window.QuizSync.schedule();
 }
 
-/* ---- 跨设备进度同步（旁路模块：任何网络失败都退回本地，绝不影响答题） ---- */
+/* ---- 跨设备进度同步（旁路模块：任何网络失败都退回本地，绝不影响答题） ----
+ * 每次 push 前先 pull 校准，保证「响应丢失重试」不会重复计数，并能识别云端 reset。
+ */
 var QuizSync = (function () {
   'use strict';
 
@@ -273,6 +275,8 @@ var QuizSync = (function () {
   var timer = null;
   var pending = false;
   var stateEl = null;
+  var hasBaseline = false;     // 是否已与云端建立过同步基线（首次 pull 不做 reset 判定）
+  var pendingRemove = {};      // 本地已删除、尚未推送到云端的错题 id（避免 pull 又把它们合并回来）
 
   function cloneSet(src) {
     var out = {};
@@ -339,58 +343,109 @@ var QuizSync = (function () {
     });
   }
 
-  // 失败最多重试 3 次，退避 2s / 5s / 10s
-  function withRetry(fn, attempt) {
-    var n = attempt || 0;
-    return fn().catch(function (err) {
-      if (n >= RETRY_DELAYS.length) throw err;
-      return new Promise(function (resolve) {
-        setTimeout(resolve, RETRY_DELAYS[n]);
-      }).then(function () { return withRetry(fn, n + 1); });
-    });
+  // 失败最多重试 3 次，退避 2s / 5s / 10s（由调用方传入「一次完整尝试」）
+  function retrying(fn) {
+    var attempt = 0;
+    function run() {
+      return fn().catch(function (err) {
+        if (attempt >= RETRY_DELAYS.length) throw err;
+        var delay = RETRY_DELAYS[attempt];
+        attempt += 1;
+        return new Promise(function (resolve) {
+          setTimeout(resolve, delay);
+        }).then(run);
+      });
+    }
+    return run();
   }
 
+  /**
+   * 把云端快照合并进 S。
+   * data 为 null 表示云端还没有该账号记录（把本地当前状态作为基线）。
+   * 若「本地已同步的计数 > 云端计数」，只可能是云端被 p_reset 清过 —— 此时全量以云端为准；
+   * 首次与云端交互（hasBaseline 为 false）不做该判定，避免误删本地未推送进度。
+   */
+  function mergeCloud(data) {
+    if (!data) {
+      // 云端还没有该账号记录：基线留空，这样首次 push 会把本地全部进度当作增量上传
+      lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0 };
+      hasBaseline = true;
+      return;
+    }
+    var cloudSeen = data.seen || {};
+    var cloudWrong = data.wrong || {};
+    var cloudAnswer = Number(data.answerCount) || 0;
+    var cloudCorrect = Number(data.correctCount) || 0;
+    var wasReset = hasBaseline && (Number(lastSynced.answerCount) || 0) > cloudAnswer;
+
+    if (wasReset) {
+      // 云端被重置：本地旧进度整体作废，全量以云端为准
+      pendingRemove = {};
+      S.seen = {};
+      Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+      S.wrong = {};
+      Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) S.wrong[id] = true; });
+      S.answerCount = cloudAnswer;
+      S.correctCount = cloudCorrect;
+    } else {
+      // seen 只增不减：直接并集
+      Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+      // wrong 以云端为准（别处已清空的错题不会被并集加回来），
+      // 但保留「本地新增且尚未推送」的错题，避免丢本地进度
+      var pendingWrong = {};
+      Object.keys(S.wrong).forEach(function (id) {
+        if (S.wrong[id] && !lastSynced.wrong[id]) pendingWrong[id] = true;
+      });
+      var mergedWrong = {};
+      // 本地刚删除（尚未推送）的错题不要从云端合并回来
+      Object.keys(cloudWrong).forEach(function (id) {
+        if (cloudWrong[id] && !pendingRemove[id]) mergedWrong[id] = true;
+      });
+      Object.keys(pendingWrong).forEach(function (id) { mergedWrong[id] = true; });
+      S.wrong = mergedWrong;
+      // 计数取两端较大值：本地尚未推送的增量随后由 push 的 delta 补上
+      S.answerCount = Math.max(Number(S.answerCount) || 0, cloudAnswer);
+      S.correctCount = Math.max(Number(S.correctCount) || 0, cloudCorrect);
+    }
+
+    // 同步基线取「云端快照」：push 的 delta 始终等于「本地 - 云端」，
+    // 本地尚未推送的增量才不会被 baseline 吃掉
+    lastSynced = {
+      seen: cloneSet(cloudSeen),
+      wrong: cloneSet(cloudWrong),
+      answerCount: cloudAnswer,
+      correctCount: cloudCorrect
+    };
+    hasBaseline = true;
+    persist();
+    refreshUI();
+  }
+
+  // 单次拉取（不含重试、不改状态位）
+  function pullOnce() {
+    return request(RPC_PULL, { p_owner: owner, p_key: key }).then(mergeCloud);
+  }
+
+  // 页面加载 / 手动拉取：带重试与状态位
   function pull() {
     if (mode !== 'cloud') return Promise.resolve();
     setStatus('syncing');
-    return withRetry(function () {
-      return request(RPC_PULL, { p_owner: owner, p_key: key });
-    }).then(function (data) {
-      if (data) {
-        var cloudSeen = data.seen || {};
-        var cloudWrong = data.wrong || {};
-        // seen 只增不减：直接并集
-        Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
-        // wrong 以云端为准（别处已清空的错题不会被并集加回来），
-        // 但保留「本地新增且尚未推送」的错题，避免丢本地进度
-        var pendingWrong = {};
-        Object.keys(S.wrong).forEach(function (id) {
-          if (S.wrong[id] && !lastSynced.wrong[id]) pendingWrong[id] = true;
-        });
-        var mergedWrong = {};
-        Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) mergedWrong[id] = true; });
-        Object.keys(pendingWrong).forEach(function (id) { mergedWrong[id] = true; });
-        S.wrong = mergedWrong;
-        // 计数取两端较大值：本地尚未推送的增量随后由 push 的 delta 补上
-        S.answerCount = Math.max(Number(S.answerCount) || 0, Number(data.answerCount) || 0);
-        S.correctCount = Math.max(Number(S.correctCount) || 0, Number(data.correctCount) || 0);
-        baseline();
-        persist();
-        refreshUI();
-      } else {
-        baseline();   // 云端还没有记录：把本地当前状态作为基线
-      }
+    return retrying(pullOnce).then(function () {
       setStatus('synced');
     }).catch(function () {
       setStatus('local');
     });
   }
 
-  function push(options) {
-    if (mode !== 'cloud') return Promise.resolve();
-    var opt = options || {};
-    setStatus('syncing');
+  // 静默拉取：不改状态位、不弹提示；失败则 reject，调用方据此放弃本次 push
+  function pullSilent() {
+    if (mode !== 'cloud') return Promise.reject(new Error('local-mode'));
+    return pullOnce();
+  }
 
+  // 用当前 baseline 计算增量并单次推送（不含重试）
+  function pushOnce(options) {
+    var opt = options || {};
     var seen = S.seen || {};
     var wrong = S.wrong || {};
     var seenAdd = {};
@@ -401,6 +456,10 @@ var QuizSync = (function () {
     Object.keys(wrong).forEach(function (id) { if (wrong[id] && !lastSynced.wrong[id]) wrongAdd[id] = true; });
     Object.keys(lastSynced.wrong).forEach(function (id) {
       if (lastSynced.wrong[id] && !wrong[id]) wrongRemove.push(id);
+    });
+    // 本地已删除、但 pull 阶段被挡在 S 之外的错题，这里显式补进 remove 列表
+    Object.keys(pendingRemove).forEach(function (id) {
+      if (wrongRemove.indexOf(id) === -1) wrongRemove.push(id);
     });
 
     // 只上传未推送的增量，避免多设备重复计数
@@ -418,29 +477,42 @@ var QuizSync = (function () {
       p_reset: opt.reset === true
     };
 
-    return withRetry(function () { return request(RPC_PUSH, body); })
-      .then(function (data) {
-        if (data) {
-          var cloudSeen = data.seen || {};
-          var cloudWrong = data.wrong || {};
-          Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
-          // 本次 push 已把所有本地增量送达云端，wrong 直接以云端为准（reset / 别处清空能生效）
-          var nextWrong = {};
-          Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) nextWrong[id] = true; });
-          S.wrong = nextWrong;
-          S.answerCount = Number(data.answerCount) || 0;
-          S.correctCount = Number(data.correctCount) || 0;
-          baseline();
-          persist();
-          refreshUI();
-        } else {
-          baseline();
-        }
-        setStatus('synced');
-      })
-      .catch(function () {
-        setStatus('local');
-      });
+    return request(RPC_PUSH, body).then(function (data) {
+      if (data) {
+        var cloudSeen = data.seen || {};
+        var cloudWrong = data.wrong || {};
+        Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+        // 本次 push 已把所有本地增量送达云端，wrong 直接以云端为准（reset / 别处清空能生效）
+        var nextWrong = {};
+        Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) nextWrong[id] = true; });
+        S.wrong = nextWrong;
+        S.answerCount = Number(data.answerCount) || 0;
+        S.correctCount = Number(data.correctCount) || 0;
+      }
+      pendingRemove = {};
+      hasBaseline = true;
+      baseline();
+      persist();
+      refreshUI();
+    });
+  }
+
+  /**
+   * 对外同步入口：每次尝试都「先静默 pull 校准 baseline → 再重算 delta 推送」。
+   * 即使上一次请求已被服务端提交、只是响应丢失，重试时 delta 也会自动归零，天然幂等。
+   * pullSilent 失败则整次放弃（绝不带过期 baseline 硬推），只把状态置为「仅本机」。
+   */
+  function syncNow(options) {
+    if (mode !== 'cloud') return Promise.resolve();
+    var opt = options || {};
+    setStatus('syncing');
+    return retrying(function () {
+      return pullSilent().then(function () { return pushOnce(opt); });
+    }).then(function () {
+      setStatus('synced');
+    }).catch(function () {
+      setStatus('local');
+    });
   }
 
   function enqueue(task) {
@@ -465,7 +537,7 @@ var QuizSync = (function () {
       timer = null;
       if (!pending) return;
       pending = false;
-      enqueue(function () { return push(); });
+      enqueue(function () { return syncNow(); });
     }, DEBOUNCE_MS);
   }
 
@@ -473,21 +545,29 @@ var QuizSync = (function () {
     if (mode !== 'cloud') return;
     if (!pending) return;
     cancelTimer();
-    enqueue(function () { return push(); });
+    enqueue(function () { return syncNow(); });
   }
 
-  // resetWrong：本地 wrong 已清空，push 时把 lastSynced.wrong 的差集作为 p_wrong_remove 上传
+  // resetWrong：本地 wrong 已清空；记下待删除 id，push 时补进 p_wrong_remove
   function resetWrong() {
     if (mode !== 'cloud') return;
     cancelTimer();
-    enqueue(function () { return push(); });
+    Object.keys(lastSynced.wrong).forEach(function (id) { pendingRemove[id] = true; });
+    enqueue(function () { return syncNow(); });
   }
 
-  // resetAll：整库重置
+  // resetAll：整库重置（全量覆盖，无需先 pull；重复执行结果相同，天然幂等）
   function resetRemote() {
     if (mode !== 'cloud') return;
     cancelTimer();
-    enqueue(function () { return push({ reset: true }); });
+    enqueue(function () {
+      setStatus('syncing');
+      return retrying(function () { return pushOnce({ reset: true }); }).then(function () {
+        setStatus('synced');
+      }).catch(function () {
+        setStatus('local');
+      });
+    });
   }
 
   function init() {
@@ -518,7 +598,7 @@ var QuizSync = (function () {
     resetWrong: resetWrong,
     resetRemote: resetRemote,
     pull: pull,
-    push: push,
+    push: syncNow,
     status: function () { return status; },
     mode: function () { return mode; }
   };
