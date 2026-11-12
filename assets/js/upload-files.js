@@ -406,7 +406,7 @@
             '（' + Math.round((loaded / (f.size || 1)) * 100) + '%）');
         });
 
-        var meta = { name: f.name, path: path, size: f.size, type: f.type || '' };
+        var meta = { name: String(f.name).slice(0, 200), path: path, size: f.size, type: f.type || '' };
         uploaded[kk] = meta;
         filesMeta.push(meta);
         doneBytes += f.size;

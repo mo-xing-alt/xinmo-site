@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="description" content="上传资料 · xinmo.work 资源仓库" />
 <title>上传资料 · xinmo.work</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f6bed'/%3E%3Cpath d='M17 19h30v9H17zm0 17h21v9H17z' fill='%23fff'/%3E%3C/svg%3E" />
@@ -30,6 +31,8 @@
     <h1>往仓库里放点东西</h1>
     <p class="up-lead">当前登录：<b id="who">—</b>。<br />
       可以传图片、压缩包、文档，也可以直接贴一段文字；只登记一个外部链接也可以。</p>
+
+    <p class="up-hint">资料会写入 Supabase 并生成公开直链：知道链接的人可以直接打开文件。请勿上传身份证、合同、密码等机密内容。</p>
 
     <div class="up-tabs" role="tablist" aria-label="提交方式">
       <button class="up-tab active" type="button" role="tab" aria-selected="true" data-tab="file">上传资料</button>
@@ -129,7 +132,7 @@
 
     <div class="up-foot">
       <a href="./index.html">← 返回首页</a>
-      <span>提交即表示你愿意把它分享给其他受邀朋友。</span>
+      <span>提交即表示你同意把内容以公开直链形式分享（知道链接即可打开）。</span>
     </div>
   </div>
 </main>

@@ -112,7 +112,69 @@
   });
 
   function say(text) { msg.textContent = text; }
-  function fail(text) { say(text); btn.disabled = false; btn.textContent = '进入仓库'; }
+  function readyBtn() { btn.disabled = false; btn.textContent = '进入仓库'; }
+  function fail(text) { say(text); readyBtn(); }
+
+  // 登录失败限速：15 分钟窗口内累计失败次数，次数越多延迟越长，≥5 次进入 60 秒冷却。
+  var FAIL_KEY = 'xinmo_login_fails';
+  var FAIL_WINDOW = 15 * 60 * 1000;
+  var COOLDOWN_SEC = 60;
+
+  function readFails() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(FAIL_KEY) || 'null');
+      if (!raw || typeof raw.n !== 'number' || typeof raw.ts !== 'number') return { n: 0, ts: 0 };
+      if (!isFinite(raw.n) || raw.n < 0 || !isFinite(raw.ts)) return { n: 0, ts: 0 };
+      if (Date.now() - raw.ts > FAIL_WINDOW) return { n: 0, ts: 0 };
+      return { n: Math.floor(raw.n), ts: raw.ts };
+    } catch (e) { return { n: 0, ts: 0 }; }
+  }
+  function writeFails(n, ts) {
+    try { localStorage.setItem(FAIL_KEY, JSON.stringify({ n: n, ts: ts })); } catch (e) {}
+  }
+  function clearFails() {
+    try { localStorage.removeItem(FAIL_KEY); } catch (err) {}
+  }
+  function failDelay(n) {
+    if (n >= 5) return 5000;
+    if (n >= 3) return 1500;
+    return 350;
+  }
+  // 冷却期间禁用提交按钮与输入框，倒计时结束恢复
+  function startCooldown(seconds) {
+    var userEl = document.getElementById('username');
+    var left = Math.max(1, Number(seconds) || COOLDOWN_SEC);
+    btn.disabled = true;
+    btn.textContent = '请稍候…';
+    pwd.disabled = true;
+    if (userEl) userEl.disabled = true;
+    function tick() {
+      if (left <= 0) {
+        pwd.disabled = false;
+        if (userEl) userEl.disabled = false;
+        readyBtn();
+        say('账号或密码不正确。');
+        return;
+      }
+      say('账号或密码不正确。尝试次数过多，请 ' + left + ' 秒后再试');
+      left -= 1;
+      setTimeout(tick, 1000);
+    }
+    tick();
+  }
+  function onAuthFail() {
+    var rec = readFails();
+    var n = rec.n + 1;
+    var ts = rec.n === 0 ? Date.now() : rec.ts;
+    writeFails(n, ts);
+    btn.disabled = true;
+    btn.textContent = '校验中…';
+    setTimeout(function () {
+      if (n >= 5) { startCooldown(COOLDOWN_SEC); return; }
+      fail('账号或密码不正确。');
+      pwd.select();
+    }, failDelay(n));
+  }
 
   if (!cfg || !cfg.accounts || !cfg.accounts.length) {
     say('站主尚未设置访问账号，请稍后再来。');
@@ -134,9 +196,10 @@
     window.XinmoAuth.verify(user, pass, cfg).then(function (r) {
       if (!r.ok) {
         if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
-        setTimeout(function () { fail('账号或密码不正确。'); pwd.select(); }, 350);
+        onAuthFail();
         return;
       }
+      clearFails();
       var exp = Date.now() + (r.days || 7) * 86400000;
       try {
         // 同时保存账号名，供上传资料时署名
