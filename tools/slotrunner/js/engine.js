@@ -17,6 +17,12 @@
   var core = isNode ? require('./core.js') : SR.core;
   var LIMITS = core.LIMITS;
 
+  // 能力表为可选软引用：locators.js 在脚本顺序中早于本文件；即便缺失也不影响原有沙箱行为。
+  var locatorsMod = null;
+  try {
+    locatorsMod = isNode ? require('./locators.js') : (SR.locators || null);
+  } catch (e) { locatorsMod = null; }
+
   var STATES = Object.freeze([
     'idle', 'scheduled', 'waiting', 'polling',
     'filling', 'confirming', 'submitting', 'paused',
@@ -177,6 +183,8 @@
       triggerCaptcha: false,
       captchaAtAttempt: 2,
       networkLatencyMs: 200,
+      // 演练通道维度：默认 web，行为与改造前完全一致；非 web 仅做纯内存模拟。
+      channel: 'web',
       rng: Math.random
     };
     var cfg = {};
@@ -195,10 +203,19 @@
       if (!isFinite(r)) return 0;
       return Math.min(1, Math.max(0, r));
     }
+    function currentChannel() {
+      return core.normalizeChannel ? core.normalizeChannel(cfg.channel) : 'web';
+    }
+    /** 取该通道能力声明；能力表缺失时返回 null，演练退化为原 web 行为。 */
+    function currentCapability() {
+      if (!locatorsMod || !locatorsMod.CHANNEL_CAPABILITIES) return null;
+      return locatorsMod.CHANNEL_CAPABILITIES[currentChannel()] || null;
+    }
 
     var stock = 0;
     var attempts = 0;
     var captchaTriggered = false;
+    var handoffSimulated = false;
     var openAtMs = 0;
     var startedAtMs = 0;
 
@@ -217,6 +234,7 @@
         stock = Math.max(0, Math.floor(num(cfg.initialStock, 2)));
         attempts = 0;
         captchaTriggered = false;
+        handoffSimulated = false;
         startedAtMs = (typeof clock === 'function') ? clock() : Date.now();
         openAtMs = computeOpenAt(clock);
         return api.getState();
@@ -231,6 +249,9 @@
           stock: stock,
           attempts: attempts,
           captchaTriggered: captchaTriggered,
+          handoffSimulated: handoffSimulated,
+          channel: currentChannel(),
+          typicalLatencyMs: currentCapability() ? currentCapability().typicalLatencyMs : 0,
           openAtMs: openAtMs,
           startedAtMs: startedAtMs,
           initialStock: Math.max(0, Math.floor(num(cfg.initialStock, 2)))
@@ -265,6 +286,26 @@
           reason: '',
           attemptIndex: index
         };
+
+        // ---- channel 维度的纯内存模拟（绝不访问任何外部站点或真实窗口）----
+        // web 通道：以下三个字段恒为默认值，行为与改造前完全一致。
+        // 非 web 通道：按能力表的 typicalLatencyMs 记录一次 UI 操作延迟，
+        // 并在首次尝试按 humanHandoff 模拟一次「等待人工接管」标记（不中止、不弹窗、不输入）。
+        // uiLatencyMs 不叠加进 latencyMs，因此不参与 runOnce 的 timeout 判定，状态机判定保持不变。
+        var channel = currentChannel();
+        var capability = currentCapability();
+        out.channel = channel;
+        out.uiLatencyMs = 0;
+        out.humanHandoff = false;
+        if (channel !== 'web' && capability) {
+          out.uiLatencyMs = Math.max(1, Math.floor(
+            num(capability.typicalLatencyMs, 300) * (0.6 + 0.8 * rand())
+          ));
+          if (!handoffSimulated && capability.humanHandoff !== 'in-page') {
+            handoffSimulated = true;
+            out.humanHandoff = true;
+          }
+        }
 
         // 1) 验证码 / 人机验证：最高优先级，命中即要求中止并人工接管。
         if (cfg.triggerCaptcha === true && !captchaTriggered &&

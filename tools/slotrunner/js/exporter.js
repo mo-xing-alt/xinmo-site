@@ -13,6 +13,13 @@
   var isNode = (typeof module !== 'undefined' && !!module.exports);
   var core = isNode ? require('./core.js') : SR.core;
   var engine = isNode ? require('./engine.js') : SR.engine;
+  var locators = isNode ? require('./locators.js') : SR.locators;
+
+  /** 惰性取得本地运行时生成器：exporter.js 在脚本顺序上早于 localrunner.js，必须在调用时再解析。 */
+  function localRunnerModule() {
+    if (isNode) return require('./localrunner.js');
+    return SR.localrunner || null;
+  }
 
   /** 清理用户脚本 @name；防止换行或注释结束符破坏元数据块。 */
   function sanitizeName(name) {
@@ -293,8 +300,59 @@
   }
 
   /**
+   * 统一导出入口：按执行通道分流。
+   * web（含缺少 channel 的旧数据）→ 原 buildUserScript，行为完全不变；
+   * desktop / miniprogram / mobile → 转发 SR.localrunner.buildLocalRunner 生成本地 Python 运行时脚本。
+   * 返回 { channel, kind, filename, source, warnings }；调用方用 source 写入文件。
+   */
+  function buildForChannel(task, adapter, template, policy, options) {
+    var a = adapter || {};
+    var t = task || {};
+    var channel = core.normalizeChannel(a.channel || t.channel);
+    var cap = locators && locators.capabilityOf ? locators.capabilityOf(channel) : null;
+    var warnings = [];
+
+    if (cap && cap.reservationOnly) {
+      warnings.push('通道 ' + channel + ' 的 UI 自动化单次操作延迟约 ' + cap.latencyText +
+        '，仅适用于预约类任务，不适用于秒杀类；网页无法直接控制外部软件，脚本须在本机运行。');
+    }
+    if (cap && cap.scriptKind === 'python') {
+      warnings.push('默认 --dry-run：只做窗口发现与定位器探测；真实提交须显式 --live 并在运行时再次交互确认。');
+    }
+
+    if (channel === 'web') {
+      return {
+        channel: channel,
+        kind: 'userscript',
+        filename: sanitizeName(t.name) + '.user.js',
+        mime: 'text/javascript;charset=utf-8',
+        source: buildUserScript(task, adapter, template, policy, options),
+        warnings: warnings
+      };
+    }
+
+    var mod = localRunnerModule();
+    var source;
+    if (!mod || typeof mod.buildLocalRunner !== 'function') {
+      source = '# 本地运行时生成器（js/localrunner.js）未加载，请按 index.html 的脚本顺序引入后重试。\n';
+      warnings.push('本地运行时生成器未加载，本次导出为占位提示而非可执行脚本。');
+    } else {
+      source = mod.buildLocalRunner(task, adapter, template, policy, options);
+    }
+    return {
+      channel: channel,
+      kind: 'python',
+      filename: sanitizeName(t.name) + '.py',
+      mime: 'text/x-python;charset=utf-8',
+      source: source,
+      warnings: warnings
+    };
+  }
+
+  /**
    * 导出完整配置为格式化 JSON 字符串。
    * options.includeSecrets 默认 false：所有 sensitive 变量的值被 core.maskValue 脱敏。
+   * 适配器 / 任务的新字段 channel / target / locators 随 deepClone 原样携带，旧数据仍可导入。
    */
   function exportConfig(state, options) {
     var opt = options || {};
@@ -330,7 +388,8 @@
 
     out._meta = {
       app: 'SlotRunner',
-      version: 1,
+      version: 2,
+      channelsIncluded: true,
       exportedAt: core.nowIso(),
       secretsIncluded: includeSecrets,
       redactedFields: includeSecrets ? 0 : redacted,
@@ -366,6 +425,10 @@
 
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
       return { ok: false, data: null, errors: ['配置根节点必须是对象'], warnings: warnings };
+    }
+
+    if (raw._meta && typeof raw._meta === 'object' && Number(raw._meta.version) > 2) {
+      warnings.push('该文件由更新版本的 SlotRunner 导出（version=' + Number(raw._meta.version) + '），当前版本可能无法识别新增字段，请核对导入结果后再使用');
     }
 
     var collectionKeys = ['adapters', 'templates', 'policies', 'tasks', 'logs'];
@@ -422,9 +485,15 @@
       return tpl;
     });
 
-    data.adapters.forEach(function (item, i) {
-      var r = core.validateAdapter(item);
+    // 按通道校验：web（含缺少 channel 的旧数据）走原 core.validateAdapter 等价逻辑；
+    // 非 web 走窗口绑定 + 验证码定位器必填校验。同时把缺失 channel 的旧数据补齐为 web。
+    data.adapters = data.adapters.map(function (item, i) {
+      if (locators && typeof locators.ensureChannel === 'function') locators.ensureChannel(item);
+      var validate = (locators && typeof locators.validateAdapterByChannel === 'function')
+        ? locators.validateAdapterByChannel : core.validateAdapter;
+      var r = validate(item);
       if (!r.ok) r.errors.forEach(function (e) { errors.push('适配器 #' + (i + 1) + '：' + e); });
+      return item;
     });
     data.tasks.forEach(function (item, i) {
       var r = core.validateTask(item);
@@ -453,6 +522,7 @@
 
   var api = {
     buildUserScript: buildUserScript,
+    buildForChannel: buildForChannel,
     exportConfig: exportConfig,
     importConfig: importConfig,
     sanitizeName: sanitizeName,

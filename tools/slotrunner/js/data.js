@@ -16,6 +16,8 @@
     ADAPTER_COURSE: 'adapter_course_demo',
     ADAPTER_QUOTA: 'adapter_quota_demo',
     ADAPTER_SANDBOX: 'adapter_sandbox_demo',
+    ADAPTER_DESKTOP: 'adapter_desktop_demo',
+    ADAPTER_MINIPROGRAM: 'adapter_miniprogram_demo',
     TEMPLATE_DEFAULT: 'template_default_demo',
     POLICY_DEFAULT: 'policy_default_demo',
     POLICY_FAST: 'policy_fast_demo',
@@ -76,6 +78,58 @@
         submitSelector: '#sandbox-submit',
         successKeyword: '抢位成功',
         captchaSelector: '.captcha, [id*="captcha"], [data-challenge]',
+        createdAt: SEED_DATE
+      },
+      {
+        id: IDS.ADAPTER_DESKTOP,
+        channel: 'desktop',
+        name: '通用桌面客户端预约（占位）',
+        description: '通用占位配置：进程名 / 窗口标题均为占位值，请替换为您本人有权操作的软件窗口。仅适用于预约类任务，不适用于秒杀类。',
+        target: {
+          processName: 'example-desktop-client.exe',
+          windowTitle: '示例预约窗口 - example.invalid',
+          windowMatchMode: 'contains',
+          exePath: '',
+          bundleId: '',
+          launchArgs: [],
+          bringToFront: true
+        },
+        fields: [
+          { key: 'slotDate', selector: '', mode: 'value', label: '预约日期' },
+          { key: 'personName', selector: '', mode: 'value', label: '姓名' }
+        ],
+        locators: [
+          { kind: 'uia_automation_id', value: 'txtSlotDate' },
+          { kind: 'uia_name', value: '姓名' }
+        ],
+        captchaLocator: { kind: 'uia_name', value: '安全验证' },
+        submitLocator: { kind: 'uia_automation_id', value: 'btnReserve' },
+        successLocators: ['预约成功', '已提交预约'],
+        createdAt: SEED_DATE
+      },
+      {
+        id: IDS.ADAPTER_MINIPROGRAM,
+        channel: 'miniprogram',
+        name: '通用小程序窗口预约（占位）',
+        description: '通用占位配置：进程名 / 窗口标题均为占位值，仅做窗口级 UI 自动化，不注入 DOM、不依赖调试端口。仅适用于预约类任务。',
+        target: {
+          processName: 'example-host-process.exe',
+          windowTitle: '示例小程序窗口 - example.invalid',
+          windowMatchMode: 'contains',
+          exePath: '',
+          bundleId: '',
+          launchArgs: [],
+          bringToFront: true
+        },
+        fields: [
+          { key: 'slotDate', selector: '', mode: 'value', label: '预约日期' }
+        ],
+        locators: [
+          { kind: 'ocr_text', value: '预约日期' }
+        ],
+        captchaLocator: { kind: 'text', value: '人机验证' },
+        submitLocator: { kind: 'coordinate_anchor', value: '0.5,0.86' },
+        successLocators: ['预约成功'],
         createdAt: SEED_DATE
       }
     ];

@@ -475,6 +475,47 @@ svg { display: block; }
 .rule-list { margin: 0; padding-left: 20px; font-size: 12.5px; line-height: 1.9; color: var(--text-2); }
 .rule-list li::marker { color: var(--primary); }
 
+/* --------------------------------------------------------------- 执行通道 / 本地运行时 */
+
+.channel-badge { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-weight: 600; }
+
+.channel-meta {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  font-size: 12px; color: var(--text-3);
+}
+
+.capability-table { font-size: 12px; min-width: 940px; }
+.capability-table th, .capability-table td { vertical-align: top; line-height: 1.6; }
+.capability-table td:nth-child(2) { max-width: 250px; word-break: break-word; }
+.capability-table .mono { font-size: 11px; color: var(--text-2); }
+
+.channel-warning {
+  border: 1px solid var(--warn-border);
+  background: var(--warn-soft);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-2);
+}
+.channel-warning__title { font-weight: 700; color: var(--warn); margin-bottom: 4px; font-size: 13.5px; }
+.channel-warning strong { color: var(--text); }
+
+.prereq-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.prereq-row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: var(--surface-2);
+}
+.prereq-row__head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 6px; }
+.prereq-row .rule-list { font-size: 12px; line-height: 1.8; }
+
+@media (min-width: 1200px) {
+  .prereq-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* --------------------------------------------------------------- 响应式 */
 
 @media (min-width: 1200px) {

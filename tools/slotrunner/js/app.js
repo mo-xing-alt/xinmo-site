@@ -10,8 +10,10 @@
   var isNode = (typeof module !== 'undefined' && !!module.exports);
   var core = isNode ? require('./core.js') : SR.core;
   var data = isNode ? require('./data.js') : SR.data;
+  var locators = isNode ? require('./locators.js') : SR.locators;
   var engine = isNode ? require('./engine.js') : SR.engine;
   var exporter = isNode ? require('./exporter.js') : SR.exporter;
+  var localrunner = isNode ? require('./localrunner.js') : SR.localrunner;
   var ui = isNode ? require('./ui.js') : SR.ui;
 
   /* ------------------------------------------------------------ 状态加载 */
@@ -167,6 +169,9 @@
     }
     var cfg = config || core.deepClone(state.sandbox) || data.defaultSandbox();
     var openAtMs = Date.now() + Math.max(0, Number(cfg.openInSec) || 0) * 1000;
+    // 演练通道维度：从任务关联的适配器推导，旧数据 / web 适配器一律按 web 处理。
+    var adapter = task && task.adapterId ? findById('adapters', task.adapterId) : null;
+    var channel = core.normalizeChannel(adapter ? adapter.channel : 'web');
 
     var policy = {
       name: '演练策略',
@@ -189,12 +194,12 @@
       triggerCaptcha: cfg.triggerCaptcha === true,
       captchaAtAttempt: cfg.captchaAtAttempt,
       networkLatencyMs: cfg.networkLatencyMs,
+      channel: channel,
       rng: function () { return Math.random(); }
     };
 
     var globalLive = state.settings.liveSubmitEnabled === true;
     var liveSubmit = (cfg.liveSubmit === true) && globalLive && (state.settings.complianceAccepted === true);
-    var adapter = task && task.adapterId ? findById('adapters', task.adapterId) : null;
     var fieldCount = adapter && Array.isArray(adapter.fields) ? adapter.fields.length : 0;
 
     currentTaskId = (task && findById('tasks', task.id)) ? task.id : null;
@@ -254,8 +259,10 @@
   var context = {
     core: core,
     data: data,
+    locators: locators,
     engine: engine,
     exporter: exporter,
+    localrunner: localrunner,
     state: state,
     save: save,
     addLog: addLog,

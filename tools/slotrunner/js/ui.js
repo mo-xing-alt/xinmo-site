@@ -1,6 +1,6 @@
 /*
  * js/ui.js
- * DOM 渲染、8 个视图、表单编辑器、Modal / Toast / 确认框、统一事件委托。
+ * DOM 渲染、9 个视图、表单编辑器、Modal / Toast / 确认框、统一事件委托。
  * 所有视图决策数据来自 ctx.state；引擎事件只订阅、不参与调度决策。
  * 顶层不访问 DOM，因此在 Node 下 require 也是安全的（便于做静态检查）。
  */
@@ -11,10 +11,12 @@
   var isNode = (typeof module !== 'undefined' && !!module.exports);
   var core = isNode ? require('./core.js') : SR.core;
   var data = isNode ? require('./data.js') : SR.data;
+  var locators = isNode ? require('./locators.js') : SR.locators;
   var engine = isNode ? require('./engine.js') : SR.engine;
   var exporter = isNode ? require('./exporter.js') : SR.exporter;
 
-  var VIEWS = ['dashboard', 'adapters', 'templates', 'policies', 'sandbox', 'logs', 'exporter', 'help'];
+  // 第 9 个视图：本地运行时（桌面 / 小程序 / 移动通道的能力矩阵与前置条件）。
+  var VIEWS = ['dashboard', 'adapters', 'templates', 'policies', 'sandbox', 'logs', 'exporter', 'localrunner', 'help'];
 
   var ctx = null;
   var currentView = 'dashboard';
@@ -34,7 +36,9 @@
     sandboxLogs: [],
     exportTaskId: '',
     exportScript: '',
-    exportIncludeSecrets: false
+    exportIncludeSecrets: false,
+    localrunnerTaskId: '',
+    adapterChannelDraft: 'web'
   };
 
   /* ------------------------------------------------------------ 基础辅助 */
@@ -202,15 +206,18 @@
       ? core.formatDateTime(t.lastRun.ts) + ' · ' + String(t.lastRun.outcome || '') + '（' + (t.lastRun.attempts || 0) + ' 次）'
       : '尚未运行';
     var running = engineStatus().running;
+    var linkedAdapter = findById('adapters', t.adapterId) || {};
+    var taskChannel = locators.normalizeChannel(linkedAdapter.channel || t.channel);
 
     return '<article class="card task-card">' +
       '<div class="task-card__head"><span class="type-glyph">' + esc(typeMeta.glyph) + '</span>' +
         '<div style="flex:1;min-width:0"><h3 class="task-card__title">' + esc(t.name) + '</h3>' +
         '<div class="mt-8" style="display:flex;gap:6px;flex-wrap:wrap">' +
           badge(typeMeta.label, 'primary') + badge(statusMeta.label, statusMeta.tone) +
+          channelBadgeHtml(taskChannel) +
         '</div></div></div>' +
       '<dl class="task-card__meta">' +
-        '<dt>目标页面</dt><dd class="mono">' + esc(t.targetUrl) + '</dd>' +
+        '<dt>目标页面</dt><dd class="mono">' + esc(t.targetUrl || '（非 Web 通道由窗口绑定承载）') + '</dd>' +
         '<dt>开放时间</dt><dd>' + esc(openAt) + '</dd>' +
         '<dt>适配器</dt><dd>' + esc(nameOf('adapters', t.adapterId)) + '</dd>' +
         '<dt>调度策略</dt><dd>' + esc(nameOf('policies', t.policyId)) + '</dd>' +
@@ -261,21 +268,51 @@
 
   /* ------------------------------------------------------------ 视图 2：适配器 */
 
+  function channelBadgeHtml(channel) {
+    var ch = locators.normalizeChannel(channel);
+    var tone = ch === 'web' ? 'info' : (ch === 'mobile' ? 'warn' : 'primary');
+    return '<span class="channel-badge badge badge--' + tone + '">' +
+      '<span class="badge__dot"></span>' + esc(locators.channelLabel(ch)) + '</span>';
+  }
+
   function adapterCardHtml(a) {
+    var ch = locators.normalizeChannel(a.channel);
+    var cap = locators.capabilityOf(ch);
     var rows = (a.fields || []).map(function (f) {
       return '<tr><td class="mono">' + esc(f.key) + '</td><td class="mono">' + esc(f.selector) + '</td>' +
         '<td>' + badge(f.mode, 'neutral') + '</td></tr>';
     }).join('');
+    var locatorRows = (a.locators || []).map(function (l, i) {
+      return '<tr><td>' + badge(String((l && l.kind) || 'css'), 'neutral') + '</td>' +
+        '<td class="mono">' + esc(String((l && l.value) || '')) + '</td></tr>';
+    }).join('');
+    var isWeb = ch === 'web';
+    var detailRows = isWeb
+      ? '<div class="table-wrap"><table class="table table--compact"><thead><tr><th>key</th><th>选择器</th><th>模式</th></tr></thead><tbody>' +
+        (rows || '<tr><td colspan="3" class="tiny">暂无字段</td></tr>') + '</tbody></table></div>' +
+        '<div class="tiny mt-12">提交按钮：<span class="mono">' + esc(a.submitSelector) + '</span></div>' +
+        '<div class="tiny">成功关键词：<span class="mono">' + esc(a.successKeyword || '—') + '</span></div>' +
+        '<div class="tiny">验证码检测：<span class="mono">' + esc(a.captchaSelector) + '</span></div>'
+      : '<div class="tiny mono mt-8">窗口绑定：' + esc((a.target && (a.target.processName || a.target.windowTitle)) || '—') +
+        '（' + esc((a.target && a.target.windowMatchMode) || 'contains') + '）</div>' +
+        '<div class="table-wrap mt-8"><table class="table table--compact"><thead><tr><th>kind</th><th>定位值</th></tr></thead><tbody>' +
+        (locatorRows || '<tr><td colspan="2" class="tiny">暂无定位器</td></tr>') + '</tbody></table></div>' +
+        '<div class="tiny">验证码检测定位器：<span class="mono">' +
+        esc(locatorSummary(a.captchaLocator)) + '</span></div>' +
+        '<div class="tiny">成功关键词：<span class="mono">' +
+        esc((a.successLocators || []).join('、') || '—') + '</span></div>';
+
+    var capabilityLine = '<div class="channel-meta mt-8">' +
+      badge('典型延迟 ' + cap.latencyText, 'neutral') +
+      (cap.reservationOnly ? badge('仅适用预约类', 'warn') : '') +
+      (cap.canBackground ? '' : badge('需窗口可见', 'neutral')) + '</div>';
+
     return '<article class="card"><div class="card__head"><div style="min-width:0">' +
       '<h3 class="card__title">' + esc(a.name) + '</h3>' +
-      '<div class="tiny mono">' + esc(a.urlPattern) + '</div></div>' +
-      badge((a.fields || []).length + ' 个字段', 'info') + '</div>' +
+      '<div class="tiny mono">' + esc(isWeb ? a.urlPattern : ((a.target && a.target.windowTitle) || '未绑定窗口')) + '</div></div>' +
+      channelBadgeHtml(ch) + '</div>' +
       '<div class="card__body"><p class="tiny" style="margin:0 0 10px">' + esc(a.description || '') + '</p>' +
-      '<div class="table-wrap"><table class="table table--compact"><thead><tr><th>key</th><th>选择器</th><th>模式</th></tr></thead><tbody>' +
-      (rows || '<tr><td colspan="3" class="tiny">暂无字段</td></tr>') + '</tbody></table></div>' +
-      '<div class="tiny mt-12">提交按钮：<span class="mono">' + esc(a.submitSelector) + '</span></div>' +
-      '<div class="tiny">成功关键词：<span class="mono">' + esc(a.successKeyword || '—') + '</span></div>' +
-      '<div class="tiny">验证码检测：<span class="mono">' + esc(a.captchaSelector) + '</span></div></div>' +
+      capabilityLine + detailRows + '</div>' +
       '<div class="card__foot">' +
         '<button type="button" class="btn btn--sm" data-action="adapter-edit" data-id="' + esc(a.id) + '">编辑</button>' +
         '<button type="button" class="btn btn--sm" data-action="adapter-copy" data-id="' + esc(a.id) + '">复制</button>' +
@@ -283,11 +320,18 @@
       '</div></article>';
   }
 
+  /** 把定位器对象 / 字符串压缩成卡片上的可读摘要。 */
+  function locatorSummary(loc) {
+    if (loc === undefined || loc === null || loc === '') return '—';
+    if (typeof loc === 'string') return loc;
+    return String(loc.kind || '') + ':' + String(loc.value === undefined ? '' : loc.value);
+  }
+
   function renderAdapters() {
     var html = pageHead('适配器',
-      '描述目标页面表单的 DOM 选择器。示例全部为通用占位配置，不针对任何真实站点；请仅在您本人已登录、拥有合法权限的页面上按实际结构修改。',
+      '描述目标表单的定位方式。Web 通道用 DOM 选择器；桌面 / 小程序 / 移动通道用窗口绑定 + 定位器。示例全部为通用占位配置，不针对任何真实站点或软件。',
       '<button type="button" class="btn btn--primary" data-action="adapter-new">＋ 新建适配器</button>');
-    html += notice('<strong>合规提示：</strong>适配器只允许配置 DOM 选择器，禁止填写接口地址或后台请求调用；「验证码检测选择器」为必填项，检测到验证挑战时立即中止并提示人工接管。', 'warn');
+    html += notice('<strong>合规提示：</strong>所有通道都禁止填写接口地址或后台请求调用，且「验证码检测项」为必填项，检测到验证挑战时立即中止并提示人工接管。非 Web 通道的 UI 自动化仅适用于预约类任务，详见「本地运行时」页。', 'warn');
     var list = state().adapters || [];
     if (!list.length) {
       return html + '<div class="card mt-16">' + emptyState('暂无适配器',
@@ -653,38 +697,68 @@
     return findById('tasks', uiState.exportTaskId);
   }
 
-  function generateScript() {
+  /** 当前导出任务的执行通道：优先取适配器 channel，任务 channel 兜底，旧数据归一化为 web。 */
+  function currentExportChannel() {
     var task = currentExportTask();
-    if (!task) return '// 请先在「任务中心」创建一个任务，然后再生成 UserScript。\n';
+    if (!task) return 'web';
+    var adapter = findById('adapters', task.adapterId) || {};
+    return locators.normalizeChannel(adapter.channel || task.channel);
+  }
+
+  /** 统一走 exporter.buildForChannel，web 输出 UserScript，非 web 输出本地 Python 脚本。 */
+  function currentExportBundle() {
+    var task = currentExportTask() || {};
     var adapter = findById('adapters', task.adapterId) || {};
     var template = findById('templates', task.templateId) || {};
     var policy = findById('policies', task.policyId) || engine.clampPolicy({});
-    return exporter.buildUserScript(task, adapter, template, policy, {
+    return exporter.buildForChannel(task, adapter, template, policy, {
       includeSecrets: uiState.exportIncludeSecrets,
       globalLiveSubmitEnabled: state().settings.liveSubmitEnabled === true
     });
   }
 
+  function generateScript() {
+    var task = currentExportTask();
+    if (!task) return '// 请先在「任务中心」创建一个任务，然后再生成脚本。\n';
+    return currentExportBundle().source;
+  }
+
   function updateExportPreview() {
     var box = el('export-code');
     if (!box) return;
-    var script = generateScript();
+    var bundle = currentExportBundle();
+    var script = bundle.source;
     uiState.exportScript = script;
     var lines = script.split('\n');
     box.innerHTML = lines.map(function (line) {
       return '<span class="code-line"><span class="code-line__text">' + esc(line || ' ') + '</span></span>';
     }).join('');
     var meta = el('export-meta');
-    if (meta) meta.textContent = lines.length + ' 行 · @grant none';
+    if (meta) {
+      meta.textContent = lines.length + ' 行 · ' +
+        (bundle.kind === 'python' ? 'Python 3.11+ · 默认 dry-run' : '@grant none');
+    }
   }
 
   function renderExporter() {
     currentExportTask();
+    var channel = currentExportChannel();
+    var cap = locators.capabilityOf(channel);
+    var isPython = channel !== 'web';
     var html = pageHead('脚本导出',
-      '生成由您自行安装到自己浏览器扩展（Tampermonkey 等）的 UserScript。脚本只在您已登录、有合法权限的页面上做 DOM 填报，并内置速率限制、最大尝试次数、验证码中止与人工确认。',
-      '');
-    html += notice('未勾选合规确认前禁止导出脚本与配置。生成的脚本不包含任何真实第三方站点地址，也不调用任何隐藏接口；敏感字段默认不导出明文。',
+      isPython
+        ? '按当前任务的本地执行通道生成由您本机运行的 Python 脚本。网页控制台只负责配置、演练、日志与导出，绝不尝试控制外部软件。'
+        : '生成由您自行安装到自己浏览器扩展（Tampermonkey 等）的 UserScript。脚本只在您已登录、有合法权限的页面上做 DOM 填报，并内置速率限制、最大尝试次数、验证码中止与人工确认。',
+      channelBadgeHtml(channel));
+    html += notice('未勾选合规确认前禁止导出脚本与配置。生成的脚本不包含任何真实第三方站点 / 软件地址，也不调用任何隐藏接口；敏感字段默认不导出明文。',
       complianceOk(true) ? 'success' : 'warn');
+
+    if (isPython) {
+      html += '<div class="channel-warning mt-12"><div class="channel-warning__title">⚠ 网页无法直接控制外部软件，脚本须在本机运行</div>' +
+        '<div>浏览器同源策略决定网页不能操作外部进程或窗口。请下载生成的 .py 文件，在您自己的 Windows 机器上按「本地运行时」页的前置条件安装依赖后运行；默认 --dry-run 只做窗口发现与定位器探测。</div>' +
+        '<div class="mt-8">当前通道 ' + esc(locators.channelLabel(channel)) + '：典型延迟 ' + esc(cap.latencyText) +
+        '，' + esc(cap.suitableFor) + '；不承诺 ≤30ms 级触发精度。</div></div>';
+    }
 
     var taskOptions = (state().tasks || []).map(function (t) {
       return '<option value="' + esc(t.id) + '"' + (uiState.exportTaskId === t.id ? ' selected' : '') + '>' + esc(t.name) + '</option>';
@@ -695,7 +769,12 @@
         '<div class="card__body">' +
         '<div class="field mb-12"><label class="field__label" for="export-task-select">选择任务</label>' +
           '<select class="select" id="export-task-select" data-action="export-select-task">' + taskOptions + '</select>' +
-          '<span class="field__hint">@name 与 @match 来自所选任务的名称与目标 URL。</span></div>' +
+          '<span class="field__hint">' + (isPython
+            ? '通道由所选任务关联的适配器决定；窗口绑定 / 定位器来自该适配器。'
+            : '@name 与 @match 来自所选任务的名称与目标 URL。') + '</span></div>' +
+        '<div class="channel-meta mb-12">' + badge(cap.scriptLabel, 'primary') +
+          badge('典型延迟 ' + cap.latencyText, 'neutral') +
+          (cap.reservationOnly ? badge('仅适用预约类', 'warn') : '') + '</div>' +
         '<label class="checkbox"><input type="checkbox" data-action="export-toggle-secrets"' + (uiState.exportIncludeSecrets ? ' checked' : '') + '> 包含敏感字段明文（不推荐）</label>' +
         (uiState.exportIncludeSecrets
           ? '<div class="notice notice--danger mt-8">警告：勾选后脚本与配置将包含身份证号、口令、令牌等明文，请妥善保管，切勿分享或提交到代码仓库。</div>'
@@ -703,8 +782,9 @@
         '<div class="mt-16" style="display:flex;flex-direction:column;gap:8px">' +
           '<button type="button" class="btn btn--primary btn--block" data-action="export-generate">重新生成脚本预览</button>' +
           '<button type="button" class="btn btn--block" data-action="export-copy">复制脚本到剪贴板</button>' +
-          '<button type="button" class="btn btn--block" data-action="export-download-userscript">下载 .user.js 文件</button>' +
-          '<div class="tiny" style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">配置 JSON</div>' +
+          '<button type="button" class="btn btn--block" data-action="export-download-userscript">' +
+            (isPython ? '导出本地运行时脚本 (.py)' : '导出 UserScript（.user.js）') + '</button>' +
+          '<div class="tiny" style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">配置 JSON（含 channel / target / locators）</div>' +
           '<button type="button" class="btn btn--block" data-action="export-config-download">导出配置 JSON</button>' +
           '<button type="button" class="btn btn--block" data-action="export-config-import">导入配置 JSON</button>' +
         '</div></div></div>' +
@@ -715,7 +795,7 @@
     return html;
   }
 
-  /* ------------------------------------------------------------ 视图 8：帮助与合规 */
+  /* ------------------------------------------------------------ 视图 9：帮助与合规 */
 
   function renderHelp() {
     var s = state().settings || { complianceAccepted: false, theme: 'light', liveSubmitEnabled: false };
@@ -751,6 +831,19 @@
       '</ul></div></div>' +
     '</div>';
 
+    // 非 Web 通道适用性与风险：原有允许 / 禁止 / 免责声明 / 合规确认全部保留，仅追加本节。
+    html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">本地通道（桌面 / 小程序 / 移动）适用性与风险</h3>' +
+      badge('务必阅读', 'warn') + '</div><div class="card__body">' +
+      '<ul class="rule-list">' +
+        '<li>浏览器同源策略决定网页控制台无法、也绝不会尝试去控制外部进程或窗口；本地通道只能由您下载 .py 后在本机自行运行。</li>' +
+        '<li>UI 自动化单次操作延迟约 300–2000ms，不承诺毫秒级触发精度，<strong>不适合秒杀类任务</strong>，仅适用于预约类 / 有宽松时间余量的场景。</li>' +
+        '<li>小程序运行在 PC 客户端内部容器，无法注入 DOM、不暴露调试端口，只做窗口级 UI 自动化；不反编译包体、不重放私有接口、不 hook 进程内存。</li>' +
+        '<li>客户端版本升级会导致窗口结构 / AutomationId 变化，须重新录制定位器；建议每次升级后用 --dry-run 做定位器探测回归。</li>' +
+        '<li>检测到验证码 / 人机验证立即暂停一切自动化输入并提示人工接管；绝不识别验证码、不对接打码平台、不模拟滑块轨迹。</li>' +
+        '<li>默认 --dry-run 只做窗口发现与定位器探测；真实提交须显式 --live 且运行时再次交互确认；无法判定结果时记为「待确认」，绝不默认判成功。</li>' +
+        '<li>实名制票务代抢可能违反平台服务条款与属地法律法规，风险与责任由您自行承担；仅限本人有权操作的软件与账号。</li>' +
+      '</ul></div></div>';
+
     html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">免责声明</h3></div><div class="card__body">' +
       '<p class="muted" style="margin:0">本工具仅提供通用的本地配置、调度与演练能力，不保证任何第三方站点的可用性、兼容性或成功率。您应当自行确认目标站点的服务条款、 robots 规则与相关法律法规允许此类自动化操作，并自行承担使用后果。开发者不对因使用本工具产生的账号、数据、法律或经济损失负责。数据全部保存在您本机浏览器（localStorage 前缀 <span class="mono">sr:</span>），不会上传到任何服务器。</p>' +
       '</div></div>';
@@ -773,6 +866,119 @@
       '</div></div>';
 
     return html;
+  }
+
+  /* -------------------------------------------------- 视图 8：本地运行时 */
+
+  /** 能力矩阵表格 HTML。 */
+  function capabilityTableHtml() {
+    var rows = locators.capabilityRows().map(function (r) {
+      return '<tr>' +
+        '<td>' + channelBadgeHtml(r.channel) + '</td>' +
+        '<td class="mono tiny">' + esc(r.supportedKinds) + '</td>' +
+        '<td>' + (r.canPrefill ? '是' : '部分 / 否') + '</td>' +
+        '<td>' + (r.canBackground ? '是' : '否') + '</td>' +
+        '<td>' + esc(r.latencyText) + '</td>' +
+        '<td>' + esc(r.humanHandoffText) + '</td>' +
+        '<td>' + esc(r.suitableFor) + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<div class="table-wrap"><table class="table capability-table"><thead><tr>' +
+      '<th>通道</th><th>支持的定位方式</th><th>可预填</th><th>可后台</th>' +
+      '<th>单次操作典型延迟</th><th>人工接管</th><th>适用任务类型</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  /** 平台前置条件表格 HTML。 */
+  function prerequisitesHtml() {
+    var rows = locators.capabilityRows().map(function (r) {
+      return '<div class="prereq-row"><div class="prereq-row__head">' + channelBadgeHtml(r.channel) +
+        '<span class="tiny mono">' + esc(r.scriptLabel) + '</span></div>' +
+        '<ul class="rule-list">' + r.prerequisites.map(function (p) {
+          return '<li>' + esc(p) + '</li>';
+        }).join('') + '</ul></div>';
+    }).join('');
+    return '<div class="prereq-grid">' + rows + '</div>';
+  }
+
+  function renderLocalRunner() {
+    currentLocalRunnerTask();   // 先确定默认选中任务，保证 select 的 selected 与能力提示一致
+    var html = pageHead('本地运行时',
+      '为微信小程序 / Windows 桌面客户端 / 任意 GUI 软件生成由您本机运行的 Python 自动化脚本。网页控制台只负责配置、演练、日志与导出，绝不尝试控制外部软件。',
+      '<button type="button" class="btn btn--primary" data-action="localrunner-goto-export">前往脚本导出</button>');
+
+    html += '<div class="channel-warning"><div class="channel-warning__title">⚠ 浏览器沙箱限制</div>' +
+      '<div>浏览器的同源策略规定：网页里的 JavaScript 不能读取或操作另一个站点的 DOM，更无法控制外部进程或窗口。' +
+      '因此本 Web 控制台在技术上无法、也绝不会尝试去驱动小程序或桌面软件。桌面 / 小程序 / 移动任务只能导出 .py 脚本，' +
+      '由您下载后在本机（Windows + Python 3.11+）自行运行。原有 Web / UserScript 通道行为完全不变。</div></div>';
+
+    html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">通道能力矩阵</h3>' +
+      badge('按适配器能力选择', 'info') + '</div><div class="card__body">' +
+      '<p class="muted" style="margin:0 0 12px">不同通道支持的定位方式、延迟与人工接管方式各不相同。' +
+      '只有 Web 通道承诺毫秒级触发精度；UI 通道单次操作延迟 300–2000ms，<strong>不适合秒杀类</strong>。</p>' +
+      capabilityTableHtml() + '</div></div>';
+
+    html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">平台前置条件</h3></div>' +
+      '<div class="card__body">' + prerequisitesHtml() +
+      '<div class="notice notice--warn mt-12">可选依赖（模板匹配 / 界面文字读取）缺失时自动降级，不强制安装；' +
+      '缺 pywinauto / uiautomation 时脚本会打印清晰的安装提示并安全退出。OCR 仅用于读取界面可见文字以定位控件，绝不用于识别验证码。</div>' +
+      '</div></div>';
+
+    html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">配置到运行 · 四步</h3></div><div class="card__body"><div class="steps">' +
+      stepHtml(1, '绑定目标应用', '在「适配器」新建适配器并选择执行通道（desktop / miniprogram / mobile）：桌面与小程序填进程名、窗口标题与匹配模式；mobile 填设备序列号与目标包名。随后录制定位器，验证码检测项必填。') +
+      stepHtml(2, '配置任务与策略', '在「任务中心」把任务关联到该适配器，设置模板与调度策略（间隔 ≥1000ms、尝试 ≤50 次、提交前人工确认）。') +
+      stepHtml(3, '导出脚本', '到「脚本导出」选择该任务，下载 .py 文件；敏感字段默认脱敏为 __SR_REDACTED__，运行前请在本机自行补全。') +
+      stepHtml(4, '本机 dry-run → live', '先直接运行（默认 dry-run）做窗口发现与定位器探测；确认无误后显式 --live，并在运行时再次交互确认。检测到验证码立即暂停并提示人工接管。') +
+    '</div></div></div>';
+
+    html += '<div class="card mt-16"><div class="card__head"><h3 class="card__title">从当前任务导出</h3>' +
+      badge('默认 dry-run', 'success') + '</div><div class="card__body">' +
+      '<p class="muted" style="margin:0 0 12px">选择一个非 Web 通道的任务即可直接下载本地运行时脚本；Web 通道任务请改用「脚本导出」页的 UserScript。</p>' +
+      '<div class="field mb-12"><label class="field__label" for="localrunner-task-select">选择任务</label>' +
+      '<select class="select" id="localrunner-task-select" data-action="localrunner-select-task">' +
+      ((state().tasks || []).map(function (t) {
+        var a = findById('adapters', t.adapterId) || {};
+        var ch = locators.normalizeChannel(a.channel || t.channel);
+        return '<option value="' + esc(t.id) + '"' + (uiState.localrunnerTaskId === t.id ? ' selected' : '') + '>' +
+          esc(t.name) + '（' + esc(locators.channelLabel(ch)) + '）</option>';
+      }).join('') || '<option value="">（暂无任务）</option>') + '</select></div>' +
+      '<div class="channel-meta mb-12" id="localrunner-capability-hint"></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button type="button" class="btn btn--primary" data-action="localrunner-download">下载本地运行时脚本 (.py)</button>' +
+      '<button type="button" class="btn" data-action="localrunner-goto-export">在脚本导出页预览</button>' +
+      '</div></div></div>';
+
+    return html;
+  }
+
+  /** 本地运行时视图里当前选中的任务（默认取第一个非 Web 通道任务）。 */
+  function currentLocalRunnerTask() {
+    var tasks = state().tasks || [];
+    function channelOf(t) {
+      var a = findById('adapters', t.adapterId) || {};
+      return locators.normalizeChannel(a.channel || t.channel);
+    }
+    if (!findById('tasks', uiState.localrunnerTaskId)) {
+      var nonWeb = tasks.filter(function (t) { return channelOf(t) !== 'web'; });
+      uiState.localrunnerTaskId = (nonWeb.length ? nonWeb[0] : (tasks[0] || {})).id || '';
+    }
+    return findById('tasks', uiState.localrunnerTaskId);
+  }
+
+  /** 把本地运行时视图里的能力提示区刷新为当前任务的通道能力。 */
+  function refreshLocalRunnerHint() {
+    var box = el('localrunner-capability-hint');
+    if (!box) return;
+    var task = currentLocalRunnerTask();
+    if (!task) { box.innerHTML = badge('暂无任务', 'neutral'); return; }
+    var adapter = findById('adapters', task.adapterId) || {};
+    var ch = locators.normalizeChannel(adapter.channel || task.channel);
+    var cap = locators.capabilityOf(ch);
+    box.innerHTML = channelBadgeHtml(ch) +
+      badge(cap.scriptLabel, 'primary') +
+      badge('典型延迟 ' + cap.latencyText, 'neutral') +
+      (cap.reservationOnly ? badge('仅适用预约类', 'warn') : '') +
+      (ch === 'web' ? '<span class="tiny">Web 通道请导出 UserScript；本地运行时脚本仅用于非 Web 通道。</span>' : '');
   }
 
   /* ------------------------------------------------------------ 编辑器 Modal */
@@ -803,12 +1009,13 @@
       '<div class="form-grid form-grid--2">' +
         inputField('任务名称', 'task-name', 'text', d.name) +
         selectField('任务类型', 'task-type', optionsHtml(core.TASK_TYPES, d.type)) +
-        inputField('目标页面 URL', 'task-targetUrl', 'text', d.targetUrl, '仅填写您本人已登录且有合法权限的页面；示例使用保留示例域。') +
+        inputField('目标页面 URL', 'task-targetUrl', 'text', d.targetUrl, 'Web 通道必填（本人已登录且有合法权限的页面）；非 Web 通道可留空，窗口由适配器的 target 绑定。') +
         selectField('状态', 'task-status', optionsHtml(core.TASK_STATUSES, d.status)) +
         selectField('适配器', 'task-adapterId', relationOptions('adapters', d.adapterId)) +
         selectField('表单模板', 'task-templateId', relationOptions('templates', d.templateId)) +
         selectField('调度策略', 'task-policyId', relationOptions('policies', d.policyId)) +
       '</div>' +
+      notice('执行通道由所选「适配器」决定：Web 通道导出 UserScript；桌面 / 小程序 / 移动通道导出本机运行的 .py 脚本。保存后通道会随任务持久化。', 'info') +
       '<div class="field mt-16"><label class="field__label" for="task-note">备注</label>' +
         '<textarea class="textarea" id="task-note">' + esc(d.note || '') + '</textarea></div>' +
       '<div id="editor-errors"></div></form>';
@@ -822,10 +1029,14 @@
   function saveTaskFromModal() {
     var id = uiState.editor.id;
     var existing = id ? findById('tasks', id) : null;
+    // 执行通道由关联适配器决定并随任务持久化，供导出分流、导入校验与演练模拟使用。
+    var linkedAdapter = findById('adapters', valOf('#task-adapterId')) || {};
+    var channel = locators.normalizeChannel(linkedAdapter.channel);
     var task = {
       id: id || core.uid('task'),
       name: valOf('#task-name').trim(),
       type: valOf('#task-type'),
+      channel: channel,
       targetUrl: valOf('#task-targetUrl').trim(),
       adapterId: valOf('#task-adapterId'),
       templateId: valOf('#task-templateId'),
@@ -857,20 +1068,117 @@
     '</tr>';
   }
 
+  /** 执行通道下拉选项。 */
+  function channelSelectHtml(selected) {
+    var s = locators.normalizeChannel(selected);
+    return Object.keys(locators.CHANNELS).map(function (ch) {
+      return '<option value="' + esc(ch) + '"' + (s === ch ? ' selected' : '') + '>' +
+        esc(locators.channelLabel(ch)) + '</option>';
+    }).join('');
+  }
+
+  /** 定位器 kind 下拉选项（列出全部 9 种，保存时由校验器按通道过滤）。 */
+  function locatorKindOptions(selected) {
+    return Object.keys(locators.LOCATOR_KINDS).map(function (kind) {
+      return '<option value="' + esc(kind) + '"' + (selected === kind ? ' selected' : '') + '>' +
+        esc(kind) + '</option>';
+    }).join('');
+  }
+
+  /** 非 Web 通道的定位器行（kind + value + 删除）。 */
+  function locatorRowHtml(loc) {
+    var item = loc || { kind: 'uia_name', value: '' };
+    return '<tr data-adapter-locator>' +
+      '<td style="width:210px"><select class="select" data-l-kind>' + locatorKindOptions(item.kind) + '</select></td>' +
+      '<td><input class="input mono" data-l-value value="' + esc(String(item.value === undefined ? '' : item.value)) + '" aria-label="定位值"></td>' +
+      '<td style="width:70px"><button type="button" class="btn btn--sm btn--danger" data-action="adapter-remove-locator">删除</button></td>' +
+    '</tr>';
+  }
+
+  /** 单个定位器编辑器（验证码检测 / 提交控件共用）：kind 下拉 + value 输入。 */
+  function locatorPairHtml(prefix, label, loc, hint) {
+    var item = (loc && typeof loc === 'object' && !Array.isArray(loc))
+      ? loc : { kind: 'uia_name', value: (loc === undefined || loc === null ? '' : String(loc)) };
+    return '<div class="field"><label class="field__label">' + esc(label) + '</label>' +
+      '<div class="field__row">' +
+        '<select class="select" id="' + prefix + '-kind" style="width:200px">' +
+          locatorKindOptions(item.kind || 'uia_name') + '</select>' +
+        '<input class="input mono" id="' + prefix + '-value" value="' +
+          esc(String(item.value === undefined ? '' : item.value)) + '" aria-label="' + esc(label) + '定位值">' +
+      '</div>' + (hint ? '<span class="field__hint">' + esc(hint) + '</span>' : '') + '</div>';
+  }
+
+  /** 窗口绑定字段（仅非 Web 通道）。 */
+  function targetFieldsHtml(target) {
+    var t = target || {};
+    var modes = core.WINDOW_MATCH_MODES.map(function (m) {
+      return '<option value="' + m + '"' + ((t.windowMatchMode || 'contains') === m ? ' selected' : '') + '>' +
+        m + '</option>';
+    }).join('');
+    return '<div class="form-grid form-grid--2">' +
+      inputField('进程名 processName', 'adapter-processName', 'text', t.processName || '', '占位值，如 example-client.exe；请勿填写真实平台专用逻辑') +
+      inputField('窗口标题 windowTitle', 'adapter-windowTitle', 'text', t.windowTitle || '', '配合窗口匹配模式定位目标窗口') +
+      selectField('窗口匹配模式 windowMatchMode', 'adapter-windowMatchMode', modes) +
+      inputField('可执行路径 exePath（可选）', 'adapter-exePath', 'text', t.exePath || '') +
+      inputField('启动参数 launchArgs（可选，逗号分隔）', 'adapter-launchArgs', 'text', (t.launchArgs || []).join(', ')) +
+      inputField('设备序列号 deviceSerial（仅 mobile，留空自动选择）', 'adapter-deviceSerial', 'text', t.deviceSerial || '', 'adb devices 中可见的序列号；桌面 / 小程序通道留空') +
+      inputField('目标包名 packageName（仅 mobile）', 'adapter-packageName', 'text', t.packageName || '', '仅记录，脚本不会自动启动应用；桌面 / 小程序通道留空') +
+      inputField('启动 Activity appActivity（仅 mobile，可选）', 'adapter-appActivity', 'text', t.appActivity || '') +
+      checkboxField('adapter-bringToFront', '人工接管时自动将目标窗口置前', t.bringToFront !== false) +
+    '</div>';
+  }
+
+  /** 按通道切换编辑器里的字段分区显示（两个区块常驻 DOM，切换不丢失已填内容）。 */
+  function applyAdapterChannelVisibility(ch) {
+    var webBlock = el('adapter-web-block');
+    var localBlock = el('adapter-local-block');
+    if (webBlock) webBlock.hidden = (ch !== 'web');
+    if (localBlock) localBlock.hidden = (ch === 'web');
+    var hint = el('adapter-channel-hint');
+    if (hint) {
+      var cap = locators.capabilityOf(ch);
+      hint.innerHTML = channelBadgeHtml(ch) +
+        badge('典型延迟 ' + cap.latencyText, 'neutral') +
+        (cap.reservationOnly ? badge('仅适用预约类', 'warn') : '') +
+        '<span class="tiny">' + esc(cap.suitableFor) + '；所有通道的验证码检测项均为必填。</span>';
+    }
+  }
+
+  function defaultLocalAdapter() {
+    return {
+      target: { processName: '', windowTitle: '', windowMatchMode: 'contains',
+        exePath: '', bundleId: '', deviceSerial: '', packageName: '', appActivity: '',
+        launchArgs: [], bringToFront: true },
+      locators: [],
+      captchaLocator: { kind: 'uia_name', value: '' },
+      submitLocator: { kind: 'uia_automation_id', value: '' },
+      successLocators: []
+    };
+  }
+
   function openAdapterEditor(id) {
     var existing = id ? findById('adapters', id) : null;
+    var localDefaults = defaultLocalAdapter();
     var d = existing || {
+      channel: 'web',
       name: '', urlPattern: '', description: data.NOTE, fields: [],
-      submitSelector: '', successKeyword: '', captchaSelector: ''
+      submitSelector: '', successKeyword: '', captchaSelector: '',
+      target: localDefaults.target,
+      locators: localDefaults.locators,
+      captchaLocator: localDefaults.captchaLocator,
+      submitLocator: localDefaults.submitLocator,
+      successLocators: localDefaults.successLocators
     };
+    var ch = locators.normalizeChannel(d.channel);
     uiState.editor = { kind: 'adapter', id: id || null };
-    var body = '<form id="adapter-form"><div class="form-grid form-grid--2">' +
-      inputField('适配器名称', 'adapter-name', 'text', d.name) +
-      inputField('URL 匹配模式', 'adapter-urlPattern', 'text', d.urlPattern, '通用占位模式，如 https://your-app.example/*') +
-      inputField('提交按钮选择器', 'adapter-submitSelector', 'text', d.submitSelector) +
-      inputField('成功关键词', 'adapter-successKeyword', 'text', d.successKeyword, '页面上可见文本中的成功提示词') +
-      inputField('验证码检测选择器（必填）', 'adapter-captchaSelector', 'text', d.captchaSelector, '检测到该元素立即中止并提示人工接管') +
-      inputField('说明', 'adapter-description', 'text', d.description) +
+    uiState.adapterChannelDraft = ch;
+
+    var webBlock = '<div id="adapter-web-block">' +
+      '<div class="form-grid form-grid--2">' +
+        inputField('URL 匹配模式', 'adapter-urlPattern', 'text', d.urlPattern || '', '通用占位模式，如 https://your-app.example/*') +
+        inputField('提交按钮选择器', 'adapter-submitSelector', 'text', d.submitSelector || '') +
+        inputField('成功关键词', 'adapter-successKeyword', 'text', d.successKeyword || '', '页面上可见文本中的成功提示词') +
+        inputField('验证码检测选择器（必填）', 'adapter-captchaSelector', 'text', d.captchaSelector || '', '检测到该元素立即中止并提示人工接管') +
       '</div>' +
       '<div class="section-title mt-16">字段行（可增删）</div>' +
       '<div class="table-wrap"><table class="table table--compact"><thead><tr>' +
@@ -878,17 +1186,52 @@
         '<th style="width:110px">模式</th><th style="width:70px">操作</th></tr></thead>' +
         '<tbody id="adapter-fields">' + (d.fields || []).map(adapterFieldRowHtml).join('') + '</tbody></table></div>' +
       '<button type="button" class="btn btn--sm mt-8" data-action="adapter-add-field">＋ 添加字段</button>' +
+    '</div>';
+
+    var localBlock = '<div id="adapter-local-block">' +
+      '<div class="section-title mt-16">窗口绑定 target</div>' + targetFieldsHtml(d.target) +
+      '<div class="section-title mt-16">定位器 locators（可增删；coordinate_anchor 的 value 写作 "nx,ny" 归一化值）</div>' +
+      '<div class="table-wrap"><table class="table table--compact"><thead><tr>' +
+        '<th>kind</th><th>value</th><th style="width:70px">操作</th></tr></thead>' +
+        '<tbody id="adapter-locators">' + (d.locators || []).map(locatorRowHtml).join('') + '</tbody></table></div>' +
+      '<button type="button" class="btn btn--sm mt-8" data-action="adapter-add-locator">＋ 添加定位器</button>' +
+      '<div class="form-grid form-grid--2 mt-16">' +
+        locatorPairHtml('adapter-captcha-locator', '验证码检测定位器（必填）', d.captchaLocator,
+          '检测到该控件 / 文字立即暂停一切自动化输入并提示人工接管') +
+        locatorPairHtml('adapter-submit-locator', '提交控件定位器', d.submitLocator,
+          '仅在 --live 且人工确认后才会点击') +
+      '</div>' +
+      '<div class="field mt-16"><label class="field__label" for="adapter-successLocators">成功关键词 successLocators（每行 / 逗号分隔）</label>' +
+        '<textarea class="textarea" id="adapter-successLocators">' + esc((d.successLocators || []).join('\n')) + '</textarea>' +
+        '<span class="field__hint">只读取窗口可见文字判定；无法判定时记为「待确认」，绝不默认判成功。</span></div>' +
+    '</div>';
+
+    var body = '<form id="adapter-form"><div class="form-grid form-grid--2">' +
+      inputField('适配器名称', 'adapter-name', 'text', d.name || '') +
+      selectField('执行通道', 'adapter-channel', channelSelectHtml(ch)) +
+      '</div>' +
+      '<div class="channel-meta mt-8" id="adapter-channel-hint"></div>' +
+      webBlock + localBlock +
+      '<div class="field mt-16"><label class="field__label" for="adapter-description">说明</label>' +
+        '<input class="input" id="adapter-description" value="' + esc(d.description || '') + '"></div>' +
       '<div id="editor-errors"></div></form>';
     openModal({
       title: id ? '编辑适配器' : '新建适配器', size: 'wide', bodyHtml: body,
       footerHtml: '<button type="button" class="btn" data-action="modal-close">取消</button>' +
         '<button type="button" class="btn btn--primary" data-action="adapter-save">保存适配器</button>'
     });
+    applyAdapterChannelVisibility(ch);
   }
 
-  function saveAdapterFromModal() {
-    var id = uiState.editor.id;
-    var existing = id ? findById('adapters', id) : null;
+  /** 从 DOM 读取一个定位器编辑器（kind + value）；value 为空返回 ''，交由校验器报「必填」。 */
+  function readLocatorPair(prefix) {
+    var kind = valOf('#' + prefix + '-kind');
+    var value = valOf('#' + prefix + '-value').trim();
+    if (!value) return '';
+    return { kind: kind, value: value };
+  }
+
+  function collectFieldRows() {
     var fields = [];
     var rows = typeof document !== 'undefined' ? document.querySelectorAll('#adapter-fields tr') : [];
     Array.prototype.forEach.call(rows, function (tr) {
@@ -899,22 +1242,67 @@
         mode: val(tr, '[data-f-mode]') || 'value'
       });
     });
+    return fields;
+  }
+
+  function collectLocatorRows() {
+    var out = [];
+    var rows = typeof document !== 'undefined' ? document.querySelectorAll('#adapter-locators tr') : [];
+    Array.prototype.forEach.call(rows, function (tr) {
+      var kind = val(tr, '[data-l-kind]');
+      var value = val(tr, '[data-l-value]').trim();
+      if (!value) return;
+      out.push({ kind: kind, value: value });
+    });
+    return out;
+  }
+
+  function saveAdapterFromModal() {
+    var id = uiState.editor.id;
+    var existing = id ? findById('adapters', id) : null;
+    var channel = locators.normalizeChannel(valOf('#adapter-channel'));
     var adapter = {
       id: id || core.uid('adapter'),
+      channel: channel,
       name: valOf('#adapter-name').trim(),
-      urlPattern: valOf('#adapter-urlPattern').trim(),
       description: valOf('#adapter-description') || data.NOTE,
-      fields: fields,
-      submitSelector: valOf('#adapter-submitSelector').trim(),
-      successKeyword: valOf('#adapter-successKeyword').trim(),
-      captchaSelector: valOf('#adapter-captchaSelector').trim(),
+      fields: collectFieldRows(),
       createdAt: existing ? existing.createdAt : core.nowIso()
     };
-    var result = core.validateAdapter(adapter);
+
+    if (channel === 'web') {
+      adapter.urlPattern = valOf('#adapter-urlPattern').trim();
+      adapter.submitSelector = valOf('#adapter-submitSelector').trim();
+      adapter.successKeyword = valOf('#adapter-successKeyword').trim();
+      adapter.captchaSelector = valOf('#adapter-captchaSelector').trim();
+    } else {
+      adapter.target = {
+        processName: valOf('#adapter-processName').trim(),
+        windowTitle: valOf('#adapter-windowTitle').trim(),
+        windowMatchMode: valOf('#adapter-windowMatchMode'),
+        exePath: valOf('#adapter-exePath').trim(),
+        bundleId: (existing && existing.target && existing.target.bundleId) || '',
+        deviceSerial: valOf('#adapter-deviceSerial').trim(),
+        packageName: valOf('#adapter-packageName').trim(),
+        appActivity: valOf('#adapter-appActivity').trim(),
+        launchArgs: valOf('#adapter-launchArgs').split(',').map(function (s) { return s.trim(); })
+          .filter(function (s) { return s.length > 0; }),
+        bringToFront: checkedOf('#adapter-bringToFront')
+      };
+      adapter.locators = collectLocatorRows();
+      adapter.captchaLocator = readLocatorPair('adapter-captcha-locator');
+      adapter.submitLocator = readLocatorPair('adapter-submit-locator');
+      adapter.successLocators = valOf('#adapter-successLocators')
+        .split(/[\r\n,，]+/).map(function (s) { return s.trim(); })
+        .filter(function (s) { return s.length > 0; });
+    }
+
+    var result = locators.validateAdapterByChannel(adapter);
     if (!result.ok) { showErrors(result.errors); return; }
     upsert('adapters', adapter);
     save(); closeModal(); render();
-    addLog('info', (id ? '更新适配器：' : '新建适配器：') + adapter.name, null);
+    addLog('info', (id ? '更新适配器：' : '新建适配器：') + adapter.name +
+      '（通道 ' + locators.channelLabel(channel) + '）', null);
     toast('适配器已保存', 'success');
   }
 
@@ -1262,6 +1650,19 @@
       var tr = t.closest ? t.closest('tr') : null;
       if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
     },
+    'adapter-channel-change': function (t) {
+      var ch = locators.normalizeChannel(t.value);
+      uiState.adapterChannelDraft = ch;
+      applyAdapterChannelVisibility(ch);
+    },
+    'adapter-add-locator': function () {
+      var body = el('adapter-locators');
+      if (body) body.insertAdjacentHTML('beforeend', locatorRowHtml(null));
+    },
+    'adapter-remove-locator': function (t) {
+      var tr = t.closest ? t.closest('tr') : null;
+      if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
+    },
     'adapter-copy': function (t) {
       var src = findById('adapters', t.getAttribute('data-id'));
       if (!src) return;
@@ -1490,16 +1891,20 @@
     'export-copy': function () {
       if (!complianceOk()) return;
       copyText(uiState.exportScript || generateScript());
-      addLog('info', '复制 UserScript 到剪贴板', null);
+      addLog('info', '复制' + (currentExportChannel() === 'web' ? ' UserScript' : ' 本地运行时脚本') + '到剪贴板', null);
     },
     'export-download-userscript': function () {
       if (!complianceOk()) return;
-      var script = uiState.exportScript || generateScript();
+      var bundle = currentExportBundle();
+      var script = bundle.source;
       var task = currentExportTask();
       var base = sanitizeFile(task ? task.name : 'slotrunner');
-      if (downloadFile(base + '.user.js', script, 'text/javascript;charset=utf-8')) {
-        addLog('info', '导出 UserScript：' + base + '.user.js', task ? task.id : null);
-        toast('脚本已下载，请自行安装到浏览器扩展', 'success');
+      var isPython = bundle.kind === 'python';
+      var filename = isPython ? base + '.py' : base + '.user.js';
+      if (downloadFile(filename, script, bundle.mime)) {
+        addLog('info', '导出' + (isPython ? '本地运行时脚本' : 'UserScript') + '：' + filename, task ? task.id : null);
+        toast(isPython ? '脚本已下载，请在本机运行（默认 dry-run）' : '脚本已下载，请自行安装到浏览器扩展', 'success');
+        bundle.warnings.forEach(function (w) { toast(w, 'warn'); });
       }
     },
     'export-config-download': function () {
@@ -1549,6 +1954,40 @@
       };
       reader.onerror = function () { toast('文件读取失败', 'error'); t.value = ''; };
       reader.readAsText(file, 'utf-8');
+    },
+
+    /* 本地运行时（第 9 视图） */
+    'localrunner-goto-export': function () {
+      var task = currentLocalRunnerTask();
+      if (task) uiState.exportTaskId = task.id;
+      navigate('exporter');
+    },
+    'localrunner-select-task': function (t) {
+      uiState.localrunnerTaskId = t.value;
+      refreshLocalRunnerHint();
+    },
+    'localrunner-download': function () {
+      if (!complianceOk()) return;
+      var task = currentLocalRunnerTask();
+      if (!task) { toast('请先在「任务中心」创建一个任务', 'error'); return; }
+      var adapter = findById('adapters', task.adapterId) || {};
+      var ch = locators.normalizeChannel(adapter.channel || task.channel);
+      if (ch === 'web') {
+        toast('Web 通道请到「脚本导出」页导出 UserScript；本地运行时脚本仅用于非 Web 通道', 'warn');
+        return;
+      }
+      var template = findById('templates', task.templateId) || {};
+      var policy = findById('policies', task.policyId) || engine.clampPolicy({});
+      var bundle = exporter.buildForChannel(task, adapter, template, policy, {
+        includeSecrets: uiState.exportIncludeSecrets,
+        globalLiveSubmitEnabled: state().settings.liveSubmitEnabled === true
+      });
+      var base = sanitizeFile(task.name);
+      if (downloadFile(base + '.py', bundle.source, bundle.mime)) {
+        addLog('info', '从「本地运行时」导出脚本：' + base + '.py（通道 ' + ch + '）', task.id);
+        toast('脚本已下载，请在本机运行（默认 dry-run）', 'success');
+        bundle.warnings.forEach(function (w) { toast(w, 'warn'); });
+      }
     },
 
     /* 帮助与合规 */
@@ -1648,6 +2087,7 @@
       sandbox: renderSandbox,
       logs: renderLogs,
       exporter: renderExporter,
+      localrunner: renderLocalRunner,
       help: renderHelp
     };
     var section = el('view-' + currentView);
@@ -1656,6 +2096,7 @@
     if (currentView === 'dashboard') renderTaskList();
     if (currentView === 'logs') renderLogRows();
     if (currentView === 'exporter') updateExportPreview();
+    if (currentView === 'localrunner') refreshLocalRunnerHint();
     if (currentView === 'sandbox') renderSandboxLive();
   }
 
@@ -1683,6 +2124,7 @@
     renderSandbox: renderSandbox,
     renderLogs: renderLogs,
     renderExporter: renderExporter,
+    renderLocalRunner: renderLocalRunner,
     renderHelp: renderHelp,
     renderTaskList: renderTaskList,
     refreshLogRows: renderLogRows,

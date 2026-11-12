@@ -59,6 +59,19 @@
 
   var FIELD_MODES = Object.freeze(['value', 'click', 'select']);
 
+  /**
+   * 执行通道枚举。web 为原有行为（默认）；其余通道由本地运行时脚本承载。
+   * 这是 channel 字段的唯一事实来源，UI / 校验器 / 引擎 / 导出脚本共同引用。
+   */
+  var CHANNELS = Object.freeze({
+    web: { label: 'Web / 网页（UserScript）', experimental: false, localRunner: false },
+    desktop: { label: '桌面客户端 / 任意 GUI', experimental: false, localRunner: true },
+    miniprogram: { label: 'PC 客户端小程序窗口', experimental: false, localRunner: true },
+    mobile: { label: 'Android 设备（uiautomator2 / 仅预约类）', experimental: false, localRunner: true }
+  });
+
+  var WINDOW_MATCH_MODES = Object.freeze(['contains', 'exact', 'regex']);
+
   /* -------------------------------------------------------------- 基础工具 */
 
   var _uidCounter = 0;
@@ -279,6 +292,50 @@
     return typeof value === 'string' && value.trim().length > 0;
   }
 
+  /** 归一化执行通道：未知 / 缺失 / 非法值一律回落到 web（旧数据向后兼容）。 */
+  function normalizeChannel(value) {
+    if (typeof value === 'string' && Object.prototype.hasOwnProperty.call(CHANNELS, value)) return value;
+    return 'web';
+  }
+
+  function channelLabel(channel) {
+    return CHANNELS[normalizeChannel(channel)].label;
+  }
+
+  /**
+   * 窗口绑定校验（仅非 Web 通道使用）。把错误追加到 errors 数组。
+   * 只校验进程名 / 窗口标题等元数据，不读取窗口内容，也不访问任何进程。
+   */
+  function validateTarget(target, errors) {
+    if (!target || typeof target !== 'object' || Array.isArray(target)) {
+      errors.push('非 Web 通道必须配置窗口绑定 target（processName / windowTitle）');
+      return;
+    }
+    var hasProcess = isNonEmptyString(target.processName);
+    var hasTitle = isNonEmptyString(target.windowTitle);
+    if (!hasProcess && !hasTitle) {
+      errors.push('窗口绑定 target 至少需要提供 processName 或 windowTitle 之一');
+    }
+    if (target.processName !== undefined && /[<>`]/.test(String(target.processName))) {
+      errors.push('processName 含有非法字符（< > `）');
+    }
+    if (target.windowTitle !== undefined && /[\r\n<>`]/.test(String(target.windowTitle))) {
+      errors.push('windowTitle 含有非法字符（换行 / < > `）');
+    }
+    if (target.windowMatchMode !== undefined && WINDOW_MATCH_MODES.indexOf(target.windowMatchMode) === -1) {
+      errors.push('windowMatchMode 必须是 contains / exact / regex 之一');
+    }
+    if (target.exePath !== undefined && /[\r\n]/.test(String(target.exePath))) {
+      errors.push('exePath 不能包含换行');
+    }
+    if (target.launchArgs !== undefined && !Array.isArray(target.launchArgs)) {
+      errors.push('target.launchArgs 必须是数组');
+    }
+    if (target.bringToFront !== undefined && typeof target.bringToFront !== 'boolean') {
+      errors.push('target.bringToFront 必须是布尔值');
+    }
+  }
+
   /**
    * 选择器基本合法性 + 合规检查。
    * 合规要点：选择器只能描述 DOM，不得夹带接口地址或脚本调用，
@@ -389,15 +446,22 @@
     if (!isNonEmptyString(task.name)) errors.push('任务名称不能为空');
     if (!TASK_TYPES[task.type]) errors.push('任务类型必须是 course / ticket / quota / form 之一');
 
+    var taskChannel = normalizeChannel(task.channel);
     if (!isNonEmptyString(task.targetUrl)) {
-      errors.push('目标页面 URL 不能为空');
+      // 非 Web 通道没有目标页面 URL：允许留空（窗口绑定由适配器的 target 承载）。
+      // web 通道（含缺少 channel 的旧数据）仍维持原有「不能为空」强校验。
+      if (taskChannel === 'web') errors.push('目标页面 URL 不能为空');
     } else {
       var url = task.targetUrl;
       if (/\s/.test(url) || /[\r\n]/.test(url)) errors.push('目标页面 URL 不能包含空白或换行字符');
       if (/javascript:|data:|file:/i.test(url)) errors.push('目标页面 URL 协议不合法');
-      if (!/^(https?:\/\/|\*:\/\/|\*)/i.test(url)) {
+      // 非 Web 通道允许填写占位说明文字，不再强制 http(s) 协议；web 通道保持原校验。
+      if (taskChannel === 'web' && !/^(https?:\/\/|\*:\/\/|\*)/i.test(url)) {
         errors.push('目标页面 URL 必须是 http(s) 或通配符匹配模式');
       }
+    }
+    if (task.channel !== undefined && !Object.prototype.hasOwnProperty.call(CHANNELS, task.channel)) {
+      errors.push('执行通道 channel 必须是 web / desktop / miniprogram / mobile 之一');
     }
 
     if (!isNonEmptyString(task.adapterId)) errors.push('必须关联一个适配器');
@@ -418,6 +482,11 @@
     TASK_STATUSES: TASK_STATUSES,
     LOG_LEVELS: LOG_LEVELS,
     FIELD_MODES: FIELD_MODES,
+    CHANNELS: CHANNELS,
+    WINDOW_MATCH_MODES: WINDOW_MATCH_MODES,
+    normalizeChannel: normalizeChannel,
+    channelLabel: channelLabel,
+    validateTarget: validateTarget,
     uid: uid,
     nowIso: nowIso,
     escapeHtml: escapeHtml,
