@@ -210,8 +210,10 @@ a { color: inherit; text-decoration: none; }
   background: var(--red-900);
   box-shadow: var(--shadow-md);
   isolation: isolate;
+  aspect-ratio: 16 / 9;
 }
-.carousel-frame { position: relative; aspect-ratio: 16 / 9; }
+/* 图片层铺满整张卡片：右侧要闻栏若把这一格拉高，也不会在图片下方留出空色带 */
+.carousel-frame { position: absolute; inset: 0; }
 .carousel-slide {
   position: absolute; inset: 0;
   opacity: 0; visibility: hidden;
@@ -233,7 +235,7 @@ a { color: inherit; text-decoration: none; }
 }
 .carousel-caption {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
-  padding: 22px 26px 24px;
+  padding: 22px 110px 24px 26px;
   color: #fff;
 }
 .carousel-kicker {
@@ -919,6 +921,7 @@ a { color: inherit; text-decoration: none; }
   .module-grid, .sub-grid, .learn-note { grid-template-columns: 1fr; }
   .module-hero { padding: 26px 20px 22px; }
   .carousel-caption { padding: 16px 16px 18px; }
+  .carousel { aspect-ratio: 4 / 3; }
   .carousel-caption p { display: none; }
   .carousel-dots { left: 16px; top: 14px; }
   .carousel-nav { display: none; }

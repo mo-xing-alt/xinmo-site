@@ -1,6 +1,6 @@
 /* xinmo.work · 上传资料（文件 + 文字 → Supabase Storage + public.uploads）
  * --------------------------------------------------------------
- * 仅登录用户可见（由 guard.js 守卫）。
+ * 访问需登录（由 guard.js 守卫）；但写入的资料与文件是公开直链，知道链接即可打开，勿传机密。
  * 文件走 Storage 直传（XHR 带进度），文字与文件清单一并写进 uploads 表；
  * 完成后首页与 files.html 详情页都能看到。
  *
@@ -19,6 +19,31 @@
   var MAX_FILE = 50 * 1024 * 1024;   // 单文件 50MB（与桶限制一致）
   var MAX_TOTAL = 200 * 1024 * 1024; // 单次合计 200MB
   var MAX_COUNT = 30;
+
+  // ---- 文件类型白名单 / 黑名单（文件是公开直链，避免可执行脚本被托管到本站域名） ----
+  var ALLOWED_EXT = [
+    // 图片
+    'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'avif', 'heic',
+    // 文档
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'csv', 'json',
+    'rtf', 'odt', 'ods', 'odp',
+    // 压缩包
+    'zip', 'rar', '7z', 'tar', 'gz', 'tgz', 'bz2', 'xz',
+    // 音视频
+    'mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg', 'mp4', 'mov', 'webm', 'mkv', 'avi',
+    // 电子书
+    'epub', 'mobi', 'azw3'
+  ];
+  var BLOCKED_EXT = [
+    'html', 'htm', 'xhtml', 'svg', 'xml', 'js', 'mjs', 'css', 'php', 'asp', 'aspx',
+    'jsp', 'sh', 'bat', 'cmd', 'ps1', 'vbs', 'exe', 'msi', 'dll', 'scr', 'com',
+    'pif', 'hta', 'lnk', 'jar', 'apk', 'dex'
+  ];
+  // 即使扩展名伪装，也按 MIME 再拦一次
+  var RISKY_MIME = [
+    'text/html', 'image/svg+xml', 'application/javascript',
+    'application/x-msdownload', 'application/x-sh', 'application/x-httpd-php'
+  ];
 
   // ---- 登录账号 ----
   var who = 'friend';
@@ -79,6 +104,26 @@
     return m ? m[1].toUpperCase() : 'FILE';
   }
 
+  // 小写扩展名（不含点）；无扩展名返回 ''。仅供类型校验使用，不影响 extOf 的展示逻辑。
+  function extOfName(name) {
+    var m = String(name || '').match(/\.([a-z0-9]{1,8})$/i);
+    return m ? m[1].toLowerCase() : '';
+  }
+
+  function isRiskyMime(type) {
+    return RISKY_MIME.indexOf(String(type || '').toLowerCase()) !== -1;
+  }
+
+  // 扩展名黑名单 + 白名单 + MIME 三重判断；doSubmit 复检也走这里（防止绕过 UI 直接改 DOM）。
+  function isAllowedFile(file) {
+    if (!file) return false;
+    var ext = extOfName(file.name);
+    if (!ext) return false;
+    if (BLOCKED_EXT.indexOf(ext) !== -1) return false;
+    if (ALLOWED_EXT.indexOf(ext) === -1) return false;
+    return !isRiskyMime(file.type);
+  }
+
   function totalSize() {
     return picked.reduce(function (s, f) { return s + f.size; }, 0);
   }
@@ -106,6 +151,11 @@
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       if (!f || !f.size && !f.name) continue;
+      // 类型校验放在大小检查之前：可执行 / 可渲染脚本即使很小也不允许
+      var ext = extOfName(f.name);
+      if (BLOCKED_EXT.indexOf(ext) !== -1) { rejected.push(f.name + '（出于安全考虑，不支持该类型）'); continue; }
+      if (ALLOWED_EXT.indexOf(ext) === -1) { rejected.push(f.name + '（不支持的类型，请先压缩为 zip）'); continue; }
+      if (isRiskyMime(f.type)) { rejected.push(f.name + '（出于安全考虑，不支持该类型）'); continue; }
       if (f.size > MAX_FILE) { rejected.push(f.name + '（超过 50MB）'); continue; }
       var dup = picked.some(function (x) { return fileKey(x) === fileKey(f); });
       if (dup) continue;
@@ -292,11 +342,20 @@
       noteEl.focus();
       return;
     }
+    // 字段长度运行时校验（不依赖 HTML maxlength 属性，属性可被绕过）
+    if (title.length > 120) { say('「资料标题」最多 120 字，请精简后再提交。'); titleEl.focus(); return; }
+    if (subEl.value.trim().length > 160) { say('「副标题」最多 160 字，请精简后再提交。'); subEl.focus(); return; }
+    if (descEl.value.trim().length > 2000) { say('「简介」最多 2000 字，请精简后再提交。'); descEl.focus(); return; }
+    if (note.length > 20000) { say('「文字内容」最多 20000 字，请精简后再提交。'); noteEl.focus(); return; }
     if (picked.length > MAX_COUNT) { say('一次最多传 30 个文件。'); return; }
     for (var k = 0; k < picked.length; k++) {
       if (picked[k].size > MAX_FILE) { say('「' + picked[k].name + '」超过 50MB，请压缩后再传。'); return; }
     }
     if (totalSize() > MAX_TOTAL) { say('文件合计超过 200MB，请分批上传。'); return; }
+    // 防绕过：即使 UI 被改过，提交前再按白名单复检一次
+    for (var m = 0; m < picked.length; m++) {
+      if (!isAllowedFile(picked[m])) { say('「' + picked[m].name + '」类型不被允许。'); return; }
+    }
 
     // 预检：表还没建就先别传文件，避免传完才发现写不进索引
     try {

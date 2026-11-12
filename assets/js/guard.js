@@ -2,6 +2,10 @@
  * 注意：这是前端拦截，只挡随手访问；静态文件本身仍可从公开 URL 获取。 */
 (function () {
   'use strict';
+  // 防点击劫持：GitHub Pages 无法设置 X-Frame-Options，这里用 JS 兜底；被 iframe 嵌入时跳到顶层。
+  try {
+    if (window.top !== window.self) { window.top.location = window.self.location.href; return; }
+  } catch (e) { document.documentElement.style.display = 'none'; }
   var cfg = window.XINMO_ACCESS;
   if (!cfg || !cfg.accounts || !cfg.accounts.length || !cfg.gate) return;
 

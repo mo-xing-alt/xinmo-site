@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="description" content="受邀访问 · 新模学习" />
 <title>受邀访问 · 新模学习</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='m32 12 5.8 12.1 13.2 1.9-9.6 9.2 2.4 13.1L32 42l-11.8 6.3 2.4-13.1-9.6-9.2 13.2-1.9Z' fill='%23f7e6bd'/%3E%3C/svg%3E" />
@@ -89,6 +90,10 @@
 <script>
 (function () {
   'use strict';
+  // 防点击劫持：GitHub Pages 无法设置 X-Frame-Options，这里用 JS 兜底；被 iframe 嵌入时跳到顶层。
+  try {
+    if (window.top !== window.self) { window.top.location = window.self.location.href; return; }
+  } catch (e) { document.documentElement.style.display = 'none'; }
   // Web Crypto 只在安全上下文可用；http 访问时先切到 https，避免输入密码后才报错
   if ((!window.crypto || !crypto.subtle) && location.protocol === 'http:') {
     location.replace('https://' + location.host + location.pathname + location.search + location.hash);
