@@ -238,12 +238,13 @@ function load() {
     return {
       seen: s.seen || {},
       wrong: s.wrong || {},
+      removed: s.removed || {},
       answerCount: s.answerCount || 0,
       correctCount: s.correctCount || 0,
       session: s.session || null
     };
   } catch (e) {
-    return { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, session: null };
+    return { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null };
   }
 }
 let S = load();
@@ -276,7 +277,6 @@ var QuizSync = (function () {
   var pending = false;
   var stateEl = null;
   var hasBaseline = false;     // 是否已与云端建立过同步基线（首次 pull 不做 reset 判定）
-  var pendingRemove = {};      // 本地已删除、尚未推送到云端的错题 id（避免 pull 又把它们合并回来）
 
   function cloneSet(src) {
     var out = {};
@@ -380,7 +380,7 @@ var QuizSync = (function () {
 
     if (wasReset) {
       // 云端被重置：本地旧进度整体作废，全量以云端为准
-      pendingRemove = {};
+      S.removed = {};
       S.seen = {};
       Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
       S.wrong = {};
@@ -397,9 +397,9 @@ var QuizSync = (function () {
         if (S.wrong[id] && !lastSynced.wrong[id]) pendingWrong[id] = true;
       });
       var mergedWrong = {};
-      // 本地刚删除（尚未推送）的错题不要从云端合并回来
+      // 本地刚删除（尚未推送）的错题不要从云端合并回来（删除意图持久化在 S.removed）
       Object.keys(cloudWrong).forEach(function (id) {
-        if (cloudWrong[id] && !pendingRemove[id]) mergedWrong[id] = true;
+        if (cloudWrong[id] && !(S.removed || {})[id]) mergedWrong[id] = true;
       });
       Object.keys(pendingWrong).forEach(function (id) { mergedWrong[id] = true; });
       S.wrong = mergedWrong;
@@ -450,17 +450,11 @@ var QuizSync = (function () {
     var wrong = S.wrong || {};
     var seenAdd = {};
     var wrongAdd = {};
-    var wrongRemove = [];
+    // 待删除的错题 id 来自持久化的 S.removed（刷新后仍在）；为空时传 []，绝不传 null
+    var wrongRemove = Object.keys(S.removed || {});
 
     Object.keys(seen).forEach(function (id) { if (seen[id] && !lastSynced.seen[id]) seenAdd[id] = true; });
     Object.keys(wrong).forEach(function (id) { if (wrong[id] && !lastSynced.wrong[id]) wrongAdd[id] = true; });
-    Object.keys(lastSynced.wrong).forEach(function (id) {
-      if (lastSynced.wrong[id] && !wrong[id]) wrongRemove.push(id);
-    });
-    // 本地已删除、但 pull 阶段被挡在 S 之外的错题，这里显式补进 remove 列表
-    Object.keys(pendingRemove).forEach(function (id) {
-      if (wrongRemove.indexOf(id) === -1) wrongRemove.push(id);
-    });
 
     // 只上传未推送的增量，避免多设备重复计数
     var dAnswer = Math.max(0, (Number(S.answerCount) || 0) - (Number(lastSynced.answerCount) || 0));
@@ -489,7 +483,7 @@ var QuizSync = (function () {
         S.answerCount = Number(data.answerCount) || 0;
         S.correctCount = Number(data.correctCount) || 0;
       }
-      pendingRemove = {};
+      S.removed = {};          // 删除意图已被云端接受，落盘清空
       hasBaseline = true;
       baseline();
       persist();
@@ -548,11 +542,15 @@ var QuizSync = (function () {
     enqueue(function () { return syncNow(); });
   }
 
-  // resetWrong：本地 wrong 已清空；记下待删除 id，push 时补进 p_wrong_remove
+  // resetWrong：把当前错题 id 并入持久化的 S.removed，再清空 S.wrong（刷新后删除意图仍在）
   function resetWrong() {
     if (mode !== 'cloud') return;
     cancelTimer();
-    Object.keys(lastSynced.wrong).forEach(function (id) { pendingRemove[id] = true; });
+    if (Object.keys(S.wrong || {}).length) {
+      S.removed = Object.assign({}, S.removed, S.wrong);
+      S.wrong = {};
+      persist();
+    }
     enqueue(function () { return syncNow(); });
   }
 
@@ -800,6 +798,8 @@ $('homeBtn').onclick = () => { renderHome(); show('homeView'); };
 $('resetWrong').onclick = () => {
   if (!wrongIds().length) return;
   if (confirm('确定清空错题本吗？已练记录与统计不会清除。')) {
+    // 删除意图先持久化到 S.removed，否则刷新后会被云端并集加回来
+    S.removed = Object.assign({}, S.removed, S.wrong);
     S.wrong = {};
     save();
     renderHome();
@@ -809,7 +809,7 @@ $('resetWrong').onclick = () => {
 $('resetAll').onclick = () => {
   if (confirm('确定重置全部进度吗？已练记录、错题本、正确率都会清空。')) {
     localStorage.removeItem(KEY);
-    S = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, session: null };
+    S = { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null };
     renderHome();
     show('homeView');
     if (window.QuizSync) window.QuizSync.resetRemote();
