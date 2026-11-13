@@ -79,6 +79,13 @@
   .bubble .who { color:var(--muted); font-size:11px; margin-bottom:3px; }
   .empty { color:var(--muted); font-size:12.5px; padding:18px 0; text-align:center; }
   .note { font-size:11.5px; line-height:1.8; color:var(--muted); margin-top:12px; }
+  .setup { margin-top:14px; padding:14px 15px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--border); font-size:12.5px; line-height:1.8; }
+  .setup h2 { margin:0 0 8px; font-size:14px; color:var(--heading); }
+  .setup p { margin:0 0 8px; }
+  .setup ol { margin:0 0 4px; padding-left:20px; }
+  .setup li { margin-bottom:5px; }
+  .setup a { color:var(--accent); font-weight:600; }
+  .setup code { word-break:break-all; background:var(--surface-2); padding:1px 5px; border-radius:4px; }
   [hidden] { display:none !important; }
   @media (max-width:760px) { .stats { grid-template-columns:repeat(2,1fr); } .form-grid { grid-template-columns:1fr; } .wrap { padding:22px 13px 48px; } }
 </style>
@@ -99,6 +106,21 @@
       <p class="msg" id="gateMsg" role="alert" aria-live="polite"></p>
     </form>
     <p class="note">口令明文只在本机 <code>deploy\admin-private.txt</code>，网站与公开仓库里只有它的哈希。口令仅在本标签页临时记忆，关闭即失效。<br />验证成功后，首页会<strong>只在这台浏览器</strong>显示一个「站长」入口；其他访客看不到任何入口。</p>
+
+    <div class="setup" id="setupHelp" hidden>
+      <h2>还差一步：初始化账号数据库</h2>
+      <p>这不是口令错误，也不是网站故障——建表和函数还没创建。只需做一次：</p>
+      <ol>
+        <li><a href="https://supabase.com/dashboard/project/monwlglwpwwbejrifwmj/sql/new" target="_blank" rel="noopener">点这里打开 Supabase SQL Editor</a>（需要登录你的 Supabase 账号）</li>
+        <li>打开本机的 <code>security\supabase-accounts.sql</code>，全选复制</li>
+        <li>粘贴进编辑器，点 <b>Run</b>，然后回到本页刷新、重新输入口令</li>
+      </ol>
+      <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" type="button" id="copySqlPath">复制 SQL 文件完整路径</button>
+        <span class="tip" id="copyMsg" style="font-size:11.5px;color:var(--muted)"></span>
+      </div>
+      <p class="note">文件路径：<code id="sqlPath">X:\work Buddy\2026-11-10-22-02-08\security\supabase-accounts.sql</code><br />也可以把它贴进「此电脑」地址栏直接打开。跑完脚本后页面会立刻恢复，不需要重新部署网站。</p>
+    </div>
   </div>
 </div>
 
@@ -476,6 +498,19 @@
     e.preventDefault(); save(''); secret = ''; showMain(false); say($('gateMsg'), '');
   });
 
+  $('copySqlPath').addEventListener('click', function () {
+    var t = $('sqlPath').textContent;
+    try {
+      if (navigator.clipboard) navigator.clipboard.writeText(t);
+      else {
+        var ta = document.createElement('textarea');
+        ta.value = t; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      $('copyMsg').textContent = '已复制，可粘贴到「此电脑」地址栏打开';
+    } catch (e) { $('copyMsg').textContent = '复制失败，请手动选中下方路径'; }
+  });
+
   $('gateForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var v = $('adminSecret').value.trim();
@@ -484,10 +519,13 @@
     M.adminOverview(v).then(function (r) {
       $('gateBtn').disabled = false; $('gateBtn').textContent = '进入控制台';
       if (!r.ok) {
-        if (r.reason === 'uninitialized') say($('gateMsg'), '数据库尚未初始化：请先执行 security/supabase-accounts.sql。');
-        else say($('gateMsg'), r.error || '验证失败，请重试。');
+        if (r.reason === 'uninitialized') {
+          $('setupHelp').hidden = false;
+          say($('gateMsg'), '数据库还没初始化：按下面的三步做一次即可。');
+        } else say($('gateMsg'), r.error || '验证失败，请重试。');
         return;
       }
+      $('setupHelp').hidden = true;
       secret = v; save(v); $('adminSecret').value = '';
       D = r; unlock(); renderAll();
       mainSay('数据已加载。', true);
