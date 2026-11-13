@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="description" content="站主 · 注册账号名单" />
+<title>注册账号名单 · 新模学习</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='m32 12 5.8 12.1 13.2 1.9-9.6 9.2 2.4 13.1L32 42l-11.8 6.3 2.4-13.1-9.6-9.2 13.2-1.9Z' fill='%23f7e6bd'/%3E%3C/svg%3E" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<style>
+  :root {
+    --bg: #fbf9f6; --surface: #ffffff; --surface-2: #f8f1ea;
+    --border: #ece2d7; --border-strong: #e2d3c3;
+    --text: #24211d; --heading: #1b1917; --muted: #7d7469;
+    --accent: #bc141b; --accent-soft: #fdecea; --ok: #1f7a4d; --warn: #a5680b;
+  }
+  :root[data-theme="dark"] {
+    --bg: #140d0c; --surface: #1e1413; --surface-2: #271a18;
+    --border: rgba(255,235,220,.10); --border-strong: rgba(255,235,220,.18);
+    --text: #f0e2d9; --heading: #fdf3ec; --muted: #b39c90;
+    --accent: #ff6b5f; --accent-soft: rgba(255,107,95,.14); --ok: #63c996; --warn: #e5b96a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: 4px; z-index: 2; background: linear-gradient(90deg,#7c0b10,#c8151d 40%,#e3b23c 70%,#c8151d); }
+  .wrap { width: min(1000px, 100%); margin: 0 auto; padding: 34px 20px 60px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .mark { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #7c0b10; background: radial-gradient(circle at 32% 28%,#fff3d0 0%,#e3b23c 46%,#b8862a 100%); }
+  .brand strong { display: block; font-size: 15px; color: var(--heading); }
+  .brand small { display: block; font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+  h1 { margin: 0; font-size: 20px; letter-spacing: 2px; color: var(--heading); font-family: "Songti SC","STSong","SimSun",serif; }
+  .sub { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+  a.back { font-size: 12.5px; color: var(--accent); text-decoration: none; }
+  a.back:hover { text-decoration: underline; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 6px 24px rgba(60,30,20,.06); padding: 22px; margin-bottom: 18px; }
+  .gate-card { width: min(440px, 100%); margin: 12vh auto 0; border-top: 3px solid #bc141b; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 7px; }
+  input[type="password"], input[type="search"], input[type="text"] { width: 100%; height: 44px; padding: 0 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: 0; }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .pw-wrap { position: relative; }
+  .pw-wrap input { padding-right: 62px; }
+  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; }
+  button { font: inherit; cursor: pointer; }
+  .btn { height: 42px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; }
+  .btn:hover { border-color: var(--border-strong); }
+  .btn.primary { width: 100%; margin-top: 14px; border: 0; color: #fff; background: linear-gradient(135deg,#c8151d,#8c0f14); font-weight: 600; letter-spacing: 2px; }
+  .btn.primary:disabled { opacity: .6; cursor: wait; }
+  .btn.small { height: 30px; padding: 0 12px; font-size: 12px; border-radius: 8px; }
+  .btn.danger { color: var(--accent); }
+  .msg { min-height: 20px; margin: 12px 0 0; font-size: 12.5px; color: #c23c3c; }
+  .msg.ok { color: var(--ok); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px 16px; }
+  .stat b { display: block; font-size: 24px; line-height: 1.2; color: var(--heading); }
+  .stat span { font-size: 11.5px; color: var(--muted); }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input[type="search"] { width: min(280px, 100%); height: 38px; }
+  .toolbar .spacer { flex: 1; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+  th, td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { background: var(--surface-2); color: var(--muted); font-weight: 600; font-size: 12px; }
+  tr:last-child td { border-bottom: 0; }
+  td.name { font-weight: 600; color: var(--heading); }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; }
+  .tag.active { color: var(--ok); background: rgba(31,122,77,.10); }
+  .tag.disabled { color: var(--muted); background: rgba(125,116,105,.14); }
+  .tag.pending { color: var(--warn); background: rgba(165,104,11,.12); }
+  .empty { padding: 30px 14px; text-align: center; color: var(--muted); font-size: 13px; }
+  .note { margin-top: 16px; font-size: 11.5px; line-height: 1.9; color: var(--muted); }
+  .note code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } .wrap { padding: 24px 14px 48px; } .card { padding: 16px; } }
+</style>
+</head>
+<body>
+
+<!-- 未验证：只显示管理口令输入框 -->
+<div class="wrap" id="gateView">
+  <div class="card gate-card">
+    <div class="brand" style="margin-bottom:20px">
+      <span class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      <span><strong>新模学习</strong><small>XINMO STUDY</small></span>
+    </div>
+    <h1>站主 · 账号名单</h1>
+    <p class="sub">此页仅站主可见，需要管理口令。</p>
+    <form id="gateForm" autocomplete="off" style="margin-top:22px">
+      <label for="adminSecret">管理口令</label>
+      <div class="pw-wrap">
+        <input id="adminSecret" type="password" autocomplete="off" spellcheck="false" required placeholder="输入站主管理口令" />
+        <button class="pw-toggle" type="button" id="pwToggle">显示</button>
+      </div>
+      <button class="btn primary" type="submit" id="gateBtn">查看名单</button>
+      <p class="msg" id="gateMsg" role="alert" aria-live="polite"></p>
+    </form>
+    <p class="note">口令只保存在本机 <code>deploy\admin-private.txt</code>，网站与公开仓库里只有它的哈希。<br />口令只在本标签页临时记忆，关闭标签页即失效。</p>
+  </div>
+</div>
+
+<!-- 已验证：名单 -->
+<div class="wrap" id="listView" hidden>
+  <div class="top">
+    <div>
+      <h1>注册账号名单</h1>
+      <p class="sub">自助注册上线后的全部账号 · 仅站主可见</p>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <a class="back" href="./index.html">返回站点</a>
+      <button class="btn small" type="button" id="lockBtn">锁定</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="statTotal">—</b><span>累计注册</span></div>
+    <div class="stat"><b id="statActive">—</b><span>正常可用</span></div>
+    <div class="stat"><b id="statDisabled">—</b><span>已停用 / 待审核</span></div>
+    <div class="stat"><b id="statWeek">—</b><span>近 7 天新增</span></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索账号名…" aria-label="搜索账号名" />
+      <button class="btn small" type="button" id="refreshBtn">刷新</button>
+      <span class="spacer"></span>
+      <button class="btn small" type="button" id="csvBtn">导出 CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>账号名</th><th>状态</th><th>注册时间</th><th>最近登录</th><th>操作</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyBox" hidden>没有匹配的账号。</div>
+    <p class="msg" id="listMsg" role="alert" aria-live="polite"></p>
+    <p class="note">
+      名单只包含<strong>自助注册开通之后</strong>注册的账号；早期由站主线下分配、只存哈希的账号无法反推名字，不在此列。<br />
+      「停用」只阻止该账号以后登录；已登录的会话最长还能用到 7 天到期。
+    </p>
+  </div>
+</div>
+
+<script src="./assets/js/supabase-config.js"></script>
+<script src="./assets/js/members.js"></script>
+<script>
+(function () {
+  'use strict';
+  try {
+    if (window.top !== window.self) { window.top.location = window.self.location.href; return; }
+  } catch (e) { document.documentElement.style.display = 'none'; }
+  if (location.protocol === 'http:') {
+    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
+
+  var M = window.XinmoMembers;
+  var SESSION_KEY = 'xinmo_admin_secret';
+  var gateView = document.getElementById('gateView');
+  var listView = document.getElementById('listView');
+  var gateForm = document.getElementById('gateForm');
+  var gateBtn = document.getElementById('gateBtn');
+  var gateMsg = document.getElementById('gateMsg');
+  var listMsg = document.getElementById('listMsg');
+  var secretInput = document.getElementById('adminSecret');
+  var tbody = document.getElementById('tbody');
+  var emptyBox = document.getElementById('emptyBox');
+  var searchInput = document.getElementById('search');
+  var rows = [];
+  var secret = '';
+
+  document.getElementById('pwToggle').addEventListener('click', function () {
+    var show = secretInput.type === 'password';
+    secretInput.type = show ? 'text' : 'password';
+    this.textContent = show ? '隐藏' : '显示';
+  });
+
+  function getStoredSecret() {
+    try { return sessionStorage.getItem(SESSION_KEY) || ''; } catch (e) { return ''; }
+  }
+  function storeSecret(v) {
+    try { v ? sessionStorage.setItem(SESSION_KEY, v) : sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+  function say(el, text, ok) {
+    el.textContent = text || '';
+    el.className = 'msg' + (ok ? ' ok' : '');
+  }
+  function showList(on) {
+    gateView.hidden = on;
+    listView.hidden = !on;
+  }
+  function fmt(v) {
+    if (!v) return '—';
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString('zh-CN', { hour12: false });
+  }
+  function statusText(s) {
+    return s === 'active' ? '正常' : (s === 'pending' ? '待审核' : '已停用');
+  }
+
+  function filtered() {
+    var q = searchInput.value.trim().toLowerCase();
+    return rows.filter(function (r) { return !q || String(r.username).toLowerCase().indexOf(q) >= 0; });
+  }
+
+  function render() {
+    var list = filtered();
+    var week = Date.now() - 7 * 86400000;
+    document.getElementById('statTotal').textContent = rows.length;
+    document.getElementById('statActive').textContent = rows.filter(function (r) { return r.status === 'active'; }).length;
+    document.getElementById('statDisabled').textContent = rows.filter(function (r) { return r.status !== 'active'; }).length;
+    document.getElementById('statWeek').textContent = rows.filter(function (r) {
+      return r.created_at && new Date(r.created_at).getTime() >= week;
+    }).length;
+
+    tbody.textContent = '';
+    emptyBox.hidden = list.length > 0;
+    list.forEach(function (r, i) {
+      var tr = document.createElement('tr');
+      function cell(text, cls) {
+        var td = document.createElement('td');
+        td.textContent = text;
+        if (cls) td.className = cls;
+        tr.appendChild(td);
+        return td;
+      }
+      cell(String(i + 1));
+      cell(r.username || '—', 'name');
+      var tdStatus = cell('');
+      var tag = document.createElement('span');
+      tag.className = 'tag ' + (r.status || 'disabled');
+      tag.textContent = statusText(r.status);
+      tdStatus.appendChild(tag);
+      cell(fmt(r.created_at));
+      cell(fmt(r.last_login_at));
+      var tdOp = cell('');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn small' + (r.status === 'active' ? ' danger' : '');
+      btn.textContent = r.status === 'active' ? '停用' : '启用';
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        var next = r.status === 'active' ? 'disabled' : 'active';
+        btn.disabled = true;
+        btn.textContent = '处理中…';
+        M.setStatus(secret, r.id, next).then(function (res) {
+          if (!res.ok) {
+            say(listMsg, res.error || '操作失败，请重试。');
+            btn.disabled = false;
+            btn.textContent = next === 'active' ? '启用' : '停用';
+            return;
+          }
+          say(listMsg, '已' + (next === 'active' ? '启用 ' : '停用 ') + (r.username || '该账号'), true);
+          load();
+        });
+      });
+      tdOp.appendChild(btn);
+      // 所有动态文本都走 textContent，避免账号名里的特殊字符造成 XSS
+      tbody.appendChild(tr);
+    });
+  }
+
+  function load() {
+    var btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    say(listMsg, '正在读取名单…');
+    return M.list(secret).then(function (res) {
+      btn.disabled = false;
+      if (!res.ok) {
+        if (res.reason === 'uninitialized') {
+          say(listMsg, '数据库尚未初始化：请站主在 Supabase SQL Editor 执行一次 security/supabase-accounts.sql。');
+        } else if (res.error === '管理口令不正确') {
+          storeSecret('');
+          secret = '';
+          showList(false);
+          say(gateMsg, '管理口令不正确，请重新输入。');
+          return;
+        } else {
+          say(listMsg, '读取失败：' + (res.error || '请稍后重试'));
+        }
+        rows = [];
+        render();
+        return;
+      }
+      rows = Array.isArray(res.members) ? res.members : [];
+      render();
+      say(listMsg, '已加载 ' + rows.length + ' 个账号。', true);
+    });
+  }
+
+  gateForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = secretInput.value.trim();
+    if (!v) { say(gateMsg, '请输入管理口令。'); return; }
+    gateBtn.disabled = true;
+    gateBtn.textContent = '验证中…';
+    say(gateMsg, '');
+    M.list(v).then(function (res) {
+      gateBtn.disabled = false;
+      gateBtn.textContent = '查看名单';
+      if (!res.ok) {
+        if (res.reason === 'uninitialized') {
+          say(gateMsg, '数据库尚未初始化：请站主先执行 security/supabase-accounts.sql。');
+        } else {
+          say(gateMsg, res.error || '验证失败，请重试。');
+        }
+        return;
+      }
+      secret = v;
+      storeSecret(v);
+      secretInput.value = '';
+      rows = Array.isArray(res.members) ? res.members : [];
+      showList(true);
+      render();
+      say(listMsg, '已加载 ' + rows.length + ' 个账号。', true);
+    });
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', function () { load(); });
+  searchInput.addEventListener('input', render);
+  document.getElementById('lockBtn').addEventListener('click', function () {
+    storeSecret('');
+    secret = '';
+    rows = [];
+    render();
+    showList(false);
+    say(gateMsg, '');
+  });
+  document.getElementById('csvBtn').addEventListener('click', function () {
+    var head = ['账号名', '状态', '注册时间', '最近登录'];
+    var lines = [head.join(',')].concat(filtered().map(function (r) {
+      return [r.username, statusText(r.status), fmt(r.created_at), fmt(r.last_login_at)]
+        .map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
+    }));
+    var blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'xinmo-accounts-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  if (!M) {
+    say(gateMsg, '页面组件加载失败，请刷新重试。');
+    gateBtn.disabled = true;
+    return;
+  }
+  var saved = getStoredSecret();
+  if (saved) {
+    secret = saved;
+    showList(true);
+    load();
+  }
+})();
+</script>
+</body>
+</html>

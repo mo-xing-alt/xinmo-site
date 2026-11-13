@@ -37,6 +37,8 @@
   .gate-btn:disabled { opacity: .6; cursor: wait; transform: none; }
   .gate-msg { min-height: 20px; margin: 12px 0 0; font-size: 12.5px; color: #c23c3c; }
   .gate-foot { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.8; color: var(--muted); }
+  .gate-foot a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .gate-foot a:hover { text-decoration: underline; }
 
   :root {
     --bg: #fbf9f6; --surface: #ffffff; --surface-2: #f8f1ea;
@@ -66,7 +68,7 @@
       <span><strong>新模学习</strong><small>XINMO STUDY · 学以报国</small></span>
     </div>
     <h1>受邀访问</h1>
-    <p class="gate-lead">这里存放的是私人整理的领域知识与工具。请输入站主告知的账号与密码，登录后 7 天内无需重复输入。</p>
+    <p class="gate-lead">这里存放的是私人整理的领域知识与工具。输入账号与密码即可进入，登录后 7 天内无需重复输入；还没有账号可以先注册。</p>
     <form id="loginForm" autocomplete="off">
       <div class="field">
         <label for="username">账号</label>
@@ -82,11 +84,13 @@
       <button class="gate-btn" type="submit" id="submitBtn">进入仓库</button>
       <p class="gate-msg" id="msg" role="alert" aria-live="polite"></p>
     </form>
-    <div class="gate-foot">本页不提供注册、找回或改密入口；账号由站主线下告知。<br />请勿在此输入你在其他网站使用的密码。</div>
+    <div class="gate-foot">还没有账号？<a href="./register.html">注册一个</a>；早期账号仍由站主线下告知。<br />本页不提供找回或改密入口，请勿在此输入你在其他网站使用的密码。</div>
   </div>
 </main>
 <script src="./assets/js/auth-config.js"></script>
 <script src="./assets/js/auth-core.js"></script>
+<script src="./assets/js/supabase-config.js"></script>
+<script src="./assets/js/members.js"></script>
 <script>
 (function () {
   'use strict';
@@ -193,17 +197,12 @@
     say('');
     var user = document.getElementById('username').value;
     var pass = pwd.value;
-    window.XinmoAuth.verify(user, pass, cfg).then(function (r) {
-      if (!r.ok) {
-        if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
-        onAuthFail();
-        return;
-      }
+    function enterSite(name, key, days) {
       clearFails();
-      var exp = Date.now() + (r.days || 7) * 86400000;
+      var exp = Date.now() + (days || 7) * 86400000;
       try {
         // 同时保存账号名（统一小写去空格，供署名与进度同步）与派生密钥 k（仅存本机，不进日志）
-        localStorage.setItem('xinmo_access', JSON.stringify({ t: r.gate, u: user.trim().toLowerCase(), exp: exp, k: r.key }));
+        localStorage.setItem('xinmo_access', JSON.stringify({ t: cfg.gate, u: name.trim().toLowerCase(), exp: exp, k: key }));
       } catch (err) {
         fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
         return;
@@ -217,6 +216,35 @@
         } catch (err) {}
       }
       location.replace(dest);
+    }
+
+    // 本地哈希没通过时，再试「自助注册」通道（Supabase）。
+    // 关键：若这个名字属于早期线下分配的账号，绝不走远程通道，
+    // 避免有人注册同名账号、用自己的密码顶掉老账号。
+    function tryRegistered(user, pass) {
+      var M = window.XinmoMembers;
+      if (!M) { onAuthFail(); return; }
+      M.isLegacyName(user).then(function (legacy) {
+        if (legacy) { onAuthFail(); return; }
+        return M.login(user, pass).then(function (r) {
+          if (r.ok) { enterSite(user, r.key, cfg.sessionDays); return; }
+          if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
+          if (r.reason === 'uninitialized' || r.reason === 'network') {
+            fail('暂时无法连接账号服务，请稍后重试；早期账号请确认账号与密码。');
+            return;
+          }
+          onAuthFail();
+        });
+      }).catch(function () { onAuthFail(); });
+    }
+
+    window.XinmoAuth.verify(user, pass, cfg).then(function (r) {
+      if (!r.ok) {
+        if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
+        tryRegistered(user, pass);
+        return;
+      }
+      enterSite(user, r.key, r.days || cfg.sessionDays || 7);
     }).catch(function () {
       fail('校验失败，请刷新页面重试。');
     });
