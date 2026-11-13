@@ -59,6 +59,30 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     var compact = !!(window.matchMedia && window.matchMedia('(max-width: 640px)').matches);
+
+    /* 站长专属入口：只有在这台浏览器验证过管理口令才会插入 DOM。
+       其他访客的浏览器没有这个标记，页面上根本不存在这个链接。
+       标记本身不授予任何权限，打开后仍需管理口令。 */
+    try {
+      if (localStorage.getItem('xinmo_owner_hint') === '1' && !document.getElementById('xinmoOwnerLink')) {
+        var owner = document.createElement('a');
+        owner.id = 'xinmoOwnerLink';
+        owner.href = root + 'owner.html';
+        owner.textContent = '站长';
+        owner.title = '站长工作台（仅本机可见）';
+        var tools = document.querySelector('.header-tools');
+        if (tools) {
+          owner.className = 'header-link';
+          tools.appendChild(owner);
+        } else {
+          owner.style.cssText = 'position:fixed;z-index:99997;right:14px;bottom:52px;text-decoration:none;' +
+            'font:11px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;' +
+            'color:inherit;opacity:.34;padding:5px 9px;border-radius:8px;background:rgba(127,127,127,.10);';
+          document.body.appendChild(owner);
+        }
+      }
+    } catch (e) {}
+
     var a = document.createElement('a');
     a.href = '#';
     a.className = 'xinmo-logout';
