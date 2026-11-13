@@ -1,4 +1,10 @@
-/* 页面守卫：同步、尽早执行。未登录直接跳登录页，子页面同样受保护。
+/* 页面守卫：同步、尽早执行。未登录跳登录页，未审核 / 权限不足跳用户中心。
+ * 权限分级（v2）：
+ *   status  pending / active / rejected / disabled —— 只有 active 能浏览站内内容
+ *   level   0 无权限 / 1 普通成员 / 2 核心朋友 / 9 站主
+ *   核心区域（tools/、library、files、upload、resources）要求 level >= 2。
+ *   早期线下账号的旧会话没有这两个字段，按「已激活 + 核心朋友」处理，避免把站主锁在门外。
+ * 页面可在引入本脚本前设置 window.XINMO_REQUIRED_LEVEL 覆盖所需等级。
  * 注意：这是前端拦截，只挡随手访问；静态文件本身仍可从公开 URL 获取。 */
 (function () {
   'use strict';
@@ -25,6 +31,29 @@
   if (!ok) {
     try { localStorage.removeItem(KEY); } catch (e) {}
     location.replace(root + 'login.html?next=' + encodeURIComponent(location.href));
+    return;
+  }
+
+  var status = s.status || 'active';
+  var level = (typeof s.level === 'number') ? s.level : 2;
+  var path = location.pathname.replace(/\\/g, '/');
+  var isMe = /(^|\/)me\.html$/i.test(path);
+  var CORE_PATHS = [
+    /^\/tools\//i, /^\/library\.html$/i, /^\/files\.html$/i,
+    /^\/upload\.html$/i, /^\/resources\//i
+  ];
+  var isCore = CORE_PATHS.some(function (re) { return re.test(path); });
+  var need = (typeof window.XINMO_REQUIRED_LEVEL === 'number')
+    ? window.XINMO_REQUIRED_LEVEL : (isCore ? 2 : 1);
+
+  // 待审核 / 已拒绝 / 已停用 / 无权限：只能停留在用户中心
+  if (!isMe && (status !== 'active' || level < 1)) {
+    location.replace(root + 'me.html?pending=1');
+    return;
+  }
+  // 核心区域只对站主认可的朋友开放
+  if (!isMe && level < need) {
+    location.replace(root + 'me.html?need=core');
     return;
   }
 

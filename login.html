@@ -68,7 +68,7 @@
       <span><strong>新模学习</strong><small>XINMO STUDY · 学以报国</small></span>
     </div>
     <h1>受邀访问</h1>
-    <p class="gate-lead">这里存放的是私人整理的领域知识与工具。输入账号与密码即可进入，登录后 7 天内无需重复输入；还没有账号可以先注册。</p>
+    <p class="gate-lead">这里存放的是私人整理的领域知识与工具。输入账号与密码即可进入，登录后 7 天内无需重复输入；新注册需站主审核通过后才能浏览内容。</p>
     <form id="loginForm" autocomplete="off">
       <div class="field">
         <label for="username">账号</label>
@@ -84,7 +84,7 @@
       <button class="gate-btn" type="submit" id="submitBtn">进入仓库</button>
       <p class="gate-msg" id="msg" role="alert" aria-live="polite"></p>
     </form>
-    <div class="gate-foot">还没有账号？<a href="./register.html">注册一个</a>；早期账号仍由站主线下告知。<br />本页不提供找回或改密入口，请勿在此输入你在其他网站使用的密码。</div>
+    <div class="gate-foot">还没有账号？<a href="./register.html">注册一个</a>（默认待审核）；<a href="./me.html">用户中心</a>可查看审核进度。<br />早期账号仍由站主线下告知；本页不提供找回或改密入口，请勿使用其他网站的密码。</div>
   </div>
 </main>
 <script src="./assets/js/auth-config.js"></script>
@@ -197,14 +197,24 @@
     say('');
     var user = document.getElementById('username').value;
     var pass = pwd.value;
-    function enterSite(name, key, days) {
+    function enterSite(name, key, days, status, level) {
       clearFails();
+      var st = status || 'active';
+      var lv = (typeof level === 'number') ? level : 2;
       var exp = Date.now() + (days || 7) * 86400000;
       try {
-        // 同时保存账号名（统一小写去空格，供署名与进度同步）与派生密钥 k（仅存本机，不进日志）
-        localStorage.setItem('xinmo_access', JSON.stringify({ t: cfg.gate, u: name.trim().toLowerCase(), exp: exp, k: key }));
+        // 会话里带上审核状态与权限等级，guard.js 据此决定能打开哪些页面
+        localStorage.setItem('xinmo_access', JSON.stringify({
+          t: cfg.gate, u: name.trim().toLowerCase(), exp: exp, k: key,
+          status: st, level: lv
+        }));
       } catch (err) {
         fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
+        return;
+      }
+      // 待审核 / 被拒绝 / 停用：只能进用户中心看状态与站主留言
+      if (st !== 'active' || lv < 1) {
+        location.replace('./me.html' + (st === 'pending' ? '?pending=1' : ''));
         return;
       }
       var target = new URLSearchParams(location.search).get('next');
@@ -227,12 +237,13 @@
       M.isLegacyName(user).then(function (legacy) {
         if (legacy) { onAuthFail(); return; }
         return M.login(user, pass).then(function (r) {
-          if (r.ok) { enterSite(user, r.key, cfg.sessionDays); return; }
+          if (r.ok) { enterSite(user, r.key, cfg.sessionDays, r.status, r.level); return; }
           if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
           if (r.reason === 'uninitialized' || r.reason === 'network') {
             fail('暂时无法连接账号服务，请稍后重试；早期账号请确认账号与密码。');
             return;
           }
+          if (r.error && /停用|次数过多/.test(r.error)) { fail(r.error); return; }
           onAuthFail();
         });
       }).catch(function () { onAuthFail(); });
@@ -244,7 +255,8 @@
         tryRegistered(user, pass);
         return;
       }
-      enterSite(user, r.key, r.days || cfg.sessionDays || 7);
+      // 早期线下分配的账号：视为已激活的核心朋友，不受新审核流程影响
+      enterSite(user, r.key, r.days || cfg.sessionDays || 7, 'active', 2);
     }).catch(function () {
       fail('校验失败，请刷新页面重试。');
     });

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="description" content="用户中心 · 新模学习" />
+<title>用户中心 · 新模学习</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='m32 12 5.8 12.1 13.2 1.9-9.6 9.2 2.4 13.1L32 42l-11.8 6.3 2.4-13.1-9.6-9.2 13.2-1.9Z' fill='%23f7e6bd'/%3E%3C/svg%3E" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<script src="./assets/js/auth-config.js"></script>
+<script src="./assets/js/guard.js"></script>
+<style>
+  :root { --bg:#fbf9f6; --surface:#fff; --surface-2:#f8f1ea; --border:#ece2d7; --border-strong:#e2d3c3; --text:#24211d; --heading:#1b1917; --muted:#7d7469; --accent:#bc141b; --accent-soft:#fdecea; --ok:#1f7a4d; --warn:#a5680b; }
+  :root[data-theme="dark"] { --bg:#140d0c; --surface:#1e1413; --surface-2:#271a18; --border:rgba(255,235,220,.10); --border-strong:rgba(255,235,220,.18); --text:#f0e2d9; --heading:#fdf3ec; --muted:#b39c90; --accent:#ff6b5f; --accent-soft:rgba(255,107,95,.14); --ok:#63c996; --warn:#e5b96a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  body::before { content:""; position:fixed; inset:0 0 auto; height:4px; z-index:2; background:linear-gradient(90deg,#7c0b10,#c8151d 40%,#e3b23c 70%,#c8151d); }
+  .wrap { width: min(860px,100%); margin: 0 auto; padding: 30px 18px 60px; }
+  .top { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  h1 { margin:0; font-size:21px; letter-spacing:2px; color:var(--heading); font-family:"Songti SC","STSong","SimSun",serif; }
+  .sub { margin:2px 0 0; font-size:12px; color:var(--muted); }
+  .links { display:flex; gap:14px; font-size:12.5px; }
+  .links a { color:var(--accent); text-decoration:none; }
+  .links a:hover { text-decoration:underline; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:0 6px 24px rgba(60,30,20,.06); padding:20px; margin-bottom:16px; }
+  .banner { border-left:3px solid var(--accent); background:var(--accent-soft); padding:11px 14px; border-radius:0 10px 10px 0; font-size:12.8px; line-height:1.8; margin-bottom:16px; }
+  .banner.ok { border-left-color:var(--ok); background:rgba(31,122,77,.09); }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px 20px; }
+  .kv { border-bottom:1px dashed var(--border); padding:8px 0; }
+  .kv span { display:block; font-size:11.5px; color:var(--muted); }
+  .kv b { font-size:14px; color:var(--heading); font-weight:600; word-break:break-all; }
+  .badge { display:inline-block; padding:3px 11px; border-radius:999px; font-size:12px; }
+  .badge.pending { color:var(--warn); background:rgba(165,104,11,.13); }
+  .badge.active { color:var(--ok); background:rgba(31,122,77,.12); }
+  .badge.rejected,.badge.disabled { color:var(--accent); background:var(--accent-soft); }
+  h2 { margin:0 0 14px; font-size:15px; color:var(--heading); }
+  .msg { max-height:340px; overflow:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .bubble { max-width:82%; padding:10px 13px; border-radius:12px; font-size:13px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+  .bubble.in { align-self:flex-start; background:var(--surface-2); border:1px solid var(--border); border-bottom-left-radius:3px; }
+  .bubble.out { align-self:flex-end; background:var(--accent-soft); border:1px solid var(--border); border-bottom-right-radius:3px; }
+  .bubble time { display:block; margin-top:6px; font-size:10.5px; color:var(--muted); }
+  .empty { color:var(--muted); font-size:12.5px; padding:16px 0; }
+  textarea { width:100%; min-height:78px; padding:11px 13px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font:inherit; font-size:13px; resize:vertical; outline:0; }
+  textarea:focus { border-color:var(--accent); }
+  .tools { display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+  button { font:inherit; cursor:pointer; }
+  .btn { height:38px; padding:0 16px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:13px; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:linear-gradient(135deg,#c8151d,#8c0f14); color:#fff; border:0; }
+  .btn:disabled { opacity:.6; cursor:wait; }
+  .note { font-size:11.5px; line-height:1.8; color:var(--muted); margin-top:14px; }
+  .tip { font-size:12px; color:var(--muted); }
+  [hidden] { display:none !important; }
+  @media (max-width:640px) { .grid { grid-template-columns:1fr; } .wrap { padding:22px 14px 48px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>用户中心</h1><p class="sub">只存放账号相关的匿名信息，便于站主与你沟通</p></div>
+    <div class="links">
+      <a href="./index.html" id="siteLink">返回站点</a>
+      <a href="./login.html">切换账号</a>
+    </div>
+  </div>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="card">
+    <h2>我的账号</h2>
+    <div class="grid" id="infoGrid">
+      <div class="kv"><span>账号名</span><b id="fName">—</b></div>
+      <div class="kv"><span>当前状态</span><b id="fStatus">—</b></div>
+      <div class="kv"><span>权限等级</span><b id="fLevel">—</b></div>
+      <div class="kv"><span>注册时间</span><b id="fCreated">—</b></div>
+      <div class="kv"><span>知道本站的途径</span><b id="fSource">—</b></div>
+      <div class="kv"><span>所说的朋友账号名</span><b id="fFriend">—</b></div>
+      <div class="kv"><span>邀请码 / 邀请人</span><b id="fInvite">—</b></div>
+      <div class="kv"><span>最近登录</span><b id="fLogin">—</b></div>
+    </div>
+    <div class="kv" style="margin-top:10px"><span>站主审核备注 / 拒绝原因</span><b id="fReview" style="font-weight:400;font-size:13px">—</b></div>
+    <div class="note">这里不收集真实姓名、手机号、邮箱、学校等任何真实个人信息。请勿在回复里主动填写这些内容。</div>
+  </div>
+
+  <div class="card">
+    <h2>站内消息</h2>
+    <p class="tip" id="msgTip">站主如需核实信息，会在这里问你；审核结果与拒绝原因也会发到这里。</p>
+    <div class="msg" id="msgList"><div class="empty">加载中…</div></div>
+    <textarea id="replyBox" maxlength="500" placeholder="回复站主（最多 500 字，不要填真实个人信息）"></textarea>
+    <div class="tools">
+      <button class="btn primary" type="button" id="replyBtn">发送回复</button>
+      <button class="btn" type="button" id="refreshBtn">刷新</button>
+      <span class="tip" id="replyMsg"></span>
+    </div>
+  </div>
+</div>
+<script src="./assets/js/supabase-config.js"></script>
+<script src="./assets/js/members.js"></script>
+<script>
+(function () {
+  'use strict';
+  var M = window.XinmoMembers;
+  var $ = function (id) { return document.getElementById(id); };
+  function fmt(v) {
+    if (!v) return '—';
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false });
+  }
+  function set(id, v) { $(id).textContent = (v === null || v === undefined || v === '') ? '—' : v; }
+
+  function banner(text, ok) {
+    var b = $('banner');
+    b.hidden = !text;
+    b.textContent = text || '';
+    b.className = 'banner' + (ok ? ' ok' : '');
+  }
+
+  var q = new URLSearchParams(location.search);
+  if (q.get('need') === 'core') {
+    banner('这个页面属于核心区域，只对站主认可的朋友（核心朋友等级）开放。你当前等级不足，如需开通请在下方回复站主。');
+  } else if (q.get('pending')) {
+    banner('账号还在审核中，审核通过前只能停留在本页，不能浏览站内内容。');
+  }
+
+  function render(d) {
+    set('fName', d.username);
+    $('fStatus').innerHTML = '<span class="badge ' + (d.status || 'pending') + '">' + M.statusName(d.status) + '</span>';
+    set('fLevel', M.levelName(d.level));
+    set('fCreated', fmt(d.created_at));
+    set('fLogin', fmt(d.last_login_at));
+    var src = M.sourceName(d.source);
+    if (d.source_note) src += '（' + d.source_note + '）';
+    set('fSource', src);
+    set('fFriend', d.source_friend);
+    set('fInvite', [d.invite_code, d.invited_by].filter(Boolean).join(' / '));
+    set('fReview', d.review_note || '暂无');
+    $('siteLink').hidden = d.status !== 'active';
+
+    if (d.status === 'pending') {
+      banner('待审核：站主批准后才能浏览站内内容。站主可能会在这里向你提问，请及时回复。');
+    } else if (d.status === 'rejected') {
+      banner('很抱歉，你的注册申请未通过。原因见下方「站主审核备注」，也可以在消息里回复说明。');
+    } else if (d.status === 'active' && !q.get('need')) {
+      banner('账号已激活，权限：' + M.levelName(d.level) + '。', true);
+    }
+
+    var box = $('msgList');
+    box.textContent = '';
+    var list = Array.isArray(d.messages) ? d.messages : [];
+    if (!list.length) {
+      var e = document.createElement('div');
+      e.className = 'empty';
+      e.textContent = '暂时没有消息。';
+      box.appendChild(e);
+      return;
+    }
+    list.forEach(function (m) {
+      var b = document.createElement('div');
+      b.className = 'bubble ' + (m.direction === 'out' ? 'out' : 'in');
+      b.textContent = m.body || '';
+      var t = document.createElement('time');
+      t.textContent = (m.direction === 'out' ? '我 · ' : '站主 · ') + fmt(m.created_at);
+      b.appendChild(t);
+      box.appendChild(b);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function load() {
+    if (!M) { banner('页面组件加载失败，请刷新重试。'); return; }
+    $('refreshBtn').disabled = true;
+    M.me().then(function (r) {
+      $('refreshBtn').disabled = false;
+      if (!r.ok) {
+        if (r.reason === 'uninitialized') {
+          banner('站主尚未初始化账号数据库，请稍后再来。');
+        } else if (r.reason === 'nosession') {
+          banner('请先登录：' + '从登录页进入后会自动回到这里。');
+        } else {
+          banner('无法读取账号资料。如果你用的是站主线下告知的早期账号，本中心不适用；否则请重新登录。' +
+                 (r.error ? '（' + r.error + '）' : ''));
+        }
+        $('replyBtn').disabled = true;
+        $('replyBox').disabled = true;
+        return;
+      }
+      render(r);
+    });
+  }
+
+  $('refreshBtn').addEventListener('click', load);
+  $('replyBtn').addEventListener('click', function () {
+    var body = $('replyBox').value.trim();
+    if (!body) { $('replyMsg').textContent = '请先写点内容。'; return; }
+    $('replyBtn').disabled = true;
+    $('replyMsg').textContent = '发送中…';
+    M.reply(body).then(function (r) {
+      $('replyBtn').disabled = false;
+      if (!r.ok) { $('replyMsg').textContent = r.error || '发送失败'; return; }
+      $('replyBox').value = '';
+      $('replyMsg').textContent = '已发送';
+      setTimeout(function () { $('replyMsg').textContent = ''; }, 2500);
+      load();
+    });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

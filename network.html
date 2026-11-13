@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="description" content="邀请关系图 · 仅站主可见" />
+<title>邀请关系图 · 新模学习</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='m32 12 5.8 12.1 13.2 1.9-9.6 9.2 2.4 13.1L32 42l-11.8 6.3 2.4-13.1-9.6-9.2 13.2-1.9Z' fill='%23f7e6bd'/%3E%3C/svg%3E" />
+<script>
+  try { var s = localStorage.getItem('xinmo-theme'); document.documentElement.setAttribute('data-theme', s || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')); } catch (e) {}
+</script>
+<style>
+  :root { --bg:#fbf9f6; --surface:#fff; --surface-2:#f8f1ea; --border:#ece2d7; --border-strong:#e2d3c3; --text:#24211d; --heading:#1b1917; --muted:#7d7469; --accent:#bc141b; --accent-soft:#fdecea; --ok:#1f7a4d; }
+  :root[data-theme="dark"] { --bg:#140d0c; --surface:#1e1413; --surface-2:#271a18; --border:rgba(255,235,220,.10); --border-strong:rgba(255,235,220,.18); --text:#f0e2d9; --heading:#fdf3ec; --muted:#b39c90; --accent:#ff6b5f; --accent-soft:rgba(255,107,95,.14); --ok:#63c996; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  body::before { content:""; position:fixed; inset:0 0 auto; height:4px; z-index:2; background:linear-gradient(90deg,#7c0b10,#c8151d 40%,#e3b23c 70%,#c8151d); }
+  .wrap { width:min(1240px,100%); margin:0 auto; padding:28px 18px 50px; }
+  .top { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+  h1 { margin:0; font-size:21px; letter-spacing:2px; color:var(--heading); font-family:"Songti SC","STSong","SimSun",serif; }
+  .sub { margin:2px 0 0; font-size:12px; color:var(--muted); }
+  .links { display:flex; gap:14px; font-size:12.5px; }
+  .links a { color:var(--accent); text-decoration:none; }
+  .links a:hover { text-decoration:underline; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:0 6px 24px rgba(60,30,20,.06); padding:18px; margin-bottom:14px; }
+  .gate-card { width:min(440px,100%); margin:11vh auto 0; border-top:3px solid #bc141b; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .stat { background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:7px 13px; font-size:12px; color:var(--muted); }
+  .stat b { color:var(--heading); font-size:15px; margin-right:5px; }
+  .toolbar { display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  input[type="search"], input[type="password"] { height:38px; padding:0 11px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font:inherit; font-size:13px; outline:0; }
+  input[type="search"] { width:min(260px,100%); }
+  button { font:inherit; cursor:pointer; }
+  .btn { height:36px; padding:0 13px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:12.5px; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:linear-gradient(135deg,#c8151d,#8c0f14); color:#fff; border:0; }
+  .btn:disabled { opacity:.55; cursor:wait; }
+  .msg { min-height:19px; margin:10px 0 0; font-size:12.5px; color:#c23c3c; }
+  .msg.ok { color:var(--ok); }
+  .layout { display:grid; grid-template-columns:1fr 240px; gap:14px; }
+  .canvas { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; overflow:hidden; min-height:420px; }
+  svg { width:100%; height:auto; display:block; touch-action:none; cursor:grab; }
+  svg.dragging { cursor:grabbing; }
+  .side { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--surface); }
+  .side h2 { margin:0 0 10px; font-size:14px; color:var(--heading); }
+  .kv { border-bottom:1px dashed var(--border); padding:7px 0; font-size:12.5px; }
+  .kv span { display:block; font-size:11px; color:var(--muted); }
+  .kv b { color:var(--heading); word-break:break-all; font-weight:600; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 16px; font-size:11.5px; color:var(--muted); margin-top:10px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+  .line { display:inline-block; width:20px; height:0; border-top:2px solid #b8862a; vertical-align:3px; margin-right:5px; }
+  .line.dash { border-top-style:dashed; border-color:#8a8a8a; }
+  .note { font-size:11.5px; line-height:1.8; color:var(--muted); margin-top:12px; }
+  [hidden] { display:none !important; }
+  @media (max-width:900px) { .layout { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="gateView">
+  <div class="card gate-card">
+    <h1 style="margin-bottom:4px">邀请关系图</h1>
+    <p class="sub" style="margin-bottom:20px">仅站主可见 · 显示每个用户是通过谁进来的</p>
+    <form id="gateForm" autocomplete="off">
+      <label for="adminSecret">管理口令</label>
+      <input id="adminSecret" type="password" autocomplete="off" spellcheck="false" required placeholder="输入站主管理口令" style="width:100%" />
+      <button class="btn primary" type="submit" id="gateBtn" style="width:100%;height:44px;margin-top:14px;letter-spacing:2px;font-weight:600">查看关系图</button>
+      <p class="msg" id="gateMsg" role="alert" aria-live="polite"></p>
+    </form>
+    <p class="note">与站主控制台共用同一个管理口令；若已在控制台验证过，这里会自动打开。</p>
+  </div>
+</div>
+
+<div class="wrap" id="mainView" hidden>
+  <div class="top">
+    <div><h1>邀请关系图</h1><p class="sub">每个用户是通过谁邀请的关系网 · 仅站主可见</p></div>
+    <div class="links"><a href="./admin.html">站主控制台</a><a href="./index.html">返回站点</a></div>
+  </div>
+
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><b id="stNodes">—</b>用户节点</div>
+      <div class="stat"><b id="stInvite">—</b>确认邀请</div>
+      <div class="stat"><b id="stClaim">—</b>朋友介绍待核实</div>
+      <div class="stat"><b id="stCodes">—</b>邀请码</div>
+    </div>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索账号名，匹配节点会高亮" />
+      <button class="btn" type="button" id="relayout">重新排布</button>
+      <button class="btn" type="button" id="refreshBtn">刷新数据</button>
+      <button class="btn" type="button" id="exportBtn">导出 SVG</button>
+      <span class="msg" id="mainMsg" role="alert" aria-live="polite" style="margin:0"></span>
+    </div>
+
+    <div class="layout">
+      <div class="canvas">
+        <svg id="svg" viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" aria-label="邀请关系网络图">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#b8862a"></path>
+            </marker>
+          </defs>
+          <g id="edgeLayer"></g>
+          <g id="nodeLayer"></g>
+        </svg>
+      </div>
+      <aside class="side">
+        <h2>节点详情</h2>
+        <div id="detail"><div class="kv"><span>点击图中任意节点</span><b>查看是谁邀请来的</b></div></div>
+        <div class="legend">
+          <span><i class="dot" style="background:#c9a227"></i>站主</span>
+          <span><i class="dot" style="background:#1f7a4d"></i>核心朋友</span>
+          <span><i class="dot" style="background:#4b7bb5"></i>普通成员</span>
+          <span><i class="dot" style="background:#d99a2b"></i>待审核</span>
+          <span><i class="dot" style="background:#9c1016"></i>未通过 / 停用</span>
+          <span><i class="line"></i>确认的邀请关系</span>
+          <span><i class="line dash"></i>自称「朋友介绍」，待核实</span>
+        </div>
+        <p class="note">拖动节点可调整位置，滚轮可缩放，点击节点看详情。虚线只代表注册时填写的朋友账号名，尚未经你确认，可在控制台里向该用户提问核实。</p>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script src="./assets/js/supabase-config.js"></script>
+<script src="./assets/js/members.js"></script>
+<script>
+(function () {
+  'use strict';
+  try { if (window.top !== window.self) { window.top.location = window.self.location.href; return; } }
+  catch (e) { document.documentElement.style.display = 'none'; }
+  if (location.protocol === 'http:') {
+    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
+  var M = window.XinmoMembers, NS = 'http://www.w3.org/2000/svg';
+  var W = 900, H = 620, ROOT = '__root__';
+  var $ = function (id) { return document.getElementById(id); };
+  var svg = $('svg'), edgeLayer = $('edgeLayer'), nodeLayer = $('nodeLayer');
+  var secret = '', D = { nodes: [], edges: [], invites: [] };
+  var nodes = [], edges = [], byId = {}, drag = null, q = '';
+  var vb = { x: 0, y: 0, w: W, h: H };
+
+  function stored() { try { return sessionStorage.getItem('xinmo_admin_secret') || ''; } catch (e) { return ''; } }
+  function save(v) { try { v ? sessionStorage.setItem('xinmo_admin_secret', v) : sessionStorage.removeItem('xinmo_admin_secret'); } catch (e) {} }
+  function say(el, t, ok) { el.textContent = t || ''; el.className = 'msg' + (ok ? ' ok' : ''); }
+  function fmt(v) { if (!v) return '—'; var d = new Date(v); return isNaN(d.getTime()) ? '—' : d.toLocaleString('zh-CN', { hour12: false }); }
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    return e;
+  }
+  function color(n) {
+    if (n.isRoot) return '#c9a227';
+    if (n.status === 'rejected' || n.status === 'disabled') return '#9c1016';
+    if (n.status === 'pending') return '#d99a2b';
+    return n.level >= 2 ? '#1f7a4d' : '#4b7bb5';
+  }
+  function radius(n) {
+    if (n.isRoot) return 24;
+    return n.level >= 2 ? 17 : (n.status === 'active' ? 14 : 12);
+  }
+  function label(n) {
+    var s = n.isRoot ? '站主' : String(n.username || '');
+    return s.length > 16 ? s.slice(0, 15) + '…' : s;
+  }
+
+  function build(data, reseed) {
+    D = data;
+    var old = {};
+    if (!reseed) nodes.forEach(function (n) { old[n.id] = { x: n.x, y: n.y }; });
+    nodes = [{
+      id: ROOT, username: '站主', isRoot: true, fixed: true,
+      x: W / 2, y: H / 2, vx: 0, vy: 0, r: 24, status: 'active', level: 9
+    }];
+    (data.nodes || []).forEach(function (n, i) {
+      var a = i * 2.399963, rad = 90 + (i % 7) * 26;
+      nodes.push({
+        id: n.id, username: n.username, status: n.status, level: n.level,
+        source: n.source, source_friend: n.source_friend,
+        invite_code: n.invite_code, invited_by: n.invited_by, created_at: n.created_at,
+        x: old[n.id] ? old[n.id].x : W / 2 + Math.cos(a) * rad,
+        y: old[n.id] ? old[n.id].y : H / 2 + Math.sin(a) * rad,
+        vx: 0, vy: 0, r: radius(n)
+      });
+    });
+    byId = {};
+    nodes.forEach(function (n) { byId[n.id] = n; });
+    edges = (data.edges || []).filter(function (e) {
+      var to = byId[e.to], from = e.from === null || e.from === undefined ? byId[ROOT] : byId[e.from];
+      return !!(to && from && to !== from);
+    }).map(function (e) {
+      return { from: (e.from === null || e.from === undefined) ? ROOT : e.from, to: e.to, type: e.type, code: e.code };
+    });
+    if (reseed) relax();
+    normalize();
+    $('stNodes').textContent = (data.nodes || []).length;
+    $('stInvite').textContent = edges.filter(function (e) { return e.type !== 'claim'; }).length;
+    $('stClaim').textContent = edges.filter(function (e) { return e.type === 'claim'; }).length;
+    $('stCodes').textContent = (data.invites || []).length;
+    draw();
+  }
+
+  function relax() {
+    for (var it = 0; it < 320; it++) {
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var a = nodes[i], b = nodes[j];
+          var dx = b.x - a.x, dy = b.y - a.y;
+          var d2 = Math.max(dx * dx + dy * dy, 60), d = Math.sqrt(d2);
+          var f = 7200 / d2;
+          if (!a.fixed) { a.vx -= dx / d * f; a.vy -= dy / d * f; }
+          if (!b.fixed) { b.vx += dx / d * f; b.vy += dy / d * f; }
+        }
+      }
+      edges.forEach(function (e) {
+        var a = byId[e.from], b = byId[e.to];
+        if (!a || !b) return;
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var d = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+        var f = (d - 125) * 0.012;
+        if (!a.fixed) { a.vx += dx / d * f; a.vy += dy / d * f; }
+        if (!b.fixed) { b.vx -= dx / d * f; b.vy -= dy / d * f; }
+      });
+      nodes.forEach(function (n) {
+        if (n.fixed) return;
+        n.vx += (W / 2 - n.x) * 0.0018;
+        n.vy += (H / 2 - n.y) * 0.0018;
+        n.vx *= 0.82; n.vy *= 0.82;
+        n.vx = Math.max(-18, Math.min(18, n.vx));
+        n.vy = Math.max(-18, Math.min(18, n.vy));
+        n.x += n.vx; n.y += n.vy;
+      });
+    }
+  }
+
+  function normalize() {
+    var xs = nodes.map(function (n) { return n.x; }), ys = nodes.map(function (n) { return n.y; });
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+    var minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var spanX = Math.max(maxX - minX, 1), spanY = Math.max(maxY - minY, 1);
+    var sc = Math.min((W - 130) / spanX, (H - 130) / spanY, 1.6);
+    var cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    nodes.forEach(function (n) {
+      if (n.fixed) { n.x = W / 2; n.y = H / 2; return; }
+      n.x = (n.x - cx) * sc + W / 2;
+      n.y = (n.y - cy) * sc + H / 2;
+    });
+    vb = { x: 0, y: 0, w: W, h: H };
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  }
+
+  function draw() {
+    edgeLayer.textContent = '';
+    nodeLayer.textContent = '';
+    edges.forEach(function (e) {
+      var a = byId[e.from], b = byId[e.to];
+      if (!a || !b) return;
+      var claim = e.type === 'claim';
+      var line = svgEl('line', {
+        x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+        stroke: claim ? '#9a9389' : '#b8862a',
+        'stroke-width': claim ? 1.4 : 1.9,
+        'stroke-opacity': claim ? 0.75 : 0.85,
+        'stroke-dasharray': claim ? '6 5' : '',
+        'marker-end': claim ? '' : 'url(#arrow)'
+      });
+      edgeLayer.appendChild(line);
+    });
+    nodes.forEach(function (n) {
+      var g = svgEl('g', { style: 'cursor:' + (n.fixed ? 'default' : 'grab') });
+      var hit = q && !n.isRoot && String(n.username || '').toLowerCase().indexOf(q) >= 0;
+      g.appendChild(svgEl('circle', {
+        cx: n.x, cy: n.y, r: n.r + (hit ? 5 : 0),
+        fill: 'none', stroke: '#e3b23c', 'stroke-width': hit ? 3 : 0, 'stroke-opacity': hit ? 0.9 : 0
+      }));
+      g.appendChild(svgEl('circle', {
+        cx: n.x, cy: n.y, r: n.r,
+        fill: color(n), stroke: '#fff', 'stroke-width': 2
+      }));
+      var t = svgEl('text', {
+        x: n.x, y: n.y + n.r + 15, 'text-anchor': 'middle',
+        'font-size': 11, 'font-family': 'sans-serif', fill: '#5c5147'
+      });
+      t.textContent = label(n);
+      g.appendChild(t);
+      if (n.isRoot) {
+        var star = svgEl('text', { x: n.x, y: n.y + 5, 'text-anchor': 'middle', 'font-size': 15, fill: '#fff' });
+        star.textContent = '★';
+        g.appendChild(star);
+      }
+      g.addEventListener('mousedown', function (ev) {
+        ev.preventDefault();
+        if (!n.fixed) { drag = { n: n, dx: 0, dy: 0 }; svg.classList.add('dragging'); }
+        showDetail(n);
+      });
+      nodeLayer.appendChild(g);
+    });
+  }
+
+  function showDetail(n) {
+    var box = $('detail'); box.textContent = '';
+    function kv(k, v) {
+      var d = document.createElement('div'); d.className = 'kv';
+      var s = document.createElement('span'); s.textContent = k;
+      var b = document.createElement('b'); b.textContent = v === null || v === undefined || v === '' ? '—' : v;
+      d.appendChild(s); d.appendChild(b); box.appendChild(d);
+    }
+    if (n.isRoot) {
+      kv('节点', '站主（你）');
+      kv('直接邀请人数', edges.filter(function (e) { return e.from === ROOT && e.type !== 'claim'; }).length);
+      kv('说明', '留空邀请人的邀请码都连到这里');
+      return;
+    }
+    kv('账号名', n.username);
+    kv('状态 / 权限', M.statusName(n.status) + ' · ' + M.levelName(n.level));
+    kv('通过谁邀请', n.invited_by && byId[n.invited_by] ? byId[n.invited_by].username : (n.invite_code ? '站主（邀请码）' : '无邀请关系'));
+    kv('邀请码', n.invite_code);
+    kv('知道本站的途径', M.sourceName(n.source));
+    kv('所说的朋友账号名', n.source_friend);
+    kv('邀请来的人数', edges.filter(function (e) { return e.from === n.id && e.type !== 'claim'; }).length);
+    kv('注册时间', fmt(n.created_at));
+  }
+
+  function svgPoint(ev) {
+    var r = svg.getBoundingClientRect();
+    return {
+      x: vb.x + (ev.clientX - r.left) / r.width * vb.w,
+      y: vb.y + (ev.clientY - r.top) / r.height * vb.h
+    };
+  }
+  svg.addEventListener('mousemove', function (ev) {
+    if (!drag) return;
+    var p = svgPoint(ev);
+    drag.n.x = p.x; drag.n.y = p.y;
+    draw();
+  });
+  window.addEventListener('mouseup', function () { drag = null; svg.classList.remove('dragging'); });
+  svg.addEventListener('wheel', function (ev) {
+    ev.preventDefault();
+    var p = svgPoint(ev), k = ev.deltaY > 0 ? 1.12 : 0.89;
+    var nw = Math.max(240, Math.min(1800, vb.w * k));
+    var ratio = nw / vb.w;
+    vb.x = p.x - (p.x - vb.x) * ratio;
+    vb.y = p.y - (p.y - vb.y) * ratio;
+    vb.w = nw; vb.h = vb.h * ratio;
+    svg.setAttribute('viewBox', [vb.x, vb.y, vb.w, vb.h].join(' '));
+  }, { passive: false });
+
+  $('search').addEventListener('input', function () { q = this.value.trim().toLowerCase(); draw(); });
+  $('relayout').addEventListener('click', function () { build(D, true); say($('mainMsg'), '已重新排布。', true); });
+  $('exportBtn').addEventListener('click', function () {
+    var clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns', NS);
+    clone.setAttribute('style', 'background:#fbf9f6');
+    var bg = svgEl('rect', { x: 0, y: 0, width: W, height: H, fill: '#fbf9f6' });
+    clone.insertBefore(bg, clone.firstChild);
+    var blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + clone.outerHTML], { type: 'image/svg+xml;charset=utf-8' });
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'xinmo-invite-network-' + new Date().toISOString().slice(0, 10) + '.svg';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    say($('mainMsg'), 'SVG 已导出。', true);
+  });
+
+  function load(quiet) {
+    $('refreshBtn').disabled = true;
+    return M.adminNetwork(secret).then(function (r) {
+      $('refreshBtn').disabled = false;
+      if (!r.ok) {
+        if (r.error === '管理口令不正确') {
+          save(''); secret = ''; $('mainView').hidden = true; $('gateView').hidden = false;
+          say($('gateMsg'), '管理口令不正确，请重新输入。'); return;
+        }
+        if (r.reason === 'uninitialized') say($('mainMsg'), '数据库尚未初始化：请先执行 security/supabase-accounts.sql。');
+        else say($('mainMsg'), '读取失败：' + (r.error || '请稍后重试'));
+        return;
+      }
+      build(r, true);
+      if (!quiet) say($('mainMsg'), '关系图已更新。', true);
+    });
+  }
+  $('refreshBtn').addEventListener('click', function () { load(); });
+
+  $('gateForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('adminSecret').value.trim();
+    if (!v) { say($('gateMsg'), '请输入管理口令。'); return; }
+    $('gateBtn').disabled = true;
+    M.adminNetwork(v).then(function (r) {
+      $('gateBtn').disabled = false;
+      if (!r.ok) {
+        if (r.reason === 'uninitialized') say($('gateMsg'), '数据库尚未初始化：请先执行 security/supabase-accounts.sql。');
+        else say($('gateMsg'), r.error || '验证失败，请重试。');
+        return;
+      }
+      secret = v; save(v); $('adminSecret').value = '';
+      $('gateView').hidden = true; $('mainView').hidden = false;
+      build(r, true);
+    });
+  });
+
+  if (!M) { say($('gateMsg'), '页面组件加载失败，请刷新重试。'); $('gateBtn').disabled = true; return; }
+  var s = stored();
+  if (s) { secret = s; $('gateView').hidden = true; $('mainView').hidden = false; load(true); }
+})();
+</script>
+</body>
+</html>

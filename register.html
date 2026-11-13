@@ -16,48 +16,46 @@
   } catch (e) {}
 </script>
 <style>
-  .gate { min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; }
-  .gate-card { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 38px 32px 30px; }
-  .gate-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 26px; }
-  .gate-mark { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #7c0b10; background: radial-gradient(circle at 32% 28%, #fff3d0 0%, #e3b23c 46%, #b8862a 100%); box-shadow: 0 4px 12px rgba(94,7,11,.18); }
+  .gate { min-height: 100dvh; display: grid; place-items: center; padding: 32px 16px; }
+  .gate-card { width: min(500px, 100%); background: var(--surface); border: 1px solid var(--border); border-top: 3px solid #bc141b; border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 32px 30px 26px; }
+  .gate-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 22px; }
+  .gate-mark { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #7c0b10; background: radial-gradient(circle at 32% 28%, #fff3d0 0%, #e3b23c 46%, #b8862a 100%); }
   .gate-mark svg { width: 22px; height: 22px; }
   .gate-brand strong { font-size: 15px; color: var(--heading); }
   .gate-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
-  .gate h1 { margin: 0 0 6px; font-size: 21px; color: var(--heading); font-family: "Songti SC", "STSong", "SimSun", serif; letter-spacing: 3px; }
-  .gate-lead { margin: 0 0 22px; font-size: 13px; line-height: 1.8; color: var(--muted); }
-  .field { margin-bottom: 15px; }
+  .gate h1 { margin: 0 0 6px; font-size: 21px; color: var(--heading); font-family: "Songti SC","STSong","SimSun",serif; letter-spacing: 3px; }
+  .gate-lead { margin: 0 0 20px; font-size: 12.5px; line-height: 1.8; color: var(--muted); }
+  .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 7px; }
-  .field input { width: 100%; height: 46px; padding: 0 14px; border-radius: 11px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: 0; transition: border-color .2s, box-shadow .2s; }
-  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-  .pw-wrap { position: relative; }
-  .pw-wrap input { padding-right: 62px; }
-  .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 6px 8px; min-width: 46px; min-height: 36px; }
-  .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px; cursor: pointer; background: linear-gradient(135deg,#c8151d,#8c0f14); box-shadow: 0 8px 22px rgba(200,21,29,.26); transition: transform .18s, filter .18s; }
-  .gate-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
-  .gate-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+  .field input, .field select, .field textarea { width: 100%; padding: 0 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: 0; font-family: inherit; }
+  .field input, .field select { height: 44px; }
+  .field textarea { padding: 10px 13px; min-height: 66px; resize: vertical; line-height: 1.6; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row input { flex: 1; min-width: 0; }
+  .mini { height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 12px; white-space: nowrap; cursor: pointer; }
+  .mini:hover { border-color: var(--accent); color: var(--accent); }
+  .warn { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 9px 12px; border-radius: 0 8px 8px 0; font-size: 11.8px; line-height: 1.7; color: var(--text); margin: -4px 0 16px; }
+  .hint { font-size: 11.5px; line-height: 1.7; color: var(--muted); margin: 6px 0 0; }
+  .chk { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--muted); margin: 6px 0 14px; cursor: pointer; }
+  .chk input { width: 16px; height: 16px; }
+  .gate-btn { width: 100%; height: 46px; margin-top: 8px; border: 0; border-radius: 11px; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px; cursor: pointer; background: linear-gradient(135deg,#c8151d,#8c0f14); box-shadow: 0 8px 22px rgba(200,21,29,.26); }
+  .gate-btn:disabled { opacity: .6; cursor: wait; }
   .gate-msg { min-height: 20px; margin: 12px 0 0; font-size: 12.5px; color: #c23c3c; }
-  .gate-msg.is-ok { color: #1f7a4d; }
-  .gate-foot { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.9; color: var(--muted); }
+  .gate-msg.ok { color: #1f7a4d; }
+  .gate-foot { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.9; color: var(--muted); }
   .gate-foot a { color: var(--accent); text-decoration: none; }
-  .gate-foot a:hover { text-decoration: underline; }
-  :root {
-    --bg: #fbf9f6; --surface: #ffffff; --surface-2: #f8f1ea;
-    --border: #ece2d7; --border-strong: #e2d3c3;
-    --text: #24211d; --heading: #1b1917; --muted: #7d7469;
-    --accent: #bc141b; --accent-2: #9c1016; --accent-soft: #fdecea;
-  }
-  :root[data-theme="dark"] {
-    --bg: #140d0c; --surface: #1e1413; --surface-2: #271a18;
-    --border: rgba(255,235,220,.10); --border-strong: rgba(255,235,220,.18);
-    --text: #f0e2d9; --heading: #fdf3ec; --muted: #b39c90;
-    --accent: #ff6b5f; --accent-2: #ffa38f; --accent-soft: rgba(255,107,95,.14);
-  }
-  body::before {
-    content: ""; position: fixed; inset: 0 0 auto; height: 4px; z-index: 2;
-    background: linear-gradient(90deg, #7c0b10, #c8151d 40%, #e3b23c 70%, #c8151d);
-  }
-  .gate-card { border-top: 3px solid #bc141b; }
-  .hint { font-size: 11.5px; line-height: 1.7; color: var(--muted); margin: -6px 0 14px; }
+  .cred { background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+  .cred div { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 4px 0; }
+  .cred span { color: var(--muted); }
+  .cred b { color: var(--heading); word-break: break-all; font-family: ui-monospace, Consolas, monospace; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+  .badge.pending { color: #a5680b; background: rgba(165,104,11,.13); }
+  .badge.active { color: #1f7a4d; background: rgba(31,122,77,.12); }
+  :root { --bg:#fbf9f6; --surface:#fff; --surface-2:#f8f1ea; --border:#ece2d7; --border-strong:#e2d3c3; --text:#24211d; --heading:#1b1917; --muted:#7d7469; --accent:#bc141b; --accent-soft:#fdecea; }
+  :root[data-theme="dark"] { --bg:#140d0c; --surface:#1e1413; --surface-2:#271a18; --border:rgba(255,235,220,.10); --border-strong:rgba(255,235,220,.18); --text:#f0e2d9; --heading:#fdf3ec; --muted:#b39c90; --accent:#ff6b5f; --accent-soft:rgba(255,107,95,.14); }
+  body::before { content:""; position:fixed; inset:0 0 auto; height:4px; z-index:2; background:linear-gradient(90deg,#7c0b10,#c8151d 40%,#e3b23c 70%,#c8151d); }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -67,31 +65,76 @@
       <span class="gate-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 8h18v5H7zM7 17h13v5H7z" fill="currentColor"/><path d="M7 26h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
       <span><strong>新模学习</strong><small>XINMO STUDY · 学以报国</small></span>
     </div>
-    <h1>注册账号</h1>
-    <p class="gate-lead">填一个账号名和密码就能进入本站。密码只在本机做哈希运算后上传，站里不保存明文密码。</p>
-    <form id="regForm" autocomplete="off">
+
+    <div id="formView">
+      <h1>注册账号</h1>
+      <p class="gate-lead">注册后默认进入<strong>待审核</strong>状态，站主批准后才能浏览站内内容；持有邀请码的人注册后直接获得权限。</p>
+
       <div class="field">
-        <label for="username">账号名</label>
-        <input id="username" name="username" type="text" inputmode="text" autocapitalize="off" spellcheck="false" required maxlength="32" placeholder="2–32 位，小写字母 / 数字 / 中文" />
+        <label for="inviteCode">邀请码（没有就留空）</label>
+        <input id="inviteCode" type="text" autocapitalize="off" spellcheck="false" maxlength="32" placeholder="从朋友那里拿到的邀请码" />
       </div>
-      <p class="hint">字母会自动转成小写；不能含空格或 : @ &lt; &gt;。</p>
+
       <div class="field">
-        <label for="password">密码</label>
-        <div class="pw-wrap">
-          <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="至少 8 位" />
-          <button class="pw-toggle" type="button" id="pwToggle">显示</button>
+        <label for="username">用户名（可不填，留空自动生成匿名账号名）</label>
+        <div class="row">
+          <input id="username" type="text" autocapitalize="off" spellcheck="false" maxlength="32" placeholder="留空 = 自动生成，如 u_k8m2xq9vta" />
+          <button class="mini" type="button" id="genName">换一个</button>
         </div>
       </div>
+      <p class="warn"><strong>请勿用与自己真实信息有关的用户名</strong>：真实姓名、姓名拼音、生日/出生年份、手机号、学号、邮箱、QQ 号等都不行。这里不需要你填任何真实资料。</p>
+
       <div class="field">
-        <label for="confirm">再输一次密码</label>
-        <input id="confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="确认密码" />
+        <label for="password">密码（已为你随机生成 16 位强密码）</label>
+        <div class="row">
+          <input id="password" type="text" autocapitalize="off" spellcheck="false" readonly />
+          <button class="mini" type="button" id="genPw">换一个</button>
+          <button class="mini" type="button" id="copyPw">复制</button>
+        </div>
       </div>
-      <button class="gate-btn" type="submit" id="submitBtn">注册并进入</button>
+      <label class="chk"><input type="checkbox" id="useOwn" /> 我想自己设置密码（至少 12 位，含大写、小写、数字、符号）</label>
+      <div class="field" id="confirmRow" hidden>
+        <label for="confirm">再输一次密码</label>
+        <input id="confirm" type="password" autocomplete="new-password" />
+      </div>
+      <p class="hint" id="pwHint">密码只在本机做哈希运算后上传，站里不保存明文；请立即复制保存，之后无法找回。</p>
+
+      <div class="field">
+        <label for="source">你是怎么知道这个网站的？<span style="color:var(--accent)">*</span></label>
+        <select id="source">
+          <option value="">请选择…</option>
+          <option value="friend">听朋友说的</option>
+          <option value="search">搜索引擎找到的</option>
+          <option value="social">社交媒体 / 群聊看到</option>
+          <option value="other">其他途径</option>
+        </select>
+      </div>
+      <div class="field" id="friendRow" hidden>
+        <label for="sourceFriend">那位朋友的账号名（供站主核实）<span style="color:var(--accent)">*</span></label>
+        <input id="sourceFriend" type="text" autocapitalize="off" spellcheck="false" maxlength="32" placeholder="填对方在本站的账号名" />
+      </div>
+      <div class="field">
+        <label for="sourceNote">补充说明（选填）</label>
+        <textarea id="sourceNote" maxlength="300" placeholder="随便说两句，例如在哪认识的朋友、想看什么内容…"></textarea>
+      </div>
+
+      <button class="gate-btn" type="button" id="submitBtn">提交注册</button>
       <p class="gate-msg" id="msg" role="alert" aria-live="polite"></p>
-    </form>
-    <div class="gate-foot">
-      已经有账号？<a href="./login.html">去登录</a><br />
-      请勿使用你在其他网站用过的密码。注册即代表你只把本站用于学习用途。
+      <div class="gate-foot">已经有账号？<a href="./login.html">去登录</a>　·　<a href="./me.html">用户中心</a><br />注册即表示你只把本站用于学习用途；本页不收集真实姓名、手机号等个人信息。</div>
+    </div>
+
+    <div id="doneView" hidden>
+      <h1 id="doneTitle">注册完成</h1>
+      <p class="gate-lead" id="doneLead"></p>
+      <div class="cred">
+        <div><span>账号名</span><b id="doneName"></b></div>
+        <div><span>密码（只显示这一次）</span><b id="donePw"></b></div>
+        <div><span>当前状态</span><b id="doneStatus"></b></div>
+      </div>
+      <p class="warn" id="doneNote"></p>
+      <button class="gate-btn" type="button" id="goMe">进入用户中心</button>
+      <button class="gate-btn" type="button" id="goSite" style="margin-top:10px;background:linear-gradient(135deg,#2f6d4f,#1d4d37);box-shadow:none" hidden>进入网站</button>
+      <div class="gate-foot">请保存好账号和密码：密码无法找回，只能由站主重置。</div>
     </div>
   </div>
 </main>
@@ -109,70 +152,131 @@
     location.replace('https://' + location.host + location.pathname + location.search + location.hash);
     return;
   }
-
-  var form = document.getElementById('regForm');
-  var btn = document.getElementById('submitBtn');
-  var msg = document.getElementById('msg');
-  var pwd = document.getElementById('password');
-  var confirm = document.getElementById('confirm');
   var M = window.XinmoMembers;
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = $('msg');
+  var pwd = $('password'), confirm = $('confirm'), useOwn = $('useOwn');
 
-  document.getElementById('pwToggle').addEventListener('click', function () {
-    var show = pwd.type === 'password';
-    pwd.type = show ? 'text' : 'password';
-    confirm.type = show ? 'text' : 'password';
-    this.textContent = show ? '隐藏' : '显示';
+  function say(t, ok) { msg.textContent = t || ''; msg.className = 'gate-msg' + (ok ? ' ok' : ''); }
+  function ready() { $('submitBtn').disabled = false; $('submitBtn').textContent = '提交注册'; }
+  function fail(t) { say(t); ready(); }
+
+  function newPassword() {
+    try { pwd.value = M.strongPassword(16); }
+    catch (e) { fail('请用 https 打开本站'); return; }
+    pwd.type = 'text';
+    say('已生成新的强密码，请保存。', true);
+  }
+  function updatePwHint() {
+    if (!useOwn.checked) { $('pwHint').textContent = '密码只在本机做哈希运算后上传，站里不保存明文；请立即复制保存，之后无法找回。'; return; }
+    var p = pwd.value;
+    var ok = M.passwordOk(p);
+    $('pwHint').textContent = ok ? '强度合格（≥12 位，含大小写、数字、符号）。'
+      : '需至少 12 位，并同时含大写字母、小写字母、数字和符号。';
+    $('pwHint').style.color = ok ? '#1f7a4d' : '';
+  }
+
+  $('genName').addEventListener('click', function () {
+    try { $('username').value = M.randomUsername(); say('已生成匿名账号名。', true); }
+    catch (e) { fail('请用 https 打开本站'); }
   });
+  $('genPw').addEventListener('click', newPassword);
+  $('copyPw').addEventListener('click', function () {
+    pwd.select();
+    try {
+      if (navigator.clipboard) navigator.clipboard.writeText(pwd.value);
+      else document.execCommand('copy');
+      say('密码已复制，请妥善保存。', true);
+    } catch (e) { say('复制失败，请手动选中密码复制。'); }
+  });
+  $('source').addEventListener('change', function () {
+    $('friendRow').hidden = this.value !== 'friend';
+  });
+  useOwn.addEventListener('change', function () {
+    $('confirmRow').hidden = !this.checked;
+    pwd.readOnly = !this.checked;
+    pwd.value = this.checked ? '' : (function () { try { return M.strongPassword(16); } catch (e) { return ''; } })();
+    pwd.type = this.checked ? 'password' : 'text';
+    $('genPw').disabled = this.checked;
+    $('copyPw').disabled = this.checked;
+    confirm.value = '';
+    updatePwHint();
+  });
+  pwd.addEventListener('input', updatePwHint);
 
-  function say(text, ok) {
-    msg.textContent = text;
-    msg.className = 'gate-msg' + (ok ? ' is-ok' : '');
-  }
-  function ready() { btn.disabled = false; btn.textContent = '注册并进入'; }
-  function fail(text) { say(text); ready(); }
+  // 邀请链接 ?invite=CODE 自动带入
+  try {
+    var code = new URLSearchParams(location.search).get('invite');
+    if (code) {
+      $('inviteCode').value = code;
+      say('已带入邀请码，注册后将直接获得站主授予的权限。', true);
+    }
+  } catch (e) {}
 
-  if (!M) {
-    fail('页面组件加载失败，请刷新重试。');
-    btn.disabled = true;
-    return;
-  }
+  try { newPassword(); say(''); } catch (e) {}
+  updatePwHint();
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var name = document.getElementById('username').value;
+  if (!M) { fail('页面组件加载失败，请刷新重试。'); $('submitBtn').disabled = true; return; }
+
+  $('submitBtn').addEventListener('click', function () {
+    var rawName = $('username').value.trim();
+    var name = rawName ? M.normalize(rawName) : '';
+    if (name && M.looksPersonal(name)) {
+      fail('这个用户名看起来与你的真实信息有关（手机号 / 邮箱 / 生日 / 学号等），请换一个或留空自动生成。');
+      return;
+    }
+    if (name && !M.validName(name)) { fail('账号名需 2–32 位，不能含空格、: @ < >，字母请用小写'); return; }
     var pass = pwd.value;
-    if (!M.validName(name)) { fail('账号名需 2–32 位，不能含空格、: @ < >，字母请用小写'); return; }
-    if (!pass || pass.length < 8) { fail('密码至少 8 位，建议 12 位以上'); return; }
-    if (pass !== confirm.value) { fail('两次输入的密码不一致'); return; }
+    if (!M.passwordOk(pass)) { fail('密码至少 12 位，且要同时含大写、小写、数字和符号'); return; }
+    if (useOwn.checked && pass !== confirm.value) { fail('两次输入的密码不一致'); return; }
+    var src = $('source').value;
+    if (!src) { fail('请选择你是怎么知道本站的'); return; }
+    if (src === 'friend' && !$('sourceFriend').value.trim()) { fail('听朋友说起的，请填写那位朋友的账号名'); return; }
     if (!window.crypto || !crypto.subtle) { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
 
-    btn.disabled = true;
-    btn.textContent = '正在注册…';
+    $('submitBtn').disabled = true;
+    $('submitBtn').textContent = '正在提交…';
     say('');
 
     M.isLegacyName(name).then(function (legacy) {
-      if (legacy) { fail('该账号名已被占用，换一个试试'); return null; }
-      return M.register(name, pass);
+      if (legacy) { fail('该账号名已被占用，请换一个或留空自动生成。'); return null; }
+      return M.register({
+        name: name,
+        password: pass,
+        source: src,
+        sourceNote: $('sourceNote').value,
+        sourceFriend: $('sourceFriend').value,
+        inviteCode: $('inviteCode').value
+      });
     }).then(function (r) {
       if (!r) return;
       if (!r.ok) {
-        if (r.reason === 'uninitialized') { fail('站主尚未开通自助注册，请稍后再来。'); return; }
+        if (r.reason === 'uninitialized') { fail('站主尚未开通注册，请稍后再来。'); return; }
         if (r.reason === 'insecure') { fail('当前不是安全连接，请改用 https 打开本站。'); return; }
         if (r.reason === 'network') { fail('连接失败：' + (r.error || '请稍后重试')); return; }
         fail(r.error || '注册失败，请稍后重试。');
         return;
       }
-      if (!M.openSession(r.name, r.key)) {
-        fail('浏览器禁止了本地存储，请允许本站保存数据后重试。');
-        return;
-      }
-      say('注册成功，正在进入…', true);
-      btn.textContent = '已进入';
-      setTimeout(function () { location.replace('./index.html'); }, 900);
-    }).catch(function () {
-      fail('注册失败，请刷新页面重试。');
-    });
+      $('formView').hidden = true;
+      $('doneView').hidden = false;
+      $('doneName').textContent = r.name;
+      $('donePw').textContent = r.password;
+      var active = r.status === 'active';
+      $('doneTitle').textContent = active ? '注册成功 · 账号已激活' : '注册申请已提交';
+      $('doneLead').textContent = active
+        ? '邀请码有效，站主已预先授予权限，现在就能进入站点。'
+        : '你的申请已进入待审核队列，站主批准前无法浏览站内任何内容。';
+      $('doneStatus').innerHTML = '<span class="badge ' + (active ? 'active' : 'pending') + '">' +
+        (active ? '已激活 · ' + M.levelName(r.level) : '待审核') + '</span>';
+      $('doneNote').textContent = active
+        ? '等级「' + M.levelName(r.level) + '」决定你能看哪些内容；站主可在后台调整。'
+        : '审核期间你只能进入「用户中心」查看进度；站主可能会在那里向你提问，请及时回复。审核结果也会出现在用户中心。';
+      $('goSite').hidden = !active;
+    }).catch(function () { fail('注册失败，请刷新页面重试。'); });
   });
+
+  $('goMe').addEventListener('click', function () { location.href = './me.html'; });
+  $('goSite').addEventListener('click', function () { location.href = './index.html'; });
 })();
 </script>
 </body>
