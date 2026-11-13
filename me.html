@@ -191,6 +191,12 @@
         $('replyBox').disabled = true;
         return;
       }
+      // 站主批准 / 调整等级 / 拒绝后，把最新状态同步回本机会话：
+      // 用户刷新本页即可生效，不必重新输入密码登录。
+      var s = M.session();
+      if (s && s.k && (s.status !== r.status || s.level !== r.level)) {
+        M.openSession(r.username, s.k, r.status, r.level);
+      }
       render(r);
     });
   }
