@@ -192,9 +192,9 @@ class Handler(BaseHTTPRequestHandler):
             "model": MODEL,
             "messages": msgs,
             "stream": True,
+            # 该模型默认开启思考，必须显式传 False 才能真正关闭（否则首字节很慢）
+            "enable_thinking": thinking,
         }
-        if thinking:
-            payload["enable_thinking"] = True
 
         req = urllib.request.Request(
             BASE_URL + "/chat/completions",
