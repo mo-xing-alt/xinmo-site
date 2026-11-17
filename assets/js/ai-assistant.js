@@ -239,7 +239,7 @@
     var shell = addAssistantShell();
 
     var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, 120000);
+    var timer = setTimeout(function () { controller.abort(); }, 45000);
 
     var thinkOn = !!(panel.querySelector("#xm-ai-think") || {}).checked;
     fetch(CFG.apiBase.replace(/\/$/, "") + "/api/chat", {
@@ -272,7 +272,12 @@
               try { obj = JSON.parse(payload); } catch (_) { continue; }
               if (obj.type === "reasoning" && obj.text) shell.reasoning(obj.text);
               else if (obj.type === "content" && obj.text) shell.content(obj.text);
-              else if (obj.type === "done") { /* 服务端正常结束 */ }
+              else if (obj.type === "done") {
+                // 服务端明确结束：立即收尾，并取消后续读取，避免连接未断时干等超时
+                finishUp();
+                try { reader.cancel(); } catch (_) {}
+                return;
+              }
               else if (obj.type === "error") {
                 shell.fail((obj.error || "请求失败") + (obj.detail ? "：" + obj.detail : ""));
                 finishUp(true);

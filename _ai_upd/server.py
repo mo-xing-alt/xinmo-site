@@ -211,7 +211,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-cache, no-transform")
-        self.send_header("Connection", "keep-alive")
+        # 无 Content-Length，必须用 close 让客户端/Caddy 以断连判定流结束
+        self.send_header("Connection", "close")
         self.send_header("X-Accel-Buffering", "no")
         self._cors()
         self.end_headers()
@@ -255,6 +256,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.flush()
             except Exception:
                 pass
+            # 主动结束响应：断连是浏览器判定 SSE 结束的最终信号
+            self.close_connection = True
 
 
 def main(port: int | None = None):
