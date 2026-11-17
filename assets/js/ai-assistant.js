@@ -98,7 +98,11 @@
       '<textarea class="xm-ai-input" rows="1" placeholder="输入你的问题，Enter 发送…"></textarea>' +
       '<button class="xm-ai-send" type="submit" aria-label="发送">' + ICON_SEND + "</button>" +
       "</form>" +
-      '<div class="xm-ai-hint">AI 回答仅供参考 · 思考过程可点开查看</div>' +
+      '<div class="xm-ai-bar">' +
+      '<label class="xm-ai-think-toggle" title="开启后 AI 会先思考再回答，速度较慢但推理更充分">' +
+      '<input type="checkbox" id="xm-ai-think"><span>深度思考</span></label>' +
+      '<span class="xm-ai-hint">AI 回答仅供参考</span>' +
+      "</div>" +
       "</div>";
 
     body = panel.querySelector(".xm-ai-body");
@@ -174,7 +178,7 @@
       '<div class="xm-ai-who">AI 助手</div>' +
       '<details class="xm-ai-think live" style="display:none">' +
       "<summary>思考过程</summary><div class=\"xm-ai-think-text\"></div></details>" +
-      '<div class="xm-ai-bubble"><span class="xm-ai-dots"><span></span><span></span><span></span></span></div>';
+      '<div class="xm-ai-bubble"><span class="xm-ai-wait"><span class="xm-ai-dots"><span></span><span></span><span></span></span> 正在连接 AI…</span></div>';
     body.appendChild(wrap);
     var thinkBox = wrap.querySelector(".xm-ai-think");
     var thinkText = wrap.querySelector(".xm-ai-think-text");
@@ -237,10 +241,11 @@
     var controller = new AbortController();
     var timer = setTimeout(function () { controller.abort(); }, 120000);
 
+    var thinkOn = !!(panel.querySelector("#xm-ai-think") || {}).checked;
     fetch(CFG.apiBase.replace(/\/$/, "") + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history.slice() }),
+      body: JSON.stringify({ messages: history.slice(), thinking: thinkOn }),
       signal: controller.signal,
     })
       .then(function (resp) {

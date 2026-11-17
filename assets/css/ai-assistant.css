@@ -149,6 +149,8 @@
   content: "▍"; color: var(--xm-red); animation: xm-ai-blink 1s steps(1) infinite;
 }
 @keyframes xm-ai-blink { 50% { opacity: 0; } }
+.xm-ai-wait { display: inline-flex; align-items: center; gap: 4px; color: var(--xm-muted); font-size: 12.5px; }
+.xm-ai-dots { display: inline-flex; align-items: center; }
 .xm-ai-dots span {
   display: inline-block; width: 6px; height: 6px; margin: 0 2px;
   background: var(--xm-muted); border-radius: 50%; animation: xm-ai-bounce 1.2s infinite;
@@ -188,7 +190,11 @@
 }
 .xm-ai-send:disabled { opacity: .5; cursor: not-allowed; }
 .xm-ai-send svg { width: 19px; height: 19px; }
-.xm-ai-hint { text-align: center; font-size: 10.5px; color: var(--xm-muted); margin-top: 6px; }
+.xm-ai-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 7px; }
+.xm-ai-think-toggle { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-size: 11.5px; color: var(--xm-muted); user-select: none; }
+.xm-ai-think-toggle input { accent-color: var(--xm-red); width: 14px; height: 14px; cursor: pointer; margin: 0; }
+.xm-ai-think-toggle:hover { color: var(--xm-red); }
+.xm-ai-hint { font-size: 10.5px; color: var(--xm-muted); }
 
 @media (max-width: 480px) {
   .xm-ai-fab { right: 14px; bottom: 14px; }
