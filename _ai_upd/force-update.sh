@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# Self-contained forced update for xinmo.work AI assistant backend.
-# The NEWEST server.py is embedded below -- no network download, no CDN cache risk.
+# Self-contained update: newest backend + fix BASE_URL to generic domain (IPv4 forced).
 set -euo pipefail
-
-echo "=== Force update AI assistant backend ==="
+echo "=== Force update AI assistant backend (IPv4 + generic domain) ==="
 
 cat > /tmp/ai_server_new.py <<'XM_AI_SERVER_EOF'
 # -*- coding: utf-8 -*-
@@ -32,6 +30,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import sys
 import time
 import threading
@@ -40,10 +39,20 @@ import urllib.error
 from collections import defaultdict, deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+# ---- 强制 IPv4 ----
+# 部分云主机解析到 IPv6 但无 IPv6 路由，urllib 会卡在 IPv6 连接直到超时。
+# 用 AF_INET 覆盖 getaddrinfo，让所有出网只走 IPv4。
+if os.environ.get("AI_FORCE_IPV4", "1") == "1":
+    _orig_getaddrinfo = socket.getaddrinfo
+    def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+        return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+    socket.getaddrinfo = _ipv4_getaddrinfo
+
 API_KEY = os.environ.get("AI_API_KEY", "")
 BASE_URL = os.environ.get(
     "AI_BASE_URL",
-    "https://ws-35faabj7wujamy45.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+    # 通用域名：跨业务空间 Key 可用；专属域名在香港可能解析到不通的 IPv6
+    "https://dashscope.aliyuncs.com/compatible-mode/v1",
 ).rstrip("/")
 MODEL = os.environ.get("AI_MODEL", "qwen3.8-flash")
 THINKING = os.environ.get("AI_THINKING", "1") == "1"
@@ -290,22 +299,27 @@ if __name__ == "__main__":
 
 XM_AI_SERVER_EOF
 
-echo "=== Verify embedded code has the fixes ==="
-grep -q 'close_connection = True' /tmp/ai_server_new.py || { echo "FAIL: embedded code missing stream-end fix"; exit 1; }
-grep -q '"enable_thinking": thinking' /tmp/ai_server_new.py || { echo "FAIL: embedded code missing thinking fix"; exit 1; }
+echo "=== Verify embedded fixes ==="
+grep -q 'close_connection = True' /tmp/ai_server_new.py || { echo "FAIL: no stream-end fix"; exit 1; }
+grep -q 'socket.getaddrinfo' /tmp/ai_server_new.py || { echo "FAIL: no IPv4 fix"; exit 1; }
 echo "OK: embedded code verified"
 
-echo "=== Install ==="
-sudo cp /opt/ai-assistant/server.py /opt/ai-assistant/server.py.bak 2>/dev/null || true
+echo "=== Install server.py ==="
+sudo cp /opt/ai-assistant/server.py /opt/ai-assistant/server.py.bak2 2>/dev/null || true
 sudo cp /tmp/ai_server_new.py /opt/ai-assistant/server.py
 sudo chown aiassistant:aiassistant /opt/ai-assistant/server.py
-echo "server.py replaced"
 
-echo "=== Ensure thinking default off ==="
+echo "=== Fix env: BASE_URL -> generic domain, thinking off, force IPv4 ==="
+if grep -q '^AI_BASE_URL=' /opt/ai-assistant/ai-assistant.env; then
+  sudo sed -i 's|^AI_BASE_URL=.*|AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1|' /opt/ai-assistant/ai-assistant.env
+else
+  echo 'AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1' | sudo tee -a /opt/ai-assistant/ai-assistant.env >/dev/null
+fi
 sudo sed -i 's/^AI_THINKING=.*/AI_THINKING=0/' /opt/ai-assistant/ai-assistant.env
-grep '^AI_THINKING=' /opt/ai-assistant/ai-assistant.env
+grep -q '^AI_FORCE_IPV4=' /opt/ai-assistant/ai-assistant.env || echo 'AI_FORCE_IPV4=1' | sudo tee -a /opt/ai-assistant/ai-assistant.env >/dev/null
+sudo grep -E '^AI_BASE_URL=|^AI_THINKING=|^AI_FORCE_IPV4=' /opt/ai-assistant/ai-assistant.env
 
-echo "=== Restart service ==="
+echo "=== Restart ==="
 sudo systemctl restart ai-assistant
 sleep 3
 sudo systemctl is-active ai-assistant
@@ -314,14 +328,11 @@ echo "=== Health ==="
 curl -sS --max-time 10 http://127.0.0.1:8792/api/health
 echo ""
 
-echo "=== Streaming test (should finish in ~2s, NOT hang) ==="
-curl -sS --max-time 15 -w "\n[elapsed %{time_total}s]\n" \
+echo "=== Streaming test (should finish ~1-2s, NOT hang) ==="
+curl -sS --max-time 20 -w "\n[elapsed %{time_total}s]\n" \
   -X POST http://127.0.0.1:8792/api/chat \
   -H "Content-Type: application/json" \
   -d '{"messages":[{"role":"user","content":"说你好"}],"thinking":false}' \
   | tail -8
-
-echo "=== Recent logs ==="
-sudo journalctl -u ai-assistant --no-pager -n 6
 
 echo "=== DONE ==="
