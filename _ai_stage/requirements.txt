@@ -1,3 +1,0 @@
-# 无需任何第三方包：纯 Python 3.10+ 标准库实现
-# (http.server / urllib.request / json / threading ...)
-# 因此 pip install -r requirements.txt 为空操作，可直接用系统 python3 运行。
