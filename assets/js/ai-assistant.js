@@ -22,6 +22,13 @@
       greeting: "你好，我是新模学习的 AI 小助手 📚\n可以帮我解答学习问题、整理知识点、润色文字或讲解代码。有什么想了解的？",
       chips: ["帮我总结一个知识点", "解释一道题的思路", "润色这段文字", "写一段示例代码"],
       cssPath: "assets/css/ai-assistant.css",
+      // 维护模式：暂不可用期间给访客显示公告。修好后把 enabled 改成 false 重新部署即可。
+      maintenance: {
+        enabled: true,
+        title: "AI 助手维护中",
+        reason: "因当前服务器位于境外，访问国内大模型服务受网络线路限制，AI 助手暂时无法使用。",
+        plan: "我们计划于 2026 年 12 月中旬更换为大陆线路后恢复服务，敬请期待。",
+      },
     },
     window.XM_AI_CONFIG || {}
   );
@@ -89,7 +96,9 @@
     panel.innerHTML =
       '<div class="xm-ai-head">' +
       '<div class="xm-ai-logo">' + ICON_STAR + "</div>" +
-      '<div class="xm-ai-title"><b>新模 AI 助手</b><small>学以报国 · 技以利民</small></div>' +
+      '<div class="xm-ai-title"><b>新模 AI 助手</b><small>' +
+      (CFG.maintenance && CFG.maintenance.enabled ? "维护中 · 暂不可用" : "学以报国 · 技以利民") +
+      "</small></div>" +
       '<button class="xm-ai-close" type="button" aria-label="关闭">×</button>' +
       "</div>" +
       '<div class="xm-ai-body"></div>' +
@@ -125,7 +134,30 @@
     root.appendChild(fab);
     root.appendChild(panel);
     document.body.appendChild(root);
-    showEmpty();
+
+    if (CFG.maintenance && CFG.maintenance.enabled) {
+      input.disabled = true;
+      sendBtn.disabled = true;
+      input.placeholder = "维护中，暂不可发送消息";
+      panel.querySelector(".xm-ai-think-toggle").style.display = "none";
+      showMaintenance();
+    } else {
+      showEmpty();
+    }
+  }
+
+  function showMaintenance() {
+    var m = CFG.maintenance;
+    emptyEl = document.createElement("div");
+    emptyEl.className = "xm-ai-maint";
+    emptyEl.innerHTML =
+      '<div class="xm-ai-maint-ico">' + ICON_STAR + "</div>" +
+      '<div class="xm-ai-maint-badge">系统维护中</div>' +
+      "<h3>" + esc(m.title || "AI 助手维护中") + "</h3>" +
+      "<p>" + esc(m.reason || "") + "</p>" +
+      '<div class="xm-ai-maint-plan">' + esc(m.plan || "") + "</div>" +
+      '<p class="xm-ai-maint-thanks">给您带来不便，敬请谅解。<br/>其余工具与资源均可正常使用。</p>';
+    body.appendChild(emptyEl);
   }
 
   function showEmpty() {
@@ -222,6 +254,7 @@
 
   function onSubmit(e) {
     e.preventDefault();
+    if (CFG.maintenance && CFG.maintenance.enabled) return;
     if (busy) return;
     var text = input.value.trim();
     if (!text) return;
