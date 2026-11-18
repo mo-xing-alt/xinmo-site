@@ -67,6 +67,7 @@
     <div><h1>用户中心</h1><p class="sub">只存放账号相关的匿名信息，便于站主与你沟通</p></div>
     <div class="links">
       <a href="./index.html" id="siteLink">返回站点</a>
+      <a href="./owner.html" title="站主凭管理口令进入">站长管理</a>
       <a href="./login.html">切换账号</a>
     </div>
   </div>
@@ -221,6 +222,8 @@
 })();
 </script>
 <!-- AI 小助手悬浮组件（由 deploy/inject_ai_assistant.py 注入） -->
+<!-- 右上角账号入口（由 deploy/inject_account_corner.py 注入） -->
+<script src="assets/js/account-corner.js"></script>
 <script src="./assets/js/ai-assistant.js"></script>
 </body>
 </html>

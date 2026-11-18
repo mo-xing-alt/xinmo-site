@@ -144,7 +144,7 @@
 
   <div class="tabs">
     <button class="tab on" type="button" data-tab="review">待审核</button>
-    <button class="tab" type="button" data-tab="members">全部账号</button>
+    <button class="tab" type="button" data-tab="members">注册用户管理</button>
     <button class="tab" type="button" data-tab="invites">邀请码</button>
     <button class="tab" type="button" data-tab="messages">站内消息</button>
     <button class="tab" type="button" data-tab="network">邀请关系图</button>
@@ -159,7 +159,8 @@
   </section>
 
   <section class="card" id="tab-members" hidden>
-    <h2>全部账号</h2>
+    <h2>注册用户管理</h2>
+    <p class="note" style="margin:0 0 12px">这里汇总<strong>所有通过注册页提交的用户</strong>。可搜索、调整权限等级、停用 / 恢复账号；停用后该用户无法登录，改动会自动通知本人。</p>
     <div class="toolbar" style="margin-bottom:12px"><input type="search" id="memberSearch" placeholder="搜索账号名…" style="max-width:280px" /></div>
     <div class="table-wrap">
       <table>
@@ -538,6 +539,8 @@
 })();
 </script>
 <!-- AI 小助手悬浮组件（由 deploy/inject_ai_assistant.py 注入） -->
+<!-- 右上角账号入口（由 deploy/inject_account_corner.py 注入） -->
+<script src="assets/js/account-corner.js"></script>
 <script src="./assets/js/ai-assistant.js"></script>
 </body>
 </html>

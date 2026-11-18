@@ -255,7 +255,7 @@
     <p class="section-kicker">GOOD TO KNOW</p>
     <h2>给来逛的朋友</h2>
     <div class="feature-grid">
-      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg></span><h3>一次登录，管一周</h3><p>用站主告知的账号登录一次，7 天内不用重复输入；没有注册入口，也不用下载安装。</p></article>
+      <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg></span><h3>一次登录，管一周</h3><p>可以在右上角自助注册（需站主审核），或用站主告知的账号登录；登录一次 7 天内不用重复输入，也无需下载安装。</p></article>
       <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></span><h3>隐私优先</h3><p>文件类工具全部在浏览器本地运算，你的文件不会被上传到任何服务器。</p></article>
       <article class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span><h3>手机也能用</h3><p>页面做了移动端适配，路上刷题、临时改个文件都顺手。</p></article>
     </div>
@@ -277,6 +277,8 @@
 <script src="./assets/js/resources.js"></script>
 <script src="./assets/js/app.js"></script>
 <!-- AI 小助手悬浮组件（由 deploy/inject_ai_assistant.py 注入） -->
+<!-- 右上角账号入口（由 deploy/inject_account_corner.py 注入） -->
+<script src="assets/js/account-corner.js"></script>
 <script src="./assets/js/ai-assistant.js"></script>
 <!-- 评论区（由 deploy/inject_comments.py 注入） -->
 <link rel="stylesheet" href="./assets/css/dynamic.css" />
