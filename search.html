@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>站内搜索 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Ccircle cx='28' cy='28' r='12' fill='none' stroke='%23f7e6bd' stroke-width='5'/%3E%3Cpath d='m37 37 12 12' stroke='%23f7e6bd' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/red.css" />
+<link rel="stylesheet" href="./assets/css/dynamic.css" />
+<script src="./assets/js/auth-config.js"></script>
+<script>window.XINMO_REQUIRED_LEVEL = 0;</script>
+<script src="./assets/js/resources.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="./index.html" aria-label="返回首页">
+      <span class="brand-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.4 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.3l6.6-.9 2.9-6Z"/></svg></span>
+      <span class="brand-text"><strong>新模学习</strong><small>XINMO STUDY</small></span>
+    </a>
+    <nav class="main-nav" aria-label="站内导航">
+      <a href="./index.html">首页</a>
+      <a href="./library.html">资源工具库</a>
+      <a href="./search.html" aria-current="page">站内搜索</a>
+      <a href="./me.html">用户中心</a>
+    </nav>
+  </div>
+</header>
+
+<main class="dyn-shell shell" style="padding:36px 0 60px">
+  <h1 style="font-size:26px;color:var(--red-800);margin:0 0 6px">站内搜索</h1>
+  <p style="color:var(--muted);margin:0 0 22px;font-size:13.5px">搜索资源、工具、用户与评论内容。</p>
+
+  <form class="dyn-searchbar" id="searchForm">
+    <input id="q" type="search" placeholder="输入关键词，回车搜索…" autocomplete="off" />
+    <button type="submit" aria-label="搜索"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+  </form>
+
+  <div id="result" class="dyn-result">
+    <div class="dyn-empty" id="initial">试试搜索「题库」「视频」「文件」等关键词。</div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-bottom"><p>© <span data-year>2026</span> xinmo.work · 学以报国，技以利民</p></div>
+</footer>
+
+<script src="./assets/js/dynamic.js"></script>
+<script>
+(function () {
+  function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
+  function localSearch(q){
+    q=q.toLowerCase();
+    var items=window.XinmoDynamic.api.localResources();
+    return items.filter(function(it){
+      return (it.title+' '+(it.subtitle||'')+' '+(it.description||'')+' '+(it.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0;
+    });
+  }
+  function render(q){
+    var box=document.getElementById('result');
+    if(!q){box.innerHTML='<div class="dyn-empty">请输入关键词。</div>';return;}
+    box.innerHTML='<div class="dyn-empty">搜索中…</div>';
+    var local=localSearch(q);
+    var html='';
+    if(local.length){
+      html+='<section class="dyn-sec"><h2>资源与工具 <span>'+local.length+'</span></h2><div class="dyn-grid">';
+      local.forEach(function(it){
+        html+='<a class="dyn-card" href="'+esc(it.url)+'"><div class="dyn-card-top"><span class="dyn-tag">'+(it.category==='study'?'学习':'工具')+'</span></div>'+
+          '<h3>'+esc(it.title)+'</h3><p>'+esc(it.subtitle||it.description||'')+'</p></a>';
+      });
+      html+='</div></section>';
+    }
+    if(window.XinmoDynamic){
+      window.XinmoDynamic.api.search(q).then(function(r){
+        var users=(r.users||[]), comments=(r.comments||[]);
+        var extra='';
+        if(users.length){
+          extra+='<section class="dyn-sec"><h2>用户 <span>'+users.length+'</span></h2><div class="dyn-list">';
+          users.forEach(function(u){
+            extra+='<a class="dyn-row" href="./profile.html?u='+encodeURIComponent(u.username)+'"><b>'+esc(u.display_name||u.username)+'</b><span>@'+esc(u.username)+'</span></a>';
+          });
+          extra+='</div></section>';
+        }
+        if(comments.length){
+          extra+='<section class="dyn-sec"><h2>相关评论 <span>'+comments.length+'</span></h2><div class="dyn-list">';
+          comments.forEach(function(c){
+            extra+='<a class="dyn-row" href="'+esc(c.target_key.indexOf('tool:')===0?'./tools/'+c.target_key.slice(5)+'/index.html':'./library.html')+'"><span>'+esc((c.body||'').slice(0,80))+'</span></a>';
+          });
+          extra+='</div></section>';
+        }
+        box.innerHTML=html+extra||'<div class="dyn-empty">没有找到相关内容（动态用户/评论搜索需后端部署后可用）。</div>';
+      });
+    } else {
+      box.innerHTML=html||'<div class="dyn-empty">没有找到相关内容。</div>';
+    }
+  }
+  document.getElementById('searchForm').addEventListener('submit',function(e){
+    e.preventDefault();render(document.getElementById('q').value.trim());
+  });
+  var initQ=new URLSearchParams(location.search).get('q');
+  if(initQ){document.getElementById('q').value=initQ;render(initQ);}
+  document.querySelectorAll('[data-year]').forEach(function(el){el.textContent=new Date().getFullYear();});
+})();
+</script>
+<script src="./assets/js/guard.js"></script>
+</body>
+</html>

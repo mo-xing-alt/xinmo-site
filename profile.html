@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>个人主页 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Ccircle cx='32' cy='24' r='10' fill='%23f7e6bd'/%3E%3Cpath d='M14 52c0-11 8-18 18-18s18 7 18 18' fill='%23f7e6bd'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/css/red.css" />
+<link rel="stylesheet" href="./assets/css/dynamic.css" />
+<script src="./assets/js/auth-config.js"></script>
+<script>window.XINMO_REQUIRED_LEVEL = 0;</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="./index.html" aria-label="返回首页">
+      <span class="brand-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.4 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.3l6.6-.9 2.9-6Z"/></svg></span>
+      <span class="brand-text"><strong>新模学习</strong><small>XINMO STUDY</small></span>
+    </a>
+    <nav class="main-nav" aria-label="站内导航">
+      <a href="./index.html">首页</a>
+      <a href="./library.html">资源工具库</a>
+      <a href="./search.html">站内搜索</a>
+      <a href="./me.html">用户中心</a>
+    </nav>
+  </div>
+</header>
+
+<main class="dyn-shell shell" style="padding:36px 0 60px">
+  <div id="loading" class="dyn-empty">正在加载主页…</div>
+
+  <div id="view" hidden>
+    <section class="dyn-profile-card">
+      <div class="dyn-avatar" id="avatar"></div>
+      <div class="dyn-profile-main">
+        <h1 id="dispName">—</h1>
+        <p class="dyn-handle" id="handle"></p>
+        <p class="dyn-bio" id="bio"></p>
+        <div class="dyn-links" id="links"></div>
+      </div>
+      <div id="editWrap" hidden>
+        <button class="dyn-btn" id="editBtn" type="button">编辑资料</button>
+      </div>
+    </section>
+
+    <section class="dyn-sec" id="favSec" hidden>
+      <h2>我的收藏</h2>
+      <div class="dyn-list" id="favList"></div>
+    </section>
+  </div>
+
+  <!-- 编辑弹层 -->
+  <div class="dyn-modal" id="editModal" hidden>
+    <form class="dyn-modal-card" id="editForm">
+      <h2>编辑个人资料</h2>
+      <label>显示名<input id="fDisp" maxlength="40" /></label>
+      <label>简介<textarea id="fBio" maxlength="500" rows="3"></textarea></label>
+      <label>头像链接（https:// 或 data:）<input id="fAvatar" /></label>
+      <label>链接（每行一条：名称|网址）<textarea id="fLinks" rows="3"></textarea></label>
+      <label>可见范围
+        <select id="fVis"><option value="public">公开</option><option value="member">仅登录用户</option><option value="private">仅自己</option></select>
+      </label>
+      <div class="dyn-modal-actions">
+        <button type="button" class="dyn-btn ghost" id="cancelEdit">取消</button>
+        <button type="submit" class="dyn-btn">保存</button>
+      </div>
+      <p class="dyn-tip" id="editTip"></p>
+    </form>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-bottom"><p>© <span data-year>2026</span> xinmo.work · 学以报国，技以利民</p></div>
+</footer>
+
+<script src="./assets/js/dynamic.js"></script>
+<script>
+(function () {
+  function esc(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
+  var params=new URLSearchParams(location.search);
+  var target=(params.get('u')||'').trim();
+  var D=window.XinmoDynamic;
+
+  function avatarHTML(name, url){
+    if(url && /^(https?:\/\/|data:image\/)/.test(url)) return '<img src="'+esc(url)+'" alt="" />';
+    return esc((name||'?').slice(0,1).toUpperCase());
+  }
+
+  function renderProfile(p){
+    document.getElementById('avatar').innerHTML=avatarHTML(p.display_name||p.username, p.avatar);
+    document.getElementById('dispName').textContent=p.display_name||p.username;
+    document.getElementById('handle').textContent='@'+p.username;
+    document.getElementById('bio').textContent=p.bio||'这个人很神秘，还没有填写简介。';
+    var links=p.links||[];
+    document.getElementById('links').innerHTML=links.map(function(l){
+      var name=l.name||l[0]||'链接', url=l.url||l[1]||'#';
+      return '<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(name)+'</a>';
+    }).join('');
+    if(p.is_self){
+      document.getElementById('editWrap').hidden=false;
+      loadFavorites();
+    }
+    document.getElementById('loading').hidden=true;
+    document.getElementById('view').hidden=false;
+  }
+
+  function loadFavorites(){
+    D.api.favorites().then(function(r){
+      if(!r.ok) return;
+      var items=r.items||[];
+      if(!items.length) return;
+      document.getElementById('favSec').hidden=false;
+      document.getElementById('favList').innerHTML=items.map(function(f){
+        return '<a class="dyn-row" href="'+esc(f.target_key.indexOf('tool:')===0?'./tools/'+f.target_key.slice(5)+'/index.html':'./library.html')+'">'+esc(f.target_key)+'</a>';
+      }).join('');
+    });
+  }
+
+  // 编辑
+  var modal=document.getElementById('editModal');
+  document.getElementById('editBtn').addEventListener('click',function(){
+    D.api.profile(target).then(function(p){
+      document.getElementById('fDisp').value=p.display_name||'';
+      document.getElementById('fBio').value=p.bio||'';
+      document.getElementById('fAvatar').value=p.avatar||'';
+      document.getElementById('fLinks').value=(p.links||[]).map(function(l){return (l.name||l[0]||'')+'|'+(l.url||l[1]||'');}).join('\n');
+      document.getElementById('fVis').value=p.visibility||'member';
+      modal.hidden=false;
+    });
+  });
+  document.getElementById('cancelEdit').addEventListener('click',function(){modal.hidden=true;});
+  document.getElementById('editForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var tip=document.getElementById('editTip'); tip.textContent='保存中…';
+    var links=document.getElementById('fLinks').value.split('\n').map(function(line){
+      var i=line.indexOf('|'); if(i<0) return null;
+      return {name:line.slice(0,i).trim(), url:line.slice(i+1).trim()};
+    }).filter(Boolean);
+    D.api.saveProfile({
+      display_name:document.getElementById('fDisp').value,
+      bio:document.getElementById('fBio').value,
+      avatar:document.getElementById('fAvatar').value,
+      links:links,
+      visibility:document.getElementById('fVis').value
+    }).then(function(r){
+      if(r.ok){modal.hidden=true;location.reload();}
+      else tip.textContent=r.error||'保存失败';
+    });
+  });
+
+  // 决定看谁的主页
+  if(!target){
+    if(D.loggedIn()){ target=D.session().u; }
+    else { location.href='./login.html?next='+encodeURIComponent(location.pathname); return; }
+  }
+  // 未登录也能看公开主页；可见范围由 API 端按 visibility 控制
+  D.api.profile(target).then(function(p){
+    if(p.ok) renderProfile(p);
+    else { document.getElementById('loading').textContent=p.error||'主页不可用'; }
+  });
+
+  document.querySelectorAll('[data-year]').forEach(function(el){el.textContent=new Date().getFullYear();});
+})();
+</script>
+<script src="./assets/js/guard.js"></script>
+</body>
+</html>

@@ -35,7 +35,7 @@
       <a href="./library.html">资源库</a>
     </nav>
     <div class="header-tools">
-      <form class="header-search" role="search" onsubmit="return false">
+      <form class="header-search" role="search" onsubmit="var v=document.getElementById('siteSearch').value.trim();if(v){location.href='./search.html?q='+encodeURIComponent(v);}return false;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
         <label class="sr-only" for="siteSearch">搜索模块</label>
         <input id="siteSearch" type="search" placeholder="搜索模块 / 专题…" autocomplete="off" spellcheck="false" />
@@ -233,6 +233,8 @@
       <nav class="footer-links" aria-label="页脚导航">
         <a href="./index.html#modules">领域模块</a>
         <a href="./library.html">资源工具库</a>
+        <a href="./search.html">站内搜索</a>
+        <a href="./profile.html">个人主页</a>
         <a href="./upload.html">上传资料</a>
         <a href="./credits.html">图片来源</a>
       </nav>
