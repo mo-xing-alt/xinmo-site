@@ -9,7 +9,15 @@
   "use strict";
   if (window.XinmoDynamic) return;
 
+  // API 地址：优先显式配置；否则用同域 /api（VPS 全托管）；
+  // 若配置了回退地址（主域在 GitHub、API 在 VPS 的过渡期），记住它以便失败时切换。
   var API = (window.XINMO_API_BASE || "").replace(/\/$/, "") + "/api";
+  // 过渡期默认回退地址：主域还在 GitHub 时，动态 API 在 VPS 的 stage 域名。
+  // 主域切到 VPS 后同域 /api 可用，不会走到这里，故此值无害。
+  var FALLBACK = (window.XINMO_API_FALLBACK || "https://stage.xinmo.work").replace(/\/$/, "");
+  if (!API || API === "/api") {
+    API = location.origin + "/api";
+  }
 
   function session() {
     try { return JSON.parse(localStorage.getItem("xinmo_access") || "null"); }
@@ -38,8 +46,20 @@
       init.signal = ctrl.signal;
       timer = setTimeout(function () { ctrl.abort(); }, 15000);
     }
-    return fetch(url, init)
-      .then(function (r) { return r.json(); })
+    function doFetch(u) {
+      return fetch(u, init).then(function (r) {
+        if (!r.ok && r.status === 404) throw new Error("no-api");
+        return r.json();
+      });
+    }
+    return doFetch(url)
+      .catch(function (e) {
+        // 同域无 API（如主域仍在 GitHub）时，回退到备用 API 域名
+        if (FALLBACK && url.indexOf(location.origin) === 0) {
+          return doFetch(FALLBACK + path);
+        }
+        throw e;
+      })
       .then(function (j) { if (timer) clearTimeout(timer); return j; })
       .catch(function (e) {
         if (timer) clearTimeout(timer);
