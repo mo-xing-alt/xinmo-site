@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>证书备考 · 新模学习</title>
+<meta name="description" content="按证书归类的题目、经验与资料，点开即用、随时补充。" />
+<meta name="theme-color" content="#9c1016" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Ccircle cx='32' cy='26' r='11' fill='none' stroke='%23f7e6bd' stroke-width='5'/%3E%3Cpath d='m26 40-2 18 8-5 8 5-2-18' fill='%23f7e6bd'/%3E%3C/svg%3E" />
+<meta name="robots" content="noindex, nofollow" />
+<script src="./assets/js/auth-config.js"></script>
+<script>window.XINMO_REQUIRED_LEVEL = 0;</script>
+<link rel="stylesheet" href="./assets/css/red.css" />
+<link rel="stylesheet" href="./assets/css/certificates.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="./index.html" aria-label="返回首页">
+      <span class="brand-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.4 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.3l6.6-.9 2.9-6Z"/></svg></span>
+      <span class="brand-text"><strong>新模学习</strong><small>XINMO STUDY</small></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="展开导航" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="main-nav" aria-label="站内导航">
+      <a href="./index.html">首页</a>
+      <a href="./certificates.html" aria-current="page">证书</a>
+      <a href="./library.html">资源库</a>
+      <a href="./search.html">站内搜索</a>
+    </nav>
+    <div class="header-tools">
+      <form class="header-search" role="search" onsubmit="var v=document.getElementById('siteSearch').value.trim();if(v){location.href='./search.html?q='+encodeURIComponent(v);}return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <label class="sr-only" for="siteSearch">搜索</label>
+        <input id="siteSearch" type="search" placeholder="搜索…" autocomplete="off" />
+      </form>
+    </div>
+  </div>
+</header>
+
+<main class="cert-shell shell">
+  <div class="cert-hero">
+    <div class="cert-hero-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="m8.5 12.5-1 8L12 18l4.5 2.5-1-8"/></svg>
+    </div>
+    <div>
+      <p class="cert-kicker">证书备考 · 一处收好</p>
+      <h1>证书</h1>
+      <p class="cert-lede" id="certIntro">把考证书要用到的题目、经验与资料按证书归好类，点开即用、随时补充。</p>
+    </div>
+  </div>
+
+  <div class="cert-toolbar">
+    <input id="certSearch" type="search" placeholder="搜索证书名称或关键词…" autocomplete="off" />
+    <span class="cert-count" id="certCount"></span>
+  </div>
+
+  <div class="cert-grid" id="certGrid"></div>
+  <div class="cert-empty" id="certEmpty" hidden>没有匹配的证书，换个关键词试试。</div>
+
+  <p class="cert-note">内容由站主与朋友共同整理；没有链接的条目标注为「整理中」，补齐后即可点击打开。</p>
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-bottom"><p>© <span data-year>2026</span> xinmo.work · 学以报国，技以利民</p></div>
+</footer>
+
+<script src="./assets/js/certificates-data.js"></script>
+<script src="./assets/js/certificates.js"></script>
+<script src="./assets/js/guard.js"></script>
+<!-- 账号入口与 AI 助手由注入脚本添加 -->
+</body>
+</html>

@@ -24,6 +24,7 @@ window.RESOURCE_CATALOG = {
   updated: "2026-11-12",
   categories: [
     { id: "study", label: "学习练习" },
+    { id: "cert", label: "证书备考" },
     { id: "tool", label: "实用工具" }
   ],
   items: [
