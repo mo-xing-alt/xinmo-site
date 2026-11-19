@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 只更新 FileSmith 电子书工坊相关的几个文件，避免 14MB 全量包走 GitHub API 的限制。
-set -euo pipefail
+set -u
 BASE="https://raw.githubusercontent.com/mo-xing-alt/xinmo-site/main/tools/filesmith"
 DEST="/var/www/xinmo-site/tools/filesmith"
 mkdir -p "$DEST/assets"
