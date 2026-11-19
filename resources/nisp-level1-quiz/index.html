@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NISP一级题库 · 402题离线练习</title>
+<style>
+:root{
+  --bg:#0b1220;
+  --bg2:#0f1a2e;
+  --card:rgba(255,255,255,.055);
+  --card-border:rgba(255,255,255,.09);
+  --text:#e8eefb;
+  --muted:#8fa3c0;
+  --accent:#38d9a9;
+  --accent-2:#4dabf7;
+  --wrong:#ff6b81;
+  --right:#38d9a9;
+  --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 15% -10%,rgba(77,171,247,.16),transparent 60%),
+    radial-gradient(900px 600px at 100% 0%,rgba(56,217,169,.12),transparent 55%),
+    linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);
+  background-attachment:fixed;
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  padding:28px 18px 40px;
+}
+.app{width:100%;max-width:820px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(77,171,247,.28),rgba(56,217,169,.28));
+  border:1px solid rgba(255,255,255,.12);font-size:18px}
+h1{font-size:17px;font-weight:600;margin:0;letter-spacing:.5px}
+.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.icon-btn{background:none;border:1px solid var(--card-border);color:var(--muted);
+  padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer;transition:.2s}
+.icon-btn:hover{color:var(--text);border-color:rgba(255,255,255,.25)}
+.panel{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:26px;backdrop-filter:blur(14px);box-shadow:0 18px 50px rgba(0,0,0,.28);
+}
+.hidden{display:none !important}
+.hero h2{font-size:22px;margin:0 0 8px;font-weight:600}
+.hero p{color:var(--muted);font-size:13.5px;line-height:1.7;margin:0 0 22px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.stat{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:13px;padding:14px 10px;text-align:center}
+.stat b{display:block;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:4px}
+.stat span{font-size:11.5px;color:var(--muted)}
+.stat.good b{color:var(--accent)}
+.stat.bad b{color:var(--wrong)}
+.actions{display:flex;flex-direction:column;gap:10px}
+.btn{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 18px;border-radius:13px;border:1px solid transparent;cursor:pointer;
+  font-size:14.5px;font-family:inherit;transition:transform .15s,box-shadow .2s,background .2s;
+}
+.btn-main{background:linear-gradient(135deg,rgba(56,217,169,.9),rgba(56,196,217,.9));color:#04231b;font-weight:600}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(56,217,169,.25)}
+.btn-ghost{background:rgba(255,255,255,.045);border-color:var(--card-border);color:var(--text)}
+.btn-ghost:hover{background:rgba(255,255,255,.09)}
+.btn-ghost:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn small{font-size:11.5px;opacity:.75;font-weight:400}
+.mini{display:flex;gap:18px;justify-content:center;margin-top:18px}
+.mini button{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.mini button:hover{color:var(--text)}
+.empty-tip{font-size:12.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
+
+/* quiz */
+.q-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.badge{font-size:11px;padding:4px 9px;border-radius:20px;background:rgba(77,171,247,.15);
+  color:#9ccaff;border:1px solid rgba(77,171,247,.25);white-space:nowrap}
+.badge.mode-wrong{background:rgba(255,107,129,.14);color:#ffa9b6;border-color:rgba(255,107,129,.28)}
+.counter{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:4px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;margin-bottom:22px}
+.bar>i{display:block;height:100%;width:0;border-radius:4px;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));transition:width .35s ease}
+.source{font-size:11.5px;color:var(--muted);margin-bottom:10px;letter-spacing:.3px}
+.stem{font-size:16.5px;line-height:1.75;margin:0 0 20px;letter-spacing:.2px}
+.options{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;text-align:left;
+  padding:13px 15px;border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.035);border:1px solid var(--card-border);
+  color:var(--text);font-size:14px;line-height:1.65;font-family:inherit;
+  transition:background .16s,border-color .16s,transform .12s;
+}
+.opt:hover:not(.locked){background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);transform:translateX(2px)}
+.opt-key{flex:0 0 24px;height:24px;border-radius:8px;display:grid;place-items:center;
+  font-size:12.5px;font-weight:600;background:rgba(255,255,255,.08);color:#b9c7de;margin-top:2px}
+.opt.right{border-color:rgba(56,217,169,.55);background:rgba(56,217,169,.1)}
+.opt.right .opt-key{background:var(--right);color:#04231b}
+.opt.wrong{border-color:rgba(255,107,129,.55);background:rgba(255,107,129,.1)}
+.opt.wrong .opt-key{background:var(--wrong);color:#2a060b}
+.opt.locked{cursor:default}
+.feedback{display:flex;align-items:center;gap:9px;margin-top:16px;font-size:13.5px;min-height:20px}
+.feedback.ok{color:var(--right)}
+.feedback.no{color:var(--wrong)}
+.feedback .ans{color:var(--text)}
+.explain{margin-top:14px;border:1px solid rgba(255,107,129,.28);background:rgba(255,107,129,.055);
+  border-radius:14px;padding:15px 16px;animation:slideIn .25s ease}
+.ex-head{display:flex;align-items:center;gap:9px;margin-bottom:6px;flex-wrap:wrap}
+.ex-badge{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(255,107,129,.2);
+  color:#ffb3bf;border:1px solid rgba(255,107,129,.32);white-space:nowrap}
+.ex-ans{font-size:13px;font-weight:600;color:var(--text);line-height:1.6}
+.ex-row{margin:9px 0;font-size:13.5px;line-height:1.8;color:#d5e1f2}
+.ex-row b{font-weight:600;margin-right:6px;color:var(--accent-2)}
+.ex-row.extend b{color:var(--accent)}
+.ex-tags{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px}
+.next{background:linear-gradient(135deg,rgba(77,171,247,.9),rgba(56,217,169,.9));color:#04212b;
+  border:none;padding:12px 22px;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:transform .15s,box-shadow .2s,opacity .2s}
+.next:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(77,171,247,.28)}
+.next:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+.hint{font-size:11.5px;color:var(--muted)}
+/* done */
+.done-wrap{text-align:center;padding:14px 0 6px}
+.ring{width:96px;height:96px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle,rgba(56,217,169,.18),transparent 70%);border:1px solid rgba(56,217,169,.35);font-size:34px}
+.done-wrap h2{font-size:20px;margin:0 0 6px}
+.done-wrap p{color:var(--muted);font-size:13px;margin:0 0 22px}
+.done-stats{display:flex;justify-content:center;gap:28px;margin-bottom:24px}
+.done-stats div{font-size:12px;color:var(--muted)}
+.done-stats b{display:block;font-size:20px;color:var(--text);margin-bottom:3px}
+@media (max-width:600px){
+  body{padding:18px 14px 30px}
+  .panel{padding:20px 17px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stem{font-size:15.5px}
+  .opt{font-size:13.5px;padding:12px 13px}
+  header{margin-bottom:16px}
+  h1{font-size:15px}
+  .footer{flex-direction:column-reverse;align-items:stretch}
+  .next{width:100%;padding:13px}
+  .hint{text-align:center}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+<!-- 访问控制守卫（由 deploy/inject_guard.py 注入） -->
+<meta name="robots" content="noindex, nofollow" />
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">🛡️</div>
+      <div>
+        <h1>NISP一级题库 · 402题离线练习</h1>
+        <div class="sub" id="subline">NISP 一级模拟题 · 402 道 · 完全离线</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="homeBtn">首页</button>
+  </header>
+
+  <!-- 首页 -->
+  <section class="panel hero" id="homeView">
+    <h2>随机抽题，即刻判断</h2>
+    <p>从 NISP 一级 402 道模拟题中随机抽取题目，答过的题不会重复出现；答错的题会自动收进错题本，并当场展开正确答案与精讲。</p>
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span>题库总数</span></div>
+      <div class="stat"><b id="sSeen">0</b><span>已练习</span></div>
+      <div class="stat bad"><b id="sWrong">0</b><span>错题</span></div>
+      <div class="stat good"><b id="sRate">—</b><span>正确率</span></div>
+    </div>
+    <p class="sub" id="syncState" style="text-align:center;margin:-6px 0 18px">云同步：仅本机</p>
+    <div class="actions">
+      <button class="btn btn-main" id="startRandom"><span id="startRandomLabel">开始随机练习</span><small id="startRandomMeta"></small></button>
+      <button class="btn btn-ghost" id="startWrong"><span>错题重练</span><small id="wrongMeta">暂无错题</small></button>
+    </div>
+    <div class="mini">
+      <button id="resetWrong">清空错题本</button>
+      <button id="resetAll">重置全部进度</button>
+    </div>
+    <div class="empty-tip" id="homeTip"></div>
+  </section>
+
+  <!-- 答题 -->
+  <section class="panel hidden" id="quizView">
+    <div class="q-top">
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge" id="modeBadge">随机练习</span>
+        <span class="counter" id="qCounter">1 / 402</span>
+      </div>
+      <span class="counter" id="qScore"></span>
+    </div>
+    <div class="bar"><i id="progressBar"></i></div>
+    <div class="source" id="qSource"></div>
+    <p class="stem" id="qStem"></p>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="explain hidden" id="explain"></div>
+    <div class="footer">
+      <span class="hint" id="hint">键盘 A–D 或 1–4 选答案，回车下一题</span>
+      <button class="next" id="nextBtn" disabled>下一题</button>
+    </div>
+  </section>
+
+  <!-- 完成 -->
+  <section class="panel hidden" id="doneView">
+    <div class="done-wrap">
+      <div class="ring">🎯</div>
+      <h2 id="doneTitle">本轮完成</h2>
+      <p id="doneText"></p>
+      <div class="done-stats">
+        <div><b id="doneRight">0</b>答对</div>
+        <div><b id="doneWrong">0</b>答错</div>
+        <div><b id="doneRate">—</b>正确率</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-main" id="againBtn"><span>继续随机练习</span><small></small></button>
+        <button class="btn btn-ghost" id="doneHome"><span>返回首页</span><small></small></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = [{"stem":"IPSec(互联网协议安全)是IETF(互联网工程任务组)制定的一组开放的网络安全协议。IPSec属于（）","options":[{"k":"A","t":"链路层"},{"k":"B","t":"网络层"},{"k":"C","t":"传输层"},{"k":"D","t":"应用层"}],"answer":"B","src":"NISP一级模拟题","srcNum":1,"id":"n1_001","analyze":"IPSec属于网络层","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于光纤下列说法不正确的是（）","options":[{"k":"A","t":"光纤全名叫做光导纤维。"},{"k":"B","t":"光纤是以光信号传输的一种通信线路。"},{"k":"C","t":"光纤的材质是纯石英的玻璃圆柱体，它的质地坚固。"},{"k":"D","t":"进入光纤的光波在两种材料的解密上形成全反射，从而不断向前传播。"}],"answer":"C","src":"NISP一级模拟题","srcNum":2,"id":"n1_002","analyze":"光纤的材质是纯石英的玻璃圆柱体，它的质地易碎。","expand":"","tags":["NISP一级","单选题"]},{"stem":"VPN适用于大中型企业的总公司和各地分公司或分支机构的网络互联和企业同商业合作伙伴之间的网络互联。下列关于VPN业务发展趋势的描述中，不正确的是（）。","options":[{"k":"A","t":"VPN厂商的服务质量将会有实质性的提高"},{"k":"B","t":"运营商取消建设专有VPN网络"},{"k":"C","t":"大型企业VPN网络需求增高"},{"k":"D","t":"VPN厂商竞争更加激烈"}],"answer":"B","src":"NISP一级模拟题","srcNum":3,"id":"n1_003","analyze":"运营商不会取消建设专有网络。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下对防范网络钓鱼无效的做法是 ( )","options":[{"k":"A","t":"不要响应要求个人金融信息的邮件"},{"k":"B","t":"经常修改社交网站的密码"},{"k":"C","t":"谨慎对待邮件和个人数据"},{"k":"D","t":"访问站点时核实网址和网站备案信息"}],"answer":"B","src":"NISP一级模拟题","srcNum":4,"id":"n1_004","analyze":"网络钓鱼是攻击者利用欺骗性的电子邮件或其他方式将用户引导到伪造的Web页面来实施网络诈骗的一种攻击方式，修改社交网站的密码对防范网络钓鱼作用不大","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个算法不属于哈希算法（）","options":[{"k":"A","t":"RC5"},{"k":"B","t":"MD5"},{"k":"C","t":"SHA-1"},{"k":"D","t":"SHA-256"}],"answer":"A","src":"NISP一级模拟题","srcNum":5,"id":"n1_005","analyze":"RC5是对称加密算法。","expand":"","tags":["NISP一级","单选题"]},{"stem":"云计算的主要服务形式有（）。","options":[{"k":"A","t":"软件即服务平台即服务"},{"k":"B","t":"平台即服务基础设施即服务"},{"k":"C","t":"软件即服务基础设施即服务"},{"k":"D","t":"软件即服务平台即服务基础设施即服务"}],"answer":"D","src":"NISP一级模拟题","srcNum":6,"id":"n1_006","analyze":"云计算的主要服务形式有：软件即服务、平台即服务、基础设施即服务。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是工作在OSI模型中第三层的网络设备，对不同的网络之间的数据包进行存储、分组转发处理。（）是复杂的网络互联网设备，它用于连接网络层之上执行不同协议的子网，组成异构型的因特网。","options":[{"k":"A","t":"路由器网卡"},{"k":"B","t":"交换机网关"},{"k":"C","t":"网关路由器"},{"k":"D","t":"路由器网关"}],"answer":"D","src":"NISP一级模拟题","srcNum":7,"id":"n1_007","analyze":"路由器是工作在OSI模型中第三层的网络设备，对不同的网络之间的数据包进行存储、分组转发处理。网关是复杂的网络互联网设备，它用于连接网络层之上执行不同协议的子网，组成异构型的因特网。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在信息系统中，访问控制是重要的安全功能之一。以下不属于访问控制模型的特点的是（）","options":[{"k":"A","t":"只涉及安全性质，不过多牵扯系统的功能或其实现细节"},{"k":"B","t":"复杂的，不易理解"},{"k":"C","t":"精确的、无歧义的"},{"k":"D","t":"简单的、抽象的，容易理解"}],"answer":"B","src":"NISP一级模拟题","srcNum":8,"id":"n1_008","analyze":"访问控制模型具有以下三个特点：精确的、无歧义的；简单的、抽象的，容易理解；只涉及安全性质，不过多牵扯系统的功能或其实现细节。","expand":"","tags":["NISP一级","单选题"]},{"stem":"物联网是把任何物品与互联网连接起来进行信息交换和通讯，以实现智能化识别、定位、跟踪、监控和管理的一种网络，以下说法错误的是（）。","options":[{"k":"A","t":"物联网就是移动互联网"},{"k":"B","t":"智能家电属于物联网设备"},{"k":"C","t":"物联网的英文缩写是IoT"},{"k":"D","t":"智能摄像头属于物联网终端"}],"answer":"A","src":"NISP一级模拟题","srcNum":9,"id":"n1_009","analyze":"物联网(IoT)是把任何物品与互联网连接起来进行信息交换和通讯，以实现智能化识别、定位、跟踪、监控和管理的一种网络，核心和基础仍然是互联网，是将互联网延伸和扩展到任意的物品之间。","expand":"","tags":["NISP一级","单选题"]},{"stem":"主机入侵防御系统（HIPS）是一种能监控你电脑中文件的运行和文件运用了其他的文件以及文件对注册表的修改，并向你报告请求允许的软件。下列属于基于主机的入侵防御系统优点的是（）。","options":[{"k":"A","t":"软件直接安装在系统上，可以保护系统免受攻击"},{"k":"B","t":"当移动系统接入受保护网络时，保护特定主机免受攻击"},{"k":"C","t":"保护系统免受本地攻击"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":10,"id":"n1_010","analyze":"基于主机的入侵防御系统优点有：软件直接安装在系统上，可以保护系统免受攻击、当移动系统接入受保护网络时，保护特定主机免受攻击、保护系统免受本地攻击等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于同轴电缆的说法，错误的是（）。","options":[{"k":"A","t":"同轴电缆频带较宽。"},{"k":"B","t":"同轴电缆使用的总线拓扑结构。"},{"k":"C","t":"同轴电缆在一根电缆上连接多个设备，但是当其中一个地方发生故障时，会串联影响到线缆上的所有设备，可靠性存在不足。"},{"k":"D","t":"同轴电缆的故障的诊断和修复难度都较小。"}],"answer":"D","src":"NISP一级模拟题","srcNum":11,"id":"n1_011","analyze":"同轴电缆的故障的诊断和修复难度都较大。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防病毒网关是（）。","options":[{"k":"A","t":"一种对恶意代码进行过滤的边界网络安全防护设备。"},{"k":"B","t":"对内部网络用户的互联网行为进行控制和管理的边界网络安全产品。"},{"k":"C","t":"为了满足我国涉及国家秘密的计算机系统必须与互联网物理隔离的要求的前提下，提供数据交换服务的一类安全产品。"},{"k":"D","t":"对入侵行为进行检测并进行响应的网络安全设备。"}],"answer":"A","src":"NISP一级模拟题","srcNum":12,"id":"n1_012","analyze":"防病毒网关是一种对恶意代码进行过滤的边界网络安全防护设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在VPN方面，目前企业采用的保障业务安全的解决方案不包括（）。","options":[{"k":"A","t":"统一安全接入平台"},{"k":"B","t":"系统支持多种认证方式"},{"k":"C","t":"不使用任何防火墙和杀毒引擎"},{"k":"D","t":"统一派发设备，强管控"}],"answer":"C","src":"NISP一级模拟题","srcNum":13,"id":"n1_013","analyze":"应当开启防火墙和杀毒引擎","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个适合安装统一威胁管理系统（）。","options":[{"k":"A","t":"不计预算，需要较强防护能力的大型组织机构"},{"k":"B","t":"预算有限，且需要较全面防护能力的中小型组织机构"},{"k":"C","t":"不计预算，需要较强的防护能力的中小型组织机构"},{"k":"D","t":"预算有限，需要简单防护的个人设备"}],"answer":"B","src":"NISP一级模拟题","srcNum":14,"id":"n1_014","analyze":"统一威胁管理系统（UTM）适合预算有限，但需要较全面防护能力的中小型组织机构。","expand":"","tags":["NISP一级","单选题"]},{"stem":"入侵检测系统对入侵行为的识别分为（）。","options":[{"k":"A","t":"基于误用检测和基于异常检测"},{"k":"B","t":"基于系统检测和基于异常检测"},{"k":"C","t":"基于误用检测和基于正常检测"},{"k":"D","t":"基于误用检测和基于用户检测"}],"answer":"A","src":"NISP一级模拟题","srcNum":15,"id":"n1_015","analyze":"入侵检测系统对入侵行为的识别分为基于误用检测和基于异常检测。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于双绞线的说法，错误的是（）。","options":[{"k":"A","t":"双绞线是由四对不同颜色的传输线所组成，是目前局域网使用最广泛的互联技术。"},{"k":"B","t":"双绞线相比光纤速率偏低，抗干扰能力较强"},{"k":"C","t":"双绞线性能可靠，成本低廉在网络通信中应用广泛。"},{"k":"D","t":"双绞线外包裹一次金属屏蔽器是为了减少辐射并阻止外部电磁干扰进入，使得传输更稳定可靠。"}],"answer":"B","src":"NISP一级模拟题","srcNum":16,"id":"n1_016","analyze":"双绞线相比光纤速率偏低，抗干扰能力较差。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于入侵检测系统的部署下列说法不正确的是（）","options":[{"k":"A","t":"入侵检测系统的部署前首先需要明确部署目标，也就是检测攻击的需求是什么，然后根据网络拓扑结构，选择适合的入侵检测类型及部署位置。"},{"k":"B","t":"如果值需要分析针对服务器的攻击，则可以将网络入侵检测系统部署在服务器区的交换机上。"},{"k":"C","t":"基于主机的入侵检测系统一般更多是用于保护关键主机或服务器，只需要将检测代理部署到这些关键主机或服务器中即可。"},{"k":"D","t":"需要对全网的数据报文进行分析，不需要在核心交换机上设置镜像端口，也能使网络入侵检测系统能对全网的数据流量进行分析。"}],"answer":"D","src":"NISP一级模拟题","srcNum":17,"id":"n1_017","analyze":"需要对全网的数据报文进行分析，就需要在核心交换机上设置镜像端口，将其他端口的数据镜像到入侵检测系统连接的交换机端口，从而使网络入侵检测系统能对全网的数据流量进行分析。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在OSI七层模型中，数据链路层的传输单位是（）","options":[{"k":"A","t":"帧"},{"k":"B","t":"比特流"},{"k":"C","t":"分组"},{"k":"D","t":"段"}],"answer":"A","src":"NISP一级模拟题","srcNum":18,"id":"n1_018","analyze":"数据链路层的传输单位是帧。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，SFTP协议指SSH文件传输协议，默认端口号是（）。","options":[{"k":"A","t":"21"},{"k":"B","t":"22"},{"k":"C","t":"25"},{"k":"D","t":"23"}],"answer":"B","src":"NISP一级模拟题","srcNum":19,"id":"n1_019","analyze":"SFTP指的是SSH文件传输协议，默认端口号22","expand":"","tags":["NISP一级","单选题"]},{"stem":"TCP/IP协议族设计的目的是为实现不同类型的计算机系统互连，具有较好的开放性，但同时也存在很多安全风险，以下属于网络层的安全风险的是（）","options":[{"k":"A","t":"ARP欺骗攻击"},{"k":"B","t":"IP地址欺骗攻击"},{"k":"C","t":"SYNFlood拒绝服务攻击"},{"k":"D","t":"UDPFlood拒绝服务攻击"}],"answer":"B","src":"NISP一级模拟题","srcNum":20,"id":"n1_020","analyze":"IP是网络层的协议","expand":"","tags":["NISP一级","单选题"]},{"stem":"为防范网络欺诈确保交易安全，网银系统首先要求用户安全登录，然后使用“智能卡+短信认证”模式进行网上转账等交易，在此场景中用到下列哪些鉴别方法（）。","options":[{"k":"A","t":"实体所知和实体所有的鉴别方法"},{"k":"B","t":"实体所有和实体特征的鉴别方法"},{"k":"C","t":"实体所知和实体特征的鉴别方法"},{"k":"D","t":"实体所知和实体行为的鉴别方法"}],"answer":"A","src":"NISP一级模拟题","srcNum":21,"id":"n1_021","analyze":"题目中安全登录会涉及到账号密码为实体所知，智能卡和短信是实体所有。","expand":"","tags":["NISP一级","单选题"]},{"stem":"为了防止系统崩溃或重装系统导致密钥丢失从而无法解密数据，在使用EFS时应进入证书管理器将密钥备份出来并保存在安全的地方。下列哪个操作可打开证书管理器（ ）","options":[{"k":"A","t":"win+r组合键打开运行后执行certmgr.msc"},{"k":"B","t":"win+r组合键打开运行后执行compmgmt.msc"},{"k":"C","t":"win+r组合键打开运行后执行services.msc"},{"k":"D","t":"win+r组合键打开运行后执行regedit"}],"answer":"A","src":"NISP一级模拟题","srcNum":22,"id":"n1_022","analyze":"具体操作方式为执行certmgr.msc打开证书管理器，在个人的证书下可以找到一个以当前用户名命名的证书，执行证书的“导出”操作，按照引导进行操作就能将证书导出","expand":"","tags":["NISP一级","单选题"]},{"stem":"PKI的主要理论基础是（）。","options":[{"k":"A","t":"摘要算法"},{"k":"B","t":"对称密码算法"},{"k":"C","t":"量子算法"},{"k":"D","t":"公钥密码算法"}],"answer":"D","src":"NISP一级模拟题","srcNum":23,"id":"n1_023","analyze":"PKI（公钥基础设施），也称公开密钥基础设施。","expand":"","tags":["NISP一级","单选题"]},{"stem":"中继器是连接网络线路的一种装置，是工作在（）的设备。","options":[{"k":"A","t":"物理层"},{"k":"B","t":"数据链路层"},{"k":"C","t":"网络层"},{"k":"D","t":"传输层"}],"answer":"A","src":"NISP一级模拟题","srcNum":24,"id":"n1_024","analyze":"中继器是工作在物理层的设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"TCP/IP协议族安全性问题随着互联网的发展日益突出，相关组织和专家也对协议进行不断的改善和发展，为不同层次设计了相应的安全通信协议，用于对不同层次的通信进行安全保护，从而形成了由各层次安全通信协议构成的TCP/IP协议族安全架构。以下哪个协议属于链路层（）","options":[{"k":"A","t":"SNMP"},{"k":"B","t":"S/MIME"},{"k":"C","t":"L2TP"},{"k":"D","t":"SSL"}],"answer":"C","src":"NISP一级模拟题","srcNum":25,"id":"n1_025","analyze":"L2TP属于链路层、SNMP属于应用层、S/MIME属于应用层、SSL属于传输层","expand":"","tags":["NISP一级","单选题"]},{"stem":"虚拟专用网络(VPN)是在公用网络上建立虚拟的专用网络的技术。VPN的优势有（）。","options":[{"k":"A","t":"较低的成本"},{"k":"B","t":"具有较高的安全性"},{"k":"C","t":"服务保证"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":26,"id":"n1_026","analyze":"VPN技术的主要优势是：较低的成本、具有较高的安全性、服务保证。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于公钥密码的优点的是（）。","options":[{"k":"A","t":"加密速度快、计算简单"},{"k":"B","t":"解决了密钥传递问题"},{"k":"C","t":"大大减少了密钥持有量"},{"k":"D","t":"提供了对称密码技术无法或很难提供的服务（数字签名）"}],"answer":"A","src":"NISP一级模拟题","srcNum":27,"id":"n1_027","analyze":"公钥密码计算复杂、消耗资源大。","expand":"","tags":["NISP一级","单选题"]},{"stem":"强制访问控制模型有多种类型，如BLP、Biba、Clark-willson 和ChineseWall 等。小明学习了BLP模型，并对该模型的特点进行了总结。以下对BLP模型的描述中，错误的是（）。","options":[{"k":"A","t":"BLP模型用于保证系统信息的完整性"},{"k":"B","t":"BLP的自主安全策略中，系统通过比较主体与客体的访问类属性控制主体对客体的访问"},{"k":"C","t":"BLP模型的规则是“向下读，向上写”"},{"k":"D","t":"BLP的强制安全策略使用一个访问控制矩阵表示"}],"answer":"A","src":"NISP一级模拟题","srcNum":28,"id":"n1_028","analyze":"BLP模型是一种强制访问控制模型用以保障机密性，向上写，向下读，自主访问控制模型使用一个访问控制矩阵表示。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于涉密载体，以下说法错误的是（）","options":[{"k":"A","t":"机密、秘密级涉密载体应当存放在密码文件柜中；"},{"k":"B","t":"绝密级涉密载体应当存放在密码保险柜中"},{"k":"C","t":"涉密计算机应当安装双网卡、一机双网（单位内网、涉密网），且两个网络互相隔离均不与互联网相通"},{"k":"D","t":"涉密载体应存放在涉密办公场所内，涉密办公场所要相对固定和独立，应当安装门禁、视频监控、防盗报警等安防系统，实行封闭管理"}],"answer":"C","src":"NISP一级模拟题","srcNum":29,"id":"n1_029","analyze":"涉密计算机禁止和外网连接","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙是一个位于内外网之间的网络安全系统，以下对防火墙作用的描述不正确的是（）。","options":[{"k":"A","t":"抵抗外部攻击"},{"k":"B","t":"阻止所有访问"},{"k":"C","t":"保护内部网络"},{"k":"D","t":"防止恶意访问"}],"answer":"B","src":"NISP一级模拟题","srcNum":30,"id":"n1_030","analyze":"防火墙用来抵抗外部攻击、保护内部网络、防止恶意访问。","expand":"","tags":["NISP一级","单选题"]},{"stem":"二十世纪二十年代，德国发明家亚瑟谢尔比乌斯Enigma密码机。按照密码学发展历史阶段划分，这个阶段属于（）。","options":[{"k":"A","t":"古典密码学阶段"},{"k":"B","t":"近代密码学发展阶段"},{"k":"C","t":"现代密码学发展阶段"},{"k":"D","t":"当代密码学发展阶段"}],"answer":"A","src":"NISP一级模拟题","srcNum":31,"id":"n1_031","analyze":"Enigma密码机，按照密码学发展历史阶段划分，这个阶段属于古典密码阶段。","expand":"","tags":["NISP一级","单选题"]},{"stem":"TCP/IP是目前互联网使用的最基本的协议，也是互联网构成的基础协议。TCP/IP架构包括（）","options":[{"k":"A","t":"链路层、传输层、会话层、应用层"},{"k":"B","t":"网络层、传输层、表示层、应用层"},{"k":"C","t":"链路层、网络层、传输层、应用层"},{"k":"D","t":"物理层、链路层、网络层、应用层"}],"answer":"C","src":"NISP一级模拟题","srcNum":32,"id":"n1_032","analyze":"TCP/IP体系架构包括链路层、网络层、传输层、应用层四层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"某移动智能终端支持通过指纹识别解锁系统的功能，与传统的基于口令的鉴别技术相比，关于此种鉴别技术说法不正确的是（）。","options":[{"k":"A","t":"此类系统一般由用户指纹信息采集和指纹信息识别两部分组成"},{"k":"B","t":"指纹信息是每个人独有的，指纹识别系统不存在安全威胁问题"},{"k":"C","t":"所选择的特征（指纹）便于收集、测量和比较"},{"k":"D","t":"每个人所拥有的指纹都是独一无二的"}],"answer":"B","src":"NISP一级模拟题","srcNum":33,"id":"n1_033","analyze":"指纹识别系统也会存在安全问题。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个属于移动互联网安全威胁（）","options":[{"k":"A","t":"业务层面：非法业务访问、违法数据访问、拒绝服务攻击、垃圾信息的泛滥、不良信息的传播、个人隐私和敏感信息的泄露、内容版权盗用和不合理的使用。"},{"k":"B","t":"网络层面：接入网非法窃听、用户身份仿冒、服务器滥用占用带宽、破坏数据和信息完整性、非授权定位等。"},{"k":"C","t":"终端层面：病毒、木马、蠕虫、网络钓鱼、身份伪冒、DDOS攻击、窃取隐私、非授权使用资源、远程控制等。"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":34,"id":"n1_034","analyze":"互联网安全威胁包括业务层面、网络层面、终端层面。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于状态检测防火墙的优点的是（）。","options":[{"k":"A","t":"状态检测能够与跟踪网络会话有效地结合起来，并应用会话信息决定过滤规则。能够提供基于无连接协议的应用(如DNS等)及基于端口动态分配协议(如RPC)的应用的安全支持。"},{"k":"B","t":"具有记录有关通过的每个包的详细信息的能力，各数据包状态的所有信息都可以被记录，包括应用程序对包的请求、连接持续时间、内部和外部系统所做的连接请求等。"},{"k":"C","t":"处理速度快，在处理速度上具有一定的优势，由于所有的包过滤防火墙的操作都是在网络层上进行的，且在一般情况下仅仅检查数据包头，即处理速度很快，对网络性能影响也较小。"},{"k":"D","t":"安全性较高，状态防火墙结合网络配置和安全规定做出接纳、拒绝、身份认证、报警或给该通信加密等处理动作。一旦某个访问违反安全规定，就会拒绝该访问，并报告有关状态作日志记录。"}],"answer":"C","src":"NISP一级模拟题","srcNum":35,"id":"n1_035","analyze":"C选项属于静态包过滤的优点。","expand":"","tags":["NISP一级","单选题"]},{"stem":"一份文件通过哈希函数得到消息摘要，不能通过消息摘要得到原文件，这体现了哈希函数的（）。","options":[{"k":"A","t":"机密性"},{"k":"B","t":"单向性"},{"k":"C","t":"弱抗碰撞性"},{"k":"D","t":"强抗碰撞性"}],"answer":"B","src":"NISP一级模拟题","srcNum":36,"id":"n1_036","analyze":"题干体现了哈希函数的单向性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列选项中最有可能存在木马的是（ ）","options":[{"k":"A","t":"政务网站"},{"k":"B","t":"知名网站官网"},{"k":"C","t":"盗版软件下载网站"},{"k":"D","t":"朋友的微信二维码名片"}],"answer":"C","src":"NISP一级模拟题","srcNum":37,"id":"n1_037","analyze":"盗版软件下载网站可能会存在一些木马程序","expand":"","tags":["NISP一级","单选题"]},{"stem":"上网行为管理的功能包括（）。","options":[{"k":"A","t":"对网页的访问控制、网络应用控制"},{"k":"B","t":"宽带及流量管理"},{"k":"C","t":"互联网传输数据审计、用户行为分析"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":38,"id":"n1_038","analyze":"上网行为管理的功能包括对网页的访问过滤、网络应用控制、带宽及流量管理、互联网传输数据审计、用户行为分析等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"发送电子邮件时通常需要使用的协议是（ ）","options":[{"k":"A","t":"SMTP"},{"k":"B","t":"POP3"},{"k":"C","t":"SMTP和POP3都需要"},{"k":"D","t":"以上都不对"}],"answer":"A","src":"NISP一级模拟题","srcNum":39,"id":"n1_039","analyze":"SMTP协议是发送电子邮件时用的协议，POP3是接收邮件时用的协议","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于工业控制系统网络威胁来源的是（）","options":[{"k":"A","t":"工业网络病毒"},{"k":"B","t":"无线技术应用风险"},{"k":"C","t":"工控设备高危漏洞"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":40,"id":"n1_040","analyze":"工业控制系统网络威胁来源有：高级持续性威胁、工业网络病毒、无线技术应用风险、工控设备高危漏洞、国外设备预留后门。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于入侵检测系统中的误用检测系统，下列说法正确的是（）。","options":[{"k":"A","t":"建立入侵行为模型（攻击特征）。"},{"k":"B","t":"假设可以识别和表示所有可能的特征。"},{"k":"C","t":"基于系统和基于用户的误用。"},{"k":"D","t":"以上都对"}],"answer":"D","src":"NISP一级模拟题","srcNum":41,"id":"n1_041","analyze":"误用检测技术建立入侵行为模型（攻击特征）、假设可以识别和表示所有可能的特征、基于系统和基于用户的误用。","expand":"","tags":["NISP一级","单选题"]},{"stem":"钓鱼邮件是电子邮件的常见风险之一，针对钓鱼邮件，应采取下列哪种安全措施（ ）","options":[{"k":"A","t":"设置安全性高的密码"},{"k":"B","t":"使用邮件客户端接收邮件"},{"k":"C","t":"不轻易打开包含中奖等字眼的邮件"},{"k":"D","t":"使用自建的SMTP服务器"}],"answer":"C","src":"NISP一级模拟题","srcNum":42,"id":"n1_042","analyze":"A、B、D三项均无法对钓鱼邮件产生防御效果，防范钓鱼邮件应提高自身安全意识，不要轻易点击不明邮件","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于windows系统的安全性的说法，以下哪个是正确的？( )","options":[{"k":"A","t":"Windows系统存在安全设计缺陷，所以才会总感染病毒"},{"k":"B","t":"Windows系统基本没考虑过安全问题，因此才会容易被病毒感染"},{"k":"C","t":"Windows系统的安全机制设计完善，感染病毒都是因为用户使用不当"},{"k":"D","t":"Windows系统安全机制设计完善，只是为了方便用户使用，很多安全机制默认没有启用"}],"answer":"D","src":"NISP一级模拟题","srcNum":43,"id":"n1_043","analyze":"易用性和安全可以说是一对矛盾体，两者性往往不能兼顾，windows系统为了方便用户使用默认关闭了一部分安全机制","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个是状态检测机制的缺点（）","options":[{"k":"A","t":"检查内容比包过滤检测技术多，所以对防火墙的性能提出了更高的要求。"},{"k":"B","t":"需要针对不同的应用进行开发、设置，可能导致对部分应用不支持。"},{"k":"C","t":"安全性较差，不提供用户认证功能。"},{"k":"D","t":"由于需要对数据包进行处理后转发，处理速度比包过滤防火墙慢。"}],"answer":"A","src":"NISP一级模拟题","srcNum":44,"id":"n1_044","analyze":"状态检测机制的缺点有：检查内容比包过滤检测技术多，所以对防火墙的性能提出了更高的要求；状态检测防火墙的配置非常复杂，对于用户的能力要求较高，使用起来不太方便。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于数字证书的说法错误的是（）。","options":[{"k":"A","t":"数字证书可以做为终端实体的身份证明。"},{"k":"B","t":"数字证书常用来解决相互间的信任问题。"},{"k":"C","t":"数字证书一定是可靠的。"},{"k":"D","t":"数字证书可以保证信息和数据的完整性和安全性。"}],"answer":"C","src":"NISP一级模拟题","srcNum":45,"id":"n1_045","analyze":"数字证书不一定是可靠的。","expand":"","tags":["NISP一级","单选题"]},{"stem":"用户使用的鉴别依据(口令)通常由系统默认生成或由用户生成，为了记忆的方便，用户通常不对系统生成的默认口令进行更改或选择与自己相关的信息来设置口令，这种类型的口令虽然便于记忆，但容易猜测，对攻击者而言，使用这样口令进行保护的系统是非常脆弱的。以下哪个口令比较安全（）","options":[{"k":"A","t":"admin123"},{"k":"B","t":"Password"},{"k":"C","t":"Qq123W2!"},{"k":"D","t":"147poi"}],"answer":"C","src":"NISP一级模拟题","srcNum":46,"id":"n1_046","analyze":"C有大小写字母、数字以及特殊字符组成。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是实体身份的一种计算机表达。信息系统在执行操作时，首先要求用户标识自己的身份，并提供证明自己身份的依据，不同的系统使用不同的方式表示实体的身份，同一个实体可以有多个不同的身份。（）是将标识和实体联系在一起的过程。（）是信息系统的第一道安全防线，也为其他安全服务提供支撑。","options":[{"k":"A","t":"标识标识鉴别"},{"k":"B","t":"标识鉴别鉴别"},{"k":"C","t":"鉴别鉴别标识"},{"k":"D","t":"鉴别标识标识"}],"answer":"B","src":"NISP一级模拟题","srcNum":47,"id":"n1_047","analyze":"标识是实体身份的一种计算机表达。信息系统在执行操作时，首先要求用户标识自己的身份，并提供证明自己身份的依据，不同的系统使用不同的方式表示实体的身份，同一个实体可以有多个不同的身份。鉴别是将标识和实体联系在一起的过程。鉴别是信息系统的第一道安全防线，也为其他安全服务提供支撑。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我国的（ ）主要规定了关于数据电文、电子签名与认证及相关的法律责任。","options":[{"k":"A","t":"《中华人民共和国宪法》"},{"k":"B","t":"《中华人民共和国网络空间安全法》"},{"k":"C","t":"《中华人民共和国电子签名法》"},{"k":"D","t":"《商用密码管理条例》"}],"answer":"C","src":"NISP一级模拟题","srcNum":48,"id":"n1_048","analyze":"《中华人民共和国电子签名法》由中华人民共和国第十届全国人民代表大会常务委员会第十一次会议于2004年8月28日通过，自2005年4月1日起施行。共计5章，三十六条。主要内容是对电子签名的法律效力、适用范围和作为证据的真实性提出要求。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于防火墙的典型技术的是（）。","options":[{"k":"A","t":"静态包过滤"},{"k":"B","t":"代理防火墙与NAT"},{"k":"C","t":"状态检测技术"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":49,"id":"n1_049","analyze":"防火墙的典型技术有：静态包过滤、代理防火墙与NAT、状态检测技术。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在某信息系统的设计中，用户登录过程是这样的：（1）用户通过HTTP协议访问信息系统；（2）用户在登录页面输入用户名和口令；（3）信息系统在服务器端检查用户名和密码的正确性，如果正确，则鉴别完成。可以看出，这个鉴别过程属于（）。","options":[{"k":"A","t":"单向鉴别"},{"k":"B","t":"双向鉴别"},{"k":"C","t":"第三方鉴别"},{"k":"D","t":"三向鉴别"}],"answer":"A","src":"NISP一级模拟题","srcNum":50,"id":"n1_050","analyze":"根据题意属于单向鉴别","expand":"","tags":["NISP一级","单选题"]},{"stem":"堡垒主机是运维管理中广泛使用的一个安全设备，用于（）。","options":[{"k":"A","t":"对入侵行为进行检测并进行响应"},{"k":"B","t":"在公用网络上建立虚拟的专用网络"},{"k":"C","t":"解决远程维护操作安全问题"},{"k":"D","t":"对恶意代码进行过滤"}],"answer":"C","src":"NISP一级模拟题","srcNum":51,"id":"n1_051","analyze":"堡垒主机是运维管理中广泛使用的一个安全设备，用于解决远程维护操作安全问题。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于可信计算说法错误的是（）。","options":[{"k":"A","t":"可信的主要目的是要建立起主动防御的信息安全保障体系"},{"k":"B","t":"可信计算机安全评价标准(TCSEC)中第一次提出了可信计算机和可信计算基的概念"},{"k":"C","t":"可信的整体框架包含终端可信、终端应用可信、操作系统可信、网络互联可信、互联网交易等应用系统可信"},{"k":"D","t":"可信计算平台出现后会取代传统的安全防护体系和方法"}],"answer":"D","src":"NISP一级模拟题","srcNum":52,"id":"n1_052","analyze":"可信计算平台出现后不会取代传统的安全防护体系和方法。","expand":"","tags":["NISP一级","单选题"]},{"stem":"SSH协议是在（）与（）之间的加密隧道应用协议。","options":[{"k":"A","t":"网络层传输层"},{"k":"B","t":"传输层应用层"},{"k":"C","t":"数据链路层网络层"},{"k":"D","t":"网络层应用层"}],"answer":"B","src":"NISP一级模拟题","srcNum":53,"id":"n1_053","analyze":"SSH协议是在传输层与应用层之间的加密隧道应用协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小明刷脸进入小区大门，通过输入密码进入楼门，用钥匙打开家门回到自己的家里。在以上过程中使用了哪种或哪几种身份鉴别的方式（）","options":[{"k":"A","t":"实体所知实体所有实体所感"},{"k":"B","t":"实体所有实体特征"},{"k":"C","t":"实体所知实体特征"},{"k":"D","t":"实体所知实体所有实体特征"}],"answer":"D","src":"NISP一级模拟题","srcNum":54,"id":"n1_054","analyze":"刷脸属于实体特征、输入密码属于实体所知、使用钥匙属于实体所有。","expand":"","tags":["NISP一级","单选题"]},{"stem":"对于入侵防御系统（IPS），下列描述错误的是（）。","options":[{"k":"A","t":"入侵防御系统(IPS)是结合了入侵检测、防火墙等基础机制的安全产品。"},{"k":"B","t":"入侵防御系统(IPS)精确度很高，不可能产生误报。"},{"k":"C","t":"入侵防御系统(IPS)通过对网络流量进行分析，检测入侵行为并产生响应以中断入侵，从而保护组织机构信息系统的安全。"},{"k":"D","t":"入侵防御系统(IPS)作为集检测、防御与一体的安全产品，对明确判断为攻击的行为，会采取措施进行阻断，无需人员介入。"}],"answer":"B","src":"NISP一级模拟题","srcNum":55,"id":"n1_055","analyze":"入侵防御系统作为集检测、防御与一体的安全产品，对明确判断为攻击的行为，会采取措施进行阻断，无需人员介入，因此也可能由于误报导致将正常的用户行为进行拦截。","expand":"","tags":["NISP一级","单选题"]},{"stem":"常见的邮件欺骗方式有（ ）","options":[{"k":"A","t":"相似域名仿冒"},{"k":"B","t":"仿冒企业邮件"},{"k":"C","t":"仿冒发件人别名"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":56,"id":"n1_056","analyze":"常见的邮件欺诈方式有：仿冒发件人别名、相似域名仿冒、商业邮件诈骗、仿冒企业邮件等等","expand":"","tags":["NISP一级","单选题"]},{"stem":"（ ）用于确保数据的保密性，阻止对手的被动攻击，如截取，窃听等；（ ）用以确保报文发送者和接收者的真实性以及报文的完整性，阻止对手的主动攻击，如冒充、篡改、重播等。","options":[{"k":"A","t":"认证加密"},{"k":"B","t":"认证认证"},{"k":"C","t":"加密认证"},{"k":"D","t":"加密加密"}],"answer":"C","src":"NISP一级模拟题","srcNum":57,"id":"n1_057","analyze":"加密用于确保数据的保密性，阻止对手的被动攻击，如截取，窃听等；认证用以确保报文发送者和接收者的真实性以及报文的完整性，阻止对手的主动攻击，如冒充、篡改、重播等","expand":"","tags":["NISP一级","单选题"]},{"stem":"对于网络入侵检测系统，下列说法不正确的是（）。","options":[{"k":"A","t":"网络入侵检测系统一般旁路安装，对设备性能要求不高，不容易成为瓶颈。"},{"k":"B","t":"网络入侵检测系统无法对加密的数据进行分析检测。"},{"k":"C","t":"网络入侵检测系统高速交换网络中处理负荷较重，存在性能不足。"},{"k":"D","t":"网络入侵检测系统能检测到攻击行为，能对攻击行为后果进行判断。"}],"answer":"D","src":"NISP一级模拟题","srcNum":58,"id":"n1_058","analyze":"网络入侵检测系统仅能检测到攻击行为，无法对攻击行为后果进行判断。","expand":"","tags":["NISP一级","单选题"]},{"stem":"常见密码系统包含的元素有（）。","options":[{"k":"A","t":"明文、密文、信道、加密算法、解密算法"},{"k":"B","t":"明文、摘要、信道、加密算法、解密算法"},{"k":"C","t":"明文、密文、密钥、加密算法、解密算法"},{"k":"D","t":"消息、密文、信道、加密算法、解密算法"}],"answer":"C","src":"NISP一级模拟题","srcNum":59,"id":"n1_059","analyze":"常见密码系统包含的元素有明文、密文、密钥、加密算法、解密算法。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪种做法可能会造成个人隐私泄露（ ）","options":[{"k":"A","t":"为手机设置锁屏密码"},{"k":"B","t":"不使用公共场所中的wifi"},{"k":"C","t":"为防止遗忘密码把账号密码写在便利贴并贴在办公桌上"},{"k":"D","t":"不在朋友圈发布生日纪念日等信息"}],"answer":"C","src":"NISP一级模拟题","srcNum":60,"id":"n1_060","analyze":"把账号密码写在便利贴并贴在办公桌上容易被路过的人看到","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于大数据生命周期中的“数据处理阶段”存在哪些安全问题（）","options":[{"k":"A","t":"存储架构安全、逻辑存储安全、存储访问安全、数据副本安全、数据归档安全等"},{"k":"B","t":"数据分布式处理安全、数据分析安全、数据加密处理、数据脱敏处理以及数据溯源等"},{"k":"C","t":"数据传输安全、数据访问控制、数据脱敏处理等"},{"k":"D","t":"数据源鉴别及记录、数据合法收集、数据标准化管理、数据管理职责定义、数据分类分级以及数据留存合规性识别等问题"}],"answer":"B","src":"NISP一级模拟题","srcNum":61,"id":"n1_061","analyze":"数据处理阶段：数据分布式处理安全、数据分析安全、数据加密处理、数据脱敏处理以及数据溯源等","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于计算机木马的说法错误的是（ ）","options":[{"k":"A","t":"尽量访问知名网站能减少感染木马的概率"},{"k":"B","t":"随意安装不可靠的软件可能会感染木马程序"},{"k":"C","t":"只要不访问互联网，就能避免受到木马侵害"},{"k":"D","t":"杀毒软件对防止木马病毒具有重要作用"}],"answer":"C","src":"NISP一级模拟题","srcNum":62,"id":"n1_062","analyze":"不访问互联网也可能受到木马的侵害","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下应对恶意ＡＰＰ安全问题正确的是（）","options":[{"k":"A","t":"只安装通过安全认证的APP"},{"k":"B","t":"安装通过官网下载的APP"},{"k":"C","t":"通过正规第三方应用商店下载APP"},{"k":"D","t":"以上都对"}],"answer":"D","src":"NISP一级模拟题","srcNum":63,"id":"n1_063","analyze":"为了防范恶意APP，建议正规渠道下载APP，如官方网站、正规应用商店，","expand":"","tags":["NISP一级","单选题"]},{"stem":"实体身份鉴别一般依据实体所知、实体所有和实体特征。随着技术的成熟及硬件成本的不断下降，使用实体生物特征作为鉴别方式越来越广泛，下面哪个不是实体特征具有的特点是（）","options":[{"k":"A","t":"普遍性"},{"k":"B","t":"即时性"},{"k":"C","t":"唯一性"},{"k":"D","t":"稳定性"}],"answer":"B","src":"NISP一级模拟题","srcNum":64,"id":"n1_064","analyze":"实体特征鉴别方式具有以下特点：普遍性、唯一性、稳定性、可比性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于计算机网络分类，下列说法正确的是（）。","options":[{"k":"A","t":"广域网用来将多个局域网进行互联。"},{"k":"B","t":"公众网是某个组织为满足本组织内部的特殊业务工作需要而建立的网络"},{"k":"C","t":"局域网是将微型计算机或工作站通过通信线路连接，作用距离比较小，"},{"k":"D","t":"专用网指网络服务提供商建设，供公共用户使用的通信网络。"}],"answer":"C","src":"NISP一级模拟题","srcNum":65,"id":"n1_065","analyze":"广域网是互联网的核心部分，其任务是通过长距离传输主机所发送的数据。公众网指网络服务提供商建设，供公共用户使用的通信网络。专用网是某个组织为满足本组织内部的特殊业务工作需要而建立的网络。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学包括密码编码学和密码分析学两部分。以下不是密码编码学研究的是（）","options":[{"k":"A","t":"信息的编码"},{"k":"B","t":"构建各种安全有效的密码算法和协议"},{"k":"C","t":"研究破译密码获得消息"},{"k":"D","t":"用于消息的加密、认证等方面"}],"answer":"C","src":"NISP一级模拟题","srcNum":66,"id":"n1_066","analyze":"密码编码学主要研究信息的编码，构建各种安全有效的密码算法和协议，用于消息的加密、认证等方面。密码分析学是研究破译密码获得消息，或对消息进行伪造。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在密码学的Kerchhof假设中，密码系统的安全性仅依赖于（）。","options":[{"k":"A","t":"明文"},{"k":"B","t":"密文"},{"k":"C","t":"密钥"},{"k":"D","t":"信道"}],"answer":"C","src":"NISP一级模拟题","srcNum":67,"id":"n1_067","analyze":"柯克霍夫原则：密码系统的安全性依赖于密钥而不依赖于算法。","expand":"","tags":["NISP一级","单选题"]},{"stem":"即时通信是目前使用最为普遍的网络应用之一，下列关于及时通信安全防范错误的是（ ）","options":[{"k":"A","t":"重要的文件资料等不要通过即时通信传输"},{"k":"B","t":"在其他人的电脑上登录时不要启用自动登录功能"},{"k":"C","t":"即时通信应用中的好友都认识，不可以传输和讨论一些敏感信息"},{"k":"D","t":"即时通信软件的加密措施很安全，可以用来传输敏感信息"}],"answer":"D","src":"NISP一级模拟题","srcNum":68,"id":"n1_068","analyze":"如果使用即时通信传输敏感信息，攻击者通过攻击即时通信用户获得登录身份后，会收集到大量用户的敏感信息，甚至伪装成用户实施其他类型的攻击","expand":"","tags":["NISP一级","单选题"]},{"stem":"小李购买了一台液晶电视，并留了姓名、手机号、电子邮箱地址等信息方便售后，第二天他收到了一封显示发件人为电视机品牌商的中奖邮件，他按照邮件提示打开了邮件当中的链接缴纳中奖税款后并没有得到中奖奖金，再打电话询问品牌商才得知并没有举办中奖活动。根据上面的描述，由此可以推断的是( )","options":[{"k":"A","t":"品牌商把小李预留的个人信息经过了加密存储"},{"k":"B","t":"小李收到的邮件是钓鱼邮件，钱被骗了"},{"k":"C","t":"小李购买的电视可以联网"},{"k":"D","t":"小李的电脑中了木马，已经被黑客控制"}],"answer":"B","src":"NISP一级模拟题","srcNum":69,"id":"n1_069","analyze":"网络钓鱼是攻击者利用欺骗性的电子邮件或其他方式将用户引导到伪造的Web页面来实施网络诈骗的一种攻击方式。","expand":"","tags":["NISP一级","单选题"]},{"stem":"柯克霍夫（kerckhoff）原则指出密码体制可以对外公开，对密钥必须保密。密码系统的安全性取决于（）","options":[{"k":"A","t":"密码复杂度"},{"k":"B","t":"密钥"},{"k":"C","t":"加密算法"},{"k":"D","t":"密文长度"}],"answer":"B","src":"NISP一级模拟题","srcNum":70,"id":"n1_070","analyze":"密码系统的安全性取决于密钥，","expand":"","tags":["NISP一级","单选题"]},{"stem":"小王收到了一个发件人显示为中国银行的电子邮件，点开邮件中的链接后要求小王提供银行账户和密码，这是属于何种攻击手段( )","options":[{"k":"A","t":"DDOS攻击"},{"k":"B","t":"网页挂马"},{"k":"C","t":"网络钓鱼"},{"k":"D","t":"SQL注入"}],"answer":"C","src":"NISP一级模拟题","srcNum":71,"id":"n1_071","analyze":"网络钓鱼(Phishing)是攻击者利用欺骗性的电子邮件或其他方式将用户引导到伪造的Web页面来实施网络诈骗的一种攻击方式","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下网络互联设备不是工作在网络层的是（）。","options":[{"k":"A","t":"路由器"},{"k":"B","t":"三层交换机"},{"k":"C","t":"网卡"},{"k":"D","t":"网关"}],"answer":"C","src":"NISP一级模拟题","srcNum":72,"id":"n1_072","analyze":"网卡工作在数据链路层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"Internet中应用行为控制不包括哪些功能？（）","options":[{"k":"A","t":"Post操作"},{"k":"B","t":"代理上网"},{"k":"C","t":"数据存储"},{"k":"D","t":"文件上传"}],"answer":"C","src":"NISP一级模拟题","srcNum":73,"id":"n1_073","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"收到一封来自陌生人且含有附件的邮件，应该怎么处理（ ）","options":[{"k":"A","t":"转发给朋友，让朋友打开"},{"k":"B","t":"直接打开附件查看"},{"k":"C","t":"回复该邮件，询问是否有病毒"},{"k":"D","t":"直接删除该邮件"}],"answer":"D","src":"NISP一级模拟题","srcNum":74,"id":"n1_074","analyze":"D选项最合适","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP的体系架构中，ARP协议位于（），它的作用是（）。","options":[{"k":"A","t":"网络层将MAC地址解析为IP地址"},{"k":"B","t":"链路层将MAC地址解析为IP地址"},{"k":"C","t":"网络层将IP地址解析为MAC地址"},{"k":"D","t":"链路层将IP地址解析为MAC地址"}],"answer":"C","src":"NISP一级模拟题","srcNum":75,"id":"n1_075","analyze":"在TCP/IP的体系架构中，ARP协议位于‌网络接口层‌，它的作用是‌由IP地址求MAC地址‌。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于网络互联设备交换机的描述正确的是（）","options":[{"k":"A","t":"交换机是一种电(光)信号转发的网络设备。"},{"k":"B","t":"交换机作为多端口的网桥，工作在物理层。"},{"k":"C","t":"交换机把一个端口上收到的数据广播发送到其他所有端口上。"},{"k":"D","t":"交换机用于连接网络层之上执行不同协议的子网，组成异构型的因特网。"}],"answer":"A","src":"NISP一级模拟题","srcNum":76,"id":"n1_076","analyze":"交换机是一种电(光)信号转发的网络设备，交换机作为多端口的网桥，工作在数据链路层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列选项中存在安全风险的是（ ）","options":[{"k":"A","t":"下载软件时从开发商官网下载"},{"k":"B","t":"在不同的网站使用相同的账号密码"},{"k":"C","t":"设置密码时密码中不包含个人名字简拼等信息"},{"k":"D","t":"不随意点击浏览网页时弹出的广告"}],"answer":"B","src":"NISP一级模拟题","srcNum":77,"id":"n1_077","analyze":"使用相同的密码的话一个网站的密码泄露会导致所有网站账号都不安全","expand":"","tags":["NISP一级","单选题"]},{"stem":"应用层协议定义了运行在不同端系统上的应用程序进程如何相互传递报文。下列不属于应用层协议的是（）。","options":[{"k":"A","t":"HTTP协议"},{"k":"B","t":"FTP协议"},{"k":"C","t":"Telnet"},{"k":"D","t":"UDP协议"}],"answer":"D","src":"NISP一级模拟题","srcNum":78,"id":"n1_078","analyze":"UPD协议属于传输层协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线广域网是把物理距离极为分散的局域网连接起来的通信方式。无线广域网进行数据通信需要使用（）。","options":[{"k":"A","t":"通信卫星"},{"k":"B","t":"光纤"},{"k":"C","t":"公共数据网"},{"k":"D","t":"电话线"}],"answer":"A","src":"NISP一级模拟题","srcNum":79,"id":"n1_079","analyze":"无线广域网进行数据通信使用通信卫星。","expand":"","tags":["NISP一级","单选题"]},{"stem":"世界上第一台计算机，电子数字积分计算机(ENIAC)诞生于（）。","options":[{"k":"A","t":"中国"},{"k":"B","t":"法国"},{"k":"C","t":"美国"},{"k":"D","t":"德国"}],"answer":"C","src":"NISP一级模拟题","srcNum":80,"id":"n1_080","analyze":"世界上第一台计算机，电子数字积分计算机(ENIAC)于1946年2月14日在宾夕法尼亚大学诞生。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个不是基于实体特征的鉴别（）","options":[{"k":"A","t":"指纹、掌纹"},{"k":"B","t":"手机门禁卡"},{"k":"C","t":"面部识别"},{"k":"D","t":"语音识别"}],"answer":"B","src":"NISP一级模拟题","srcNum":81,"id":"n1_081","analyze":"钥匙属于实体所有","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于非对称密码算法的是（）。","options":[{"k":"A","t":"RSA"},{"k":"B","t":"ECC"},{"k":"C","t":"Rabin"},{"k":"D","t":"RC5"}],"answer":"D","src":"NISP一级模拟题","srcNum":82,"id":"n1_082","analyze":"RC5属于对称密码算法","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥算法中，（）用来解密和签名","options":[{"k":"A","t":"公钥"},{"k":"B","t":"私钥"},{"k":"C","t":"数字证书"},{"k":"D","t":"注册中心"}],"answer":"B","src":"NISP一级模拟题","srcNum":83,"id":"n1_083","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列防范钓鱼网站的做法哪个是错误的（ ）","options":[{"k":"A","t":"浏览网站时通过网站备案信息查询网站真伪"},{"k":"B","t":"对包含中奖、退税等字眼的邮件和短信提高警惕，不随意点击附带的链接"},{"k":"C","t":"打开网站前仔细核对网址"},{"k":"D","t":"为提高系统性能上网时退出杀毒软件等消耗资源的网站"}],"answer":"D","src":"NISP一级模拟题","srcNum":84,"id":"n1_084","analyze":"关闭杀毒软件上网时得不到相应的保护，会造成安全风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪一种网络通信协议对传输的数据会进行加密来保证信息的保密性（）","options":[{"k":"A","t":"FTP"},{"k":"B","t":"SSL"},{"k":"C","t":"POP3"},{"k":"D","t":"HTTP"}],"answer":"B","src":"NISP一级模拟题","srcNum":85,"id":"n1_085","analyze":"SSL协议中，使用握手协议协商加密和MAC算法以及保密密钥 ，使用握手协议对交换的数据进行加密和签名，使用警报协议定义数据传输过程中，出现问题如何去解决。","expand":"","tags":["NISP一级","单选题"]},{"stem":"信息安全主要包括信息的保密性、真实性、完整性等，当完整性受到破坏时，信息可能受到了以下哪种攻击（）","options":[{"k":"A","t":"篡改"},{"k":"B","t":"中断"},{"k":"C","t":"窃听"},{"k":"D","t":"以上都不正确"}],"answer":"A","src":"NISP一级模拟题","srcNum":86,"id":"n1_086","analyze":"完整性是保证信息系统中的数据处于完整的状态，确保信息没有遭受篡改和破坏。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于保护个人信息做法错误的是 ( )","options":[{"k":"A","t":"在朋友圈微博等社交媒体发布火车票、飞机票、护照、日程、行踪等"},{"k":"B","t":"只从手机自带的应用商店和软件开发商官网下载应用"},{"k":"C","t":"填写调查问卷时尽量不使用真实的个人信息"},{"k":"D","t":"在打印店等公众场合登录账号时不使用自动保存密码功能，且在离开时手动退出账号"}],"answer":"A","src":"NISP一级模拟题","srcNum":87,"id":"n1_087","analyze":"在朋友圈微博等社交媒体发布火车票、飞机票、护照、日程、行踪等可能会导致个人信息泄露","expand":"","tags":["NISP一级","单选题"]},{"stem":"近年来，随着云计算、大数据技术逐渐应用到安全领域，基于软件即服务（Software-as-a-service，SaaS）模式的Web 应用安全监测十分具有市场潜力，通常情况下的SaaS软件主要应用于哪些企业管理软件（）。","options":[{"k":"A","t":"人力资源管理"},{"k":"B","t":"客户资源管理"},{"k":"C","t":"供应链管理"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":88,"id":"n1_088","analyze":"SaaS软件主要应用于：人力资源管理、客户资源管理、供应链管理等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"计算机网络的节点分为（）。","options":[{"k":"A","t":"转换节点和访问节点"},{"k":"B","t":"交换节点和控制节点"},{"k":"C","t":"转换节点和控制节点"},{"k":"D","t":"访问节点和控制节点"}],"answer":"A","src":"NISP一级模拟题","srcNum":89,"id":"n1_089","analyze":"计算机网络的节点包括：转换节点和访问节点。","expand":"","tags":["NISP一级","单选题"]},{"stem":"现已产生多种方法可用于鉴别病毒，下列选项中，利用病毒的特有行为特征来监测病毒的方法被称为（）","options":[{"k":"A","t":"代码测试法"},{"k":"B","t":"校验和法"},{"k":"C","t":"行为监测法"},{"k":"D","t":"软件模拟法"}],"answer":"C","src":"NISP一级模拟题","srcNum":90,"id":"n1_090","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"国家秘密的保密期限，除另有规定外，绝密级不超过（）年，机密级不超过（）年，秘密级不超过（）年。","options":[{"k":"A","t":"30、20、10"},{"k":"B","t":"50、30、20"},{"k":"C","t":"30、20、15"},{"k":"D","t":"30、15、10"}],"answer":"A","src":"NISP一级模拟题","srcNum":91,"id":"n1_091","analyze":"法律法规","expand":"","tags":["NISP一级","单选题"]},{"stem":"https是很多网站采用的网页访问协议，以下关于https的优势说法哪个是正确的（）。","options":[{"k":"A","t":"性能要比http好"},{"k":"B","t":"访问速度要比http快"},{"k":"C","t":"安全性要比http高"},{"k":"D","t":"可用性要比http强"}],"answer":"C","src":"NISP一级模拟题","srcNum":92,"id":"n1_092","analyze":"https协议的安全性比http高。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在以下四种传输介质中，带宽最宽、抗干扰能力最强的是（）。","options":[{"k":"A","t":"无线信道"},{"k":"B","t":"同轴电缆"},{"k":"C","t":"双绞线"},{"k":"D","t":"光纤"}],"answer":"D","src":"NISP一级模拟题","srcNum":93,"id":"n1_093","analyze":"在这个四种传输介质中，带宽最宽、抗干扰能力最强的是光纤。","expand":"","tags":["NISP一级","单选题"]},{"stem":"甲公司打算制作网络连续时所需要的插件的规格尺寸、引脚数量和线序情况，甲公司将这个任务委托了乙公司，那么乙公司的设计员应该了解OSI参考模型中的哪一层（）。","options":[{"k":"A","t":"数据链路层"},{"k":"B","t":"物理层"},{"k":"C","t":"网络层"},{"k":"D","t":"传输层"}],"answer":"B","src":"NISP一级模拟题","srcNum":94,"id":"n1_094","analyze":"物理层规定通信设备的机械的、电气的、功能的和过程的特性，用以建立、维护和拆除物理链路连接，这些特性包括网络连接时所需接插件的规格尺寸、引脚数量等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥基础设施（PKI）也称公开密钥基础设施，它的英文名称是（）。","options":[{"k":"A","t":"PubilcKeyInfrastructure"},{"k":"B","t":"PubilcKeysInfrastructural"},{"k":"C","t":"PublicSecretKeyInfrastructure"},{"k":"D","t":"PublicSecretKeysInfrastructural"}],"answer":"A","src":"NISP一级模拟题","srcNum":95,"id":"n1_095","analyze":"公钥基础设施（Pubilc Key Infrastructure，PKI）也称公开密钥基础设施。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是在公用网络上建立虚拟的专用网络的技术。","options":[{"k":"A","t":"SET"},{"k":"B","t":"DDN"},{"k":"C","t":"VPN"},{"k":"D","t":"PKI"}],"answer":"C","src":"NISP一级模拟题","srcNum":96,"id":"n1_096","analyze":"VPN是一种架构在公用通信基础设施上的专用数据通信网络，利用IPSec等网络层安全协议和建立在PKI的加密与签名技术来获得私有性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥密码的应用不包括（）","options":[{"k":"A","t":"数字签名"},{"k":"B","t":"身份认证"},{"k":"C","t":"消息认证码"},{"k":"D","t":"非安全信道的密钥交换"}],"answer":"C","src":"NISP一级模拟题","srcNum":97,"id":"n1_097","analyze":"消息认证码不属于公钥密码应用的范畴。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不是产生ARP欺骗的原因（）。","options":[{"k":"A","t":"ARP协议是一个无状态的协议"},{"k":"B","t":"ARP协议是将IP地址转化为MAC地址的重要协议"},{"k":"C","t":"ARP信息在系统中会缓存"},{"k":"D","t":"ARP缓存是动态的，可以被改写"}],"answer":"B","src":"NISP一级模拟题","srcNum":98,"id":"n1_098","analyze":"B不是导致欺骗的原因。","expand":"","tags":["NISP一级","单选题"]},{"stem":"基于TCP/IP协议族的安全架构，以下哪些协议属于应用层（）（1） HTTPS（2）PPP（3）IPSec（4）SNMP（5）SSH（6）PPTP（7）SFTP","options":[{"k":"A","t":"（1）（2）（5）（6）"},{"k":"B","t":"（1）（4）（5）（7）"},{"k":"C","t":"（2）（3）（4）（7）"},{"k":"D","t":"（1）（4）（5）（6）（7）"}],"answer":"B","src":"NISP一级模拟题","srcNum":99,"id":"n1_099","analyze":"HTTPS、SNMP、SSH、SFTP属于应用层协议，PPP、PPTP属于链路层协议，IPSec属于网络层协议","expand":"","tags":["NISP一级","单选题"]},{"stem":"在windows系统中，我们对安全配置进行设置，关闭一些不必要的服务等安全配置称之为安全加固，那么Windows安全加固的作用不包括（ ）","options":[{"k":"A","t":"增强系统安全性"},{"k":"B","t":"消除不合理的配置"},{"k":"C","t":"防止硬件损坏"},{"k":"D","t":"以上都是"}],"answer":"C","src":"NISP一级模拟题","srcNum":100,"id":"n1_100","analyze":"windows安全加固是针对系统及软件层面的一些安全配置","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，SFTP协议指（）。","options":[{"k":"A","t":"SSL文件传输协议"},{"k":"B","t":"SSH文件传输协议"},{"k":"C","t":"简单文件传输协议"},{"k":"D","t":"文件传输协议"}],"answer":"B","src":"NISP一级模拟题","srcNum":101,"id":"n1_101","analyze":"SFTP指的是SSH文件传输协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于物联网体系结构通常，下列说法正确的是（）","options":[{"k":"A","t":"支撑层的任务是全面感知外界信息，这一层的主要设备是各种信息收集器。"},{"k":"B","t":"传输层主要用于把感知层收集到的信息安全可靠地传输到信息支撑层，然后根据不同的应用需求进行信息处理。"},{"k":"C","t":"应用层主要工作是对节点采集的信息的处理，对信息进行分析和过滤，需要判断接收到的信息是否真正有用，过滤掉垃圾甚至恶意信息。"},{"k":"D","t":"感知层是具体的应用业务，所涉及的安全问题与业务特性相关，例如隐私保护、知识产权保护、取证、数据销毁等方面。"}],"answer":"B","src":"NISP一级模拟题","srcNum":102,"id":"n1_102","analyze":"感知层的任务是全面感知外界信息，这一层的主要设备是各种信息收集器。传输层主要用于把感知层收集到的信息安全可靠地传输到信息支撑层，然后根据不同的应用需求进行信息处理。支撑层主要工作是对节点采集的信息的处理，对信息进行分析和过滤，需要判断接收到的信息是否真正有用，过滤掉垃圾甚至恶意信息。应用层是具体的应用业务，所涉及的安全问题与业务特性相关，例如隐私保护、知识产权保护、取证、数据销毁等方面。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在OSI七层模型中，应用层的传输单位是（）","options":[{"k":"A","t":"帧"},{"k":"B","t":"段"},{"k":"C","t":"报文"},{"k":"D","t":"分段"}],"answer":"C","src":"NISP一级模拟题","srcNum":103,"id":"n1_103","analyze":"应用层的传输单位是报文。","expand":"","tags":["NISP一级","单选题"]},{"stem":"INTERNET最初创建的目的是用于（）。","options":[{"k":"A","t":"政治"},{"k":"B","t":"经济"},{"k":"C","t":"军事"},{"k":"D","t":"教育"}],"answer":"C","src":"NISP一级模拟题","srcNum":104,"id":"n1_104","analyze":"INTERNET最初创建的目的是用于军事。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在同一个信道上的同一时刻，能够同时进行双向数据传送的通信方式是（）。","options":[{"k":"A","t":"单工"},{"k":"B","t":"三工"},{"k":"C","t":"半双工"},{"k":"D","t":"全双工"}],"answer":"D","src":"NISP一级模拟题","srcNum":105,"id":"n1_105","analyze":"在同一个信道上的同一时刻，能够同时进行双向数据传送的通信方式是全双工。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小李收到一封电子邮件，自称是某银行，提示说小李在该银行的账户出现问题已被冻结，让小李回信提供账户信息，核对完成后解冻，这种攻击方式叫做（ ）","options":[{"k":"A","t":"拒绝服务攻击"},{"k":"B","t":"钓鱼邮件"},{"k":"C","t":"邮件病毒"},{"k":"D","t":"缓存区溢出"}],"answer":"B","src":"NISP一级模拟题","srcNum":106,"id":"n1_106","analyze":"钓鱼邮件指利用伪装的电邮，欺骗收件人将账号、口令等信息回复给指定的接收者，或引导收件人连接到特制的网页，这些网页通常会伪装成和真实网站一样，如银行或理财的网页，令登录者信以为真，输入信用卡或银行卡号码、账户名称及密码等而被盗取。","expand":"","tags":["NISP一级","单选题"]},{"stem":"TCP/IP协议族设计的目的是为实现不同类型的计算机系统互连，从设计之初就考虑到不同类型的计算机设备的特性，具有较好的开放性，但是存在很多安全风险，著名的ARP欺骗就是利用ARP协议无状态、无需请求就可以应答和缓存机制的问题实现，攻击者通过伪造ARP应答报文修改计算机上的ARP缓存实现欺骗。ARP欺骗属于（）","options":[{"k":"A","t":"链路层的安全风险"},{"k":"B","t":"网络层的安全风险"},{"k":"C","t":"传输层的安全风险"},{"k":"D","t":"应用层的安全风险"}],"answer":"A","src":"NISP一级模拟题","srcNum":107,"id":"n1_107","analyze":"链路层主要的两个协议ARP和RARP，由于缺乏认证机制，很容易被攻击者利用实施欺骗攻击","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列预防个人信息泄露的做法错误的是（ ）","options":[{"k":"A","t":"增强个人信息安全意识，不要轻易将个人信息提供给无关人员"},{"k":"B","t":"及时撕毁快递单等包含个人信息的单据"},{"k":"C","t":"经常参加发起方不明但赠送小礼品的调查活动"},{"k":"D","t":"尽量不注册不知名的网站"}],"answer":"C","src":"NISP一级模拟题","srcNum":108,"id":"n1_108","analyze":"经常参加发起方不明但赠送小礼品的调查活动有信息泄露的风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"电子邮箱密码应该设置成下列哪种安全性最高（ ）","options":[{"k":"A","t":"姓名简拼+手机号"},{"k":"B","t":"取一段歌词或者诗歌，再把每个字的拼音首字母取出来，加上大小写和标点符号组成的密码"},{"k":"C","t":"姓名简拼+出生年月日"},{"k":"D","t":"键盘上相邻的按键"}],"answer":"B","src":"NISP一级模拟题","srcNum":109,"id":"n1_109","analyze":"这种密码很好记，但是却极难猜测和破解，是安全性较高的密码","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于光纤的优点的是（）。","options":[{"k":"A","t":"不易被窃听"},{"k":"B","t":"成本高、安装维护需要专业设备"},{"k":"C","t":"信号衰减小、无电磁干扰"},{"k":"D","t":"抗腐蚀材料、重量轻"}],"answer":"B","src":"NISP一级模拟题","srcNum":110,"id":"n1_110","analyze":"光纤具有高带宽、信号衰减小、无电磁干扰、抗腐蚀材料、重量轻及不易被窃听等特点。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于下载安全的建议中正确的是（ ）","options":[{"k":"A","t":"哪个网站的资源丰富就在哪个网站下载"},{"k":"B","t":"下载时关闭杀毒软件，提高下载速度"},{"k":"C","t":"尽量下载破解版的软件"},{"k":"D","t":"只通过可信的渠道下载软件，如软件开发商官网"}],"answer":"D","src":"NISP一级模拟题","srcNum":111,"id":"n1_111","analyze":"开发商官网下载的软件都是正版软件，有安全风险的可能性较低","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线局域网是相当便利的数据传输系统，硬件设备包含无线网卡，无线AP和无线天线，其中AP的作用是（）。","options":[{"k":"A","t":"无线接入"},{"k":"B","t":"路由选择"},{"k":"C","t":"业务管理"},{"k":"D","t":"用户认证"}],"answer":"A","src":"NISP一级模拟题","srcNum":112,"id":"n1_112","analyze":"AP的作用是无线接入。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在OSI七层模型中，提供用户程序“接口”，如文件传输，文件管理，电子邮件的信息处理等的是（）","options":[{"k":"A","t":"物理层"},{"k":"B","t":"网络层"},{"k":"C","t":"传输层"},{"k":"D","t":"应用层"}],"answer":"D","src":"NISP一级模拟题","srcNum":113,"id":"n1_113","analyze":"应用层提供用户程序“接口”，如文件传输，文件管理，电子邮件的信息处理等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙的种类较多，可以从多个角度对其进行分类，按照防火墙实现的载体不同可以分为（）和（）。","options":[{"k":"A","t":"软件防火墙硬件防火墙"},{"k":"B","t":"软件防火墙区域防火墙"},{"k":"C","t":"硬件防火墙企业防火墙"},{"k":"D","t":"区域防火墙内部防火墙"}],"answer":"A","src":"NISP一级模拟题","srcNum":114,"id":"n1_114","analyze":"防火墙的种类较多，可以从多个角度对其进行分类，按照防火墙实现的载体不同可以分为软件防火墙和硬件防火墙。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不是防火墙的基础作用（）。","options":[{"k":"A","t":"隔离"},{"k":"B","t":"控制"},{"k":"C","t":"杀毒"},{"k":"D","t":"记录"}],"answer":"C","src":"NISP一级模拟题","srcNum":115,"id":"n1_115","analyze":"防火墙的基本作用：控制、隔离、记录。","expand":"","tags":["NISP一级","单选题"]},{"stem":"入侵检测系统通常分为（）两种类型。","options":[{"k":"A","t":"网络入侵检测和设备入侵检测"},{"k":"B","t":"网络入侵检测和主机入侵检测"},{"k":"C","t":"软件入侵检测和硬件入侵检测"},{"k":"D","t":"软件入侵检测和主机入侵检测"}],"answer":"B","src":"NISP一级模拟题","srcNum":116,"id":"n1_116","analyze":"入侵检测系统通常分为网络入侵检测(NIDS)和主机入侵检测(HIDS)两种类型。","expand":"","tags":["NISP一级","单选题"]},{"stem":"DMZ区是非军事区或隔离区是（）。","options":[{"k":"A","t":"一种网络区域，就是在不信任的外部网络和可信任的内部网络之间建立一个面向外部网络的物理或逻辑子网。"},{"k":"B","t":"为内部网络和外部网络进行数据通信的转接者。"},{"k":"C","t":"通过采用状态监视器，对网络通信的各层(包括网络层、传输层以及应用层)实施监测，抽取其中部分数据，形成网络连接的动态状态信息。"},{"k":"D","t":"以上都不正确"}],"answer":"A","src":"NISP一级模拟题","srcNum":117,"id":"n1_117","analyze":"DMZ是英文demilitarized zone的缩写，即非军事区或隔离区，是一种网络区域，就是在不信任的外部网络和可信任的内部网络之间建立一个面向外部网络的物理或逻辑子网。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于BLP模型和Biba模型，下列说法正确的是（）","options":[{"k":"A","t":"BLP模型的安全策略是向上读，向下写"},{"k":"B","t":"BLP模型的安全策略是向上写，向下读"},{"k":"C","t":"Biba模型的安全策略是向上写，向下读"},{"k":"D","t":"Biba模型的安全策略是向上读，向下读"}],"answer":"B","src":"NISP一级模拟题","srcNum":118,"id":"n1_118","analyze":"BLP模型的安全策略是向上写，向下读；Biba模型的安全策略是向上读，向下写。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于密钥管理，下列说法错误的是（）。","options":[{"k":"A","t":"密钥管理需要考虑密钥生命周期过程的每一个环节。"},{"k":"B","t":"在网络通信中，通信双方可利用Diffie-Hellman协议协商出会话密钥。"},{"k":"C","t":"保密通信过程，通信使用之前用过的会话密钥建立会话，不影响通信安全。"},{"k":"D","t":"科克霍夫原则指出算法的安全性不应基于算法的保密，而应基于密钥的安全性。"}],"answer":"C","src":"NISP一级模拟题","srcNum":119,"id":"n1_119","analyze":"会话密钥不应重复使用，如果使用用过的会影响通信安全。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在安全检查时我们有时需要查看计算机有没有开放可疑的端口号，在windows系统中用来查看端口情况的命令是（ ）","options":[{"k":"A","t":"netstat"},{"k":"B","t":"ping"},{"k":"C","t":"ipconfig"},{"k":"D","t":"cls"}],"answer":"A","src":"NISP一级模拟题","srcNum":120,"id":"n1_120","analyze":"ping 用于检测网络是否通畅、ipconfig查看电脑的ip地址信息、cls 清除当前屏幕内容","expand":"","tags":["NISP一级","单选题"]},{"stem":"开发较为完善的安全管理平台的功能包括（）。","options":[{"k":"A","t":"统一日志管理、统一配置管理"},{"k":"B","t":"安全状态的统一管控"},{"k":"C","t":"各安全产品和系统的统一协调和处理"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":121,"id":"n1_121","analyze":"开发较为完善的SOC平台应包含以下功能：1)统一日志管理(集中监控)、2)统一配置管理(集中管理)、3)各安全产品和系统的统一协调和处理(协同处理)、4)安全状态的统一管控(统一安服)、5)其他功能。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下网络互联设备不是工作在链路层的是（）。","options":[{"k":"A","t":"网卡"},{"k":"B","t":"交换机"},{"k":"C","t":"中继器"},{"k":"D","t":"网桥"}],"answer":"C","src":"NISP一级模拟题","srcNum":122,"id":"n1_122","analyze":"网卡是工作在物理层和数据链路层，交换机工作在数据链路层、网桥工作在数据链路层，只有中继器工作在物理层。正确答案为C","expand":"","tags":["NISP一级","单选题"]},{"stem":"服务对外开放时需要对应到端口，其中21端口号对应以下哪个服务（）。","options":[{"k":"A","t":"SSH"},{"k":"B","t":"POP3"},{"k":"C","t":"FTP"},{"k":"D","t":"以上都不是"}],"answer":"C","src":"NISP一级模拟题","srcNum":123,"id":"n1_123","analyze":"FTP默认端口号21。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在企业中，（）对于信息安全管理都负有责任。","options":[{"k":"A","t":"高级管理层"},{"k":"B","t":"安全管理员"},{"k":"C","t":"IT管理员"},{"k":"D","t":"所有与信息系统有关人员"}],"answer":"D","src":"NISP一级模拟题","srcNum":124,"id":"n1_124","analyze":"所有与信息系统有关人员","expand":"","tags":["NISP一级","单选题"]},{"stem":"每一个计算机网络都由节点和（）构成,节点也称为（）。","options":[{"k":"A","t":"链路数据单元"},{"k":"B","t":"链路网络单元"},{"k":"C","t":"网络网络单元"},{"k":"D","t":"网络数据单元"}],"answer":"B","src":"NISP一级模拟题","srcNum":125,"id":"n1_125","analyze":"每一个计算机网络都由节点和链路构成,节点也称为网络单元。","expand":"","tags":["NISP一级","单选题"]},{"stem":"路由选择协议为路由器提供网络最佳路径所需要的相互共享的路由信息。路由选择协议位于（）。","options":[{"k":"A","t":"物理层"},{"k":"B","t":"数据链路层"},{"k":"C","t":"网络层"},{"k":"D","t":"传输层"}],"answer":"C","src":"NISP一级模拟题","srcNum":126,"id":"n1_126","analyze":"路由选择协议为路由器提供网络最佳路径所需要的相互共享的路由信息。路由选择协议位于网络层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"经过多年的技术发展，现在的上网行为管理可实现的功能有很多，其中不包括（）。","options":[{"k":"A","t":"实时检测入侵并告警"},{"k":"B","t":"上网身份管控"},{"k":"C","t":"邮件外发的管控"},{"k":"D","t":"上网应用的管控"}],"answer":"A","src":"NISP一级模拟题","srcNum":127,"id":"n1_127","analyze":"上网行为管理可实现的功能有：上网身份管控、互联网浏览管控、邮件外发管控、用户行为管控、上网应用管控。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网闸又叫物理隔离系统，由（）组成。","options":[{"k":"A","t":"外部处理单元、内部处理单元、缓存区处理单元"},{"k":"B","t":"外部处理单元、中心处理单元、隔离安全交换单元"},{"k":"C","t":"外部处理单元、内部处理单元、仲裁处理单元"},{"k":"D","t":"内部处理单元、冲裁处理单元、隔离安全交换单元"}],"answer":"C","src":"NISP一级模拟题","srcNum":128,"id":"n1_128","analyze":"网闸又叫物理隔离网络，由外部处理单元、内部处理单元和仲裁处理单元组成。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于双绞线的两两缠绕的目的是（）。","options":[{"k":"A","t":"在接收信号的差分电路中可以将共模信号消除，从而提取出有用信号。"},{"k":"B","t":"抵御一部分外界电磁波干扰。"},{"k":"C","t":"降低自身信号的对外干扰。"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":129,"id":"n1_129","analyze":"把两根绝缘的导线互相绞在一起，干扰信号作用在这两根相互绞缠在一起的导线上是一致的（共模信号），在接收信号的差分电路中可以将共模信号消除，从而提取出有用信号（差模信号）。双绞线就是采用了这样一对互相绝缘的金属导线互相绞合的方式来抵御一部分外界电磁波干扰，更主要的是降低自身信号的对外干扰，每一根导线在传输中辐射的电波会被另一根线上发出的电波抵消。","expand":"","tags":["NISP一级","单选题"]},{"stem":"什么是系统补丁？( )","options":[{"k":"A","t":"操作系统安全性修复程序"},{"k":"B","t":"操作系统备份数据"},{"k":"C","t":"操作系统功能升级"},{"k":"D","t":"操作系统配置文件"}],"answer":"A","src":"NISP一级模拟题","srcNum":130,"id":"n1_130","analyze":"系统补丁就是用来修复操作系统漏洞的程序","expand":"","tags":["NISP一级","单选题"]},{"stem":"以宪法为根本依据，我国的立法分类分为几个层次（）","options":[{"k":"A","t":"3个层次，法律、行政法规、地方性法规"},{"k":"B","t":"4个层次，法律、行政法规、地方性法规、自治条例"},{"k":"C","t":"5个层次，法律、行政法规、地方性法规、自治条例和单行条例、规章"},{"k":"D","t":"6个层次，宪法、法律、行政法规、地方性法规、自治条例和单行条例、规章"}],"answer":"A","src":"NISP一级模拟题","srcNum":131,"id":"n1_131","analyze":"以宪法为根本依据，分为法律、行政法规、地方性法规三个层次","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于涉密信息存放，以下说法正确的是（）","options":[{"k":"A","t":"涉密信息只能存放在涉密区"},{"k":"B","t":"涉密信息可以保存在涉密区，也可以保存在内部安全区域"},{"k":"C","t":"涉密信息进行了AES高强度加密以后可以通过互联网传输"},{"k":"D","t":"以上都正确"}],"answer":"A","src":"NISP一级模拟题","srcNum":132,"id":"n1_132","analyze":"法律法规","expand":"","tags":["NISP一级","单选题"]},{"stem":"安全管理平台(SOC)也被称为安全运营中心，为组织机构提供（）的安全信息管理。","options":[{"k":"A","t":"集中"},{"k":"B","t":"统一"},{"k":"C","t":"可视化"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":133,"id":"n1_133","analyze":"安全管理平台(SOC)也被成为安全运营中心，为组织机构提供集中、统一、可视化的安全信息管理。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于盗版软件的说法，错误的是（）","options":[{"k":"A","t":"可能会包含不健康的内容"},{"k":"B","t":"若出现问题可以找开发商负责赔偿损失"},{"k":"C","t":"使用盗版软件就是违法的"},{"k":"D","t":"成为计算机病毒的重要来源与传播途径之一"}],"answer":"B","src":"NISP一级模拟题","srcNum":134,"id":"n1_134","analyze":"使用盗版软件本身就是违法行为，出现问题不会得到法律的支持，所以选B","expand":"","tags":["NISP一级","单选题"]},{"stem":"在实体特征的鉴别中，对于鉴别系统的有效性判断，下列说法正确的是（）","options":[{"k":"A","t":"错误拒绝率（FRR）越高，系统判断更准确。"},{"k":"B","t":"错误接受率（FAR）越高，系统判断更准确。"},{"k":"C","t":"交叉错判率（CER）越低，系统判断更准确。"},{"k":"D","t":"交叉错判率（CER）越高，系统判断更准确。"}],"answer":"C","src":"NISP一级模拟题","srcNum":135,"id":"n1_135","analyze":"叉错误率越低，证明该鉴别系统更准确，也就是质量更高","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络钓鱼攻击主要采用的手段不包括( )","options":[{"k":"A","t":"邮件地址欺骗"},{"k":"B","t":"伪造一些知名网站的web页面"},{"k":"C","t":"社会工程学"},{"k":"D","t":"蜜罐技术"}],"answer":"D","src":"NISP一级模拟题","srcNum":136,"id":"n1_136","analyze":"蜜罐技术是一种主动防御技术，对攻击方进行欺骗","expand":"","tags":["NISP一级","单选题"]},{"stem":"小张收到短信说有快递没有及时领取，请致电XXXXX核对，小张拨打电话后对方让小张提供了个人信息进行核对，核对完成后对方告诉小张并没有他的快递，一段时间后小张发现自己多个网站的账号提示异地登录，请问在这个事件中小张最可能遇到了下列哪种情况（ ）","options":[{"k":"A","t":"快递信息错误，小张账号异常的情况和此事无关"},{"k":"B","t":"小张遇到了电话诈骗，对方想欺骗小张财产"},{"k":"C","t":"对方以核对快递信息为由要到小张的一些个人信息并推断出了小张的账号密码"},{"k":"D","t":"小张的账号都使用了弱口令，所以被盗"}],"answer":"C","src":"NISP一级模拟题","srcNum":137,"id":"n1_137","analyze":"对方使用社工手段骗取了小张的个人信息并推断出了密码","expand":"","tags":["NISP一级","单选题"]},{"stem":"世界第一台计算机诞生于（）。","options":[{"k":"A","t":"1945"},{"k":"B","t":"1946"},{"k":"C","t":"1947"},{"k":"D","t":"1948"}],"answer":"B","src":"NISP一级模拟题","srcNum":138,"id":"n1_138","analyze":"世界上第一台计算机，电子数字积分计算机(ENIAC)于1946年2月14日在宾夕法尼亚大学诞生。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下面关于IPv6协议优点的描述中，准确的是（）","options":[{"k":"A","t":"IPv6协议允许全局IP地址出现重复"},{"k":"B","t":"IPv6协议解决了IP地址短缺的问题"},{"k":"C","t":"IPv6协议支持通过卫星链路的Intemet连接"},{"k":"D","t":"IPv6协议支持光纤通信"}],"answer":"B","src":"NISP一级模拟题","srcNum":139,"id":"n1_139","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，发送邮件使用的是SMTP协议，默认端口号为（）。","options":[{"k":"A","t":"22"},{"k":"B","t":"25"},{"k":"C","t":"21"},{"k":"D","t":"23"}],"answer":"B","src":"NISP一级模拟题","srcNum":140,"id":"n1_140","analyze":"在TCP/IP协议中，发送邮件使用的是SMTP，默认端口号为25。","expand":"","tags":["NISP一级","单选题"]},{"stem":"随着网络环境的日益复杂，防火墙也在不断发展，以下对防火墙发展趋势的描述不正确的是（）。","options":[{"k":"A","t":"安全需求降低"},{"k":"B","t":"模式转变"},{"k":"C","t":"功能扩展"},{"k":"D","t":"性能提高"}],"answer":"A","src":"NISP一级模拟题","srcNum":141,"id":"n1_141","analyze":"防火墙发展趋势对安全需求越高。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下对数字证书的描述正确的是（）。","options":[{"k":"A","t":"一段电子数据"},{"k":"B","t":"经证书权威机构CA签名的数据体"},{"k":"C","t":"包含拥有者身份信息和公开密钥的数据体"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":142,"id":"n1_142","analyze":"数字证书是一段电子数据，是经证书权威机构CA签名的，包含拥有者身份信息和公开密钥的数据体。","expand":"","tags":["NISP一级","单选题"]},{"stem":"由于密码技术都依赖于密钥，因此密钥的安全管理是密码技术应用中非常重要的环节，下列关于密钥管理说法错误的是（）。","options":[{"k":"A","t":"在保密通信过程中，通信双方也可利用Diffie-Hellman协议协商出会话密钥进行保密通信。"},{"k":"B","t":"密钥管理需要在安全策略的指导下处理密钥生命周期的整个过程，包括产生、存储、备份、分配、更新、撤销等。"},{"k":"C","t":"在保密通信过程中，通信双方可以一直使用之前用过的会话密钥，不影响安全性。"},{"k":"D","t":"科克霍夫在《军事密码学》中指出系统的保密性不依赖于对加密体制或算法的保密，而依赖于密钥。"}],"answer":"C","src":"NISP一级模拟题","srcNum":143,"id":"n1_143","analyze":"通信双方一直使用之前用过的会话密钥，会影响安全性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"你的U盘中有重要数据，同学临时借用，下列哪个做法最安全（ ）","options":[{"k":"A","t":"把U盘中的资料拷贝到电脑中，然后使用文件粉碎工具对U盘中的文件进行粉碎，再格式化U盘，才借给同学"},{"k":"B","t":"把资料删除后借给同学"},{"k":"C","t":"和该同学关系较好，直接借用"},{"k":"D","t":"为文件设置隐藏属性，把资料隐藏起来"}],"answer":"A","src":"NISP一级模拟题","srcNum":144,"id":"n1_144","analyze":"使用文件粉碎功能删除的文件很难在恢复，所以该选项最安全","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，发送邮件使用的是（）。","options":[{"k":"A","t":"SMTP"},{"k":"B","t":"SNMP"},{"k":"C","t":"PPTP"},{"k":"D","t":"POP3"}],"answer":"A","src":"NISP一级模拟题","srcNum":145,"id":"n1_145","analyze":"在TCP/IP协议中，发送邮件使用的是SMTP。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙是一种位于内部网络与外部网络之间的网络安全系统。以下不属于防火墙作用的是（）。","options":[{"k":"A","t":"限制内部用户访问特殊站点"},{"k":"B","t":"隔离不同信任级别网络"},{"k":"C","t":"保护内部网络"},{"k":"D","t":"数据备份"}],"answer":"D","src":"NISP一级模拟题","srcNum":146,"id":"n1_146","analyze":"防火墙不能进行数据备份。","expand":"","tags":["NISP一级","单选题"]},{"stem":"依据《中华人民共和国标准法》将标准级别划分为4个层次，不包括（）","options":[{"k":"A","t":"国际标准"},{"k":"B","t":"国家标准"},{"k":"C","t":"行业标准"},{"k":"D","t":"地方标准"}],"answer":"A","src":"NISP一级模拟题","srcNum":147,"id":"n1_147","analyze":"标准级别是指依据《中华人民共和国标准化法》将标准划分为国家标准、行业标准、地方标准和企业标准等4个层次。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络安全设备是保护网络安全的设施，以下不属于安全设备的是（）。","options":[{"k":"A","t":"防火墙"},{"k":"B","t":"WAF"},{"k":"C","t":"CPU"},{"k":"D","t":"VPNNetwork"}],"answer":"C","src":"NISP一级模拟题","srcNum":148,"id":"n1_148","analyze":"CPU不属于安全设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"《加强工业互联网安全工作的指导意见》给出了工业互联网安全体系建设的指导思想，明确提出了达成目标的（）和（）。","options":[{"k":"A","t":"七个主要任务四项保障措施"},{"k":"B","t":"四个主要任务七项保障措施"},{"k":"C","t":"五个主要任务四项保障措施"},{"k":"D","t":"七个主要任务五项保障措施"}],"answer":"A","src":"NISP一级模拟题","srcNum":149,"id":"n1_149","analyze":"《加强工业互联网安全工作的指导意见》给出了工业互联网安全体系建设的指导思想，明确提出了达成目标的七个主要任务和四项保障措施。","expand":"","tags":["NISP一级","单选题"]},{"stem":"邮箱中收到了一封广告邮件，新款iphone12开启预售，只要在链接中的页面中留下手机号码和身份证信息，在iphone12发布时就能比发行价格便宜1000元购买iphone12，关于这样的广告邮件，以下哪个做法是最合适的（ ）","options":[{"k":"A","t":"不予理会，直接删除"},{"k":"B","t":"把手机号和身份证号提交了，能便宜1000呢"},{"k":"C","t":"点开链接查看一下，又不会损失什么"},{"k":"D","t":"以上做法都可以"}],"answer":"A","src":"NISP一级模拟题","srcNum":150,"id":"n1_150","analyze":"很有可能是钓鱼邮件，直接删除最安全","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于古典密码的局限性（）","options":[{"k":"A","t":"不适合大规模生产"},{"k":"B","t":"不适合较大的或者人员变动较大的组织"},{"k":"C","t":"用户无法了解算法的安全性"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":151,"id":"n1_151","analyze":"古典密码的安全性在于保持算法本身的保密性，因此不适合大规模生产、不适合较大的或者人员变动较大的组织、用户无法了解算法的安全性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"养成良好的APP使用习惯可以降低个人信息泄露的风险，下列APP使用习惯中不正确的是（）","options":[{"k":"A","t":"不使用强制收集个人信息的APP"},{"k":"B","t":"不使用破解版APP"},{"k":"C","t":"为了多获取积分，填写真实姓名、出生日期、所从事的行业等各种详细的个人信息"},{"k":"D","t":"不被赚钱等噱头迷惑，安装不可信的APP"}],"answer":"C","src":"NISP一级模拟题","srcNum":152,"id":"n1_152","analyze":"填写太过细致的个人信息可能会导致个人信息泄露","expand":"","tags":["NISP一级","单选题"]},{"stem":"OSI七层模型中位于最顶层并向应用程序提供服务的是（）。","options":[{"k":"A","t":"网络层"},{"k":"B","t":"应用层"},{"k":"C","t":"表示层"},{"k":"D","t":"会话层"}],"answer":"B","src":"NISP一级模拟题","srcNum":153,"id":"n1_153","analyze":"OSI七层模型中位于最顶层并向应用程序提供服务的是应用层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"对称密码算法也称为传统密码算法、秘密密钥算法或单密钥算法，其加密密钥和解密密钥相同。以下不属于对称密码算法的是（）","options":[{"k":"A","t":"DES"},{"k":"B","t":"AES"},{"k":"C","t":"RSA"},{"k":"D","t":"RC5"}],"answer":"C","src":"NISP一级模拟题","srcNum":154,"id":"n1_154","analyze":"RSA属于非对称加密算法。","expand":"","tags":["NISP一级","单选题"]},{"stem":"现在局域网已非常广泛地使用，下列关于局域网的选项中，不正确的是（）。","options":[{"k":"A","t":"局域网可以实现文件管理、应用软件共享等功能。"},{"k":"B","t":"局域网是将各种计算机、外部设备、数据库等互相连接起来组成的计算机通信网。"},{"k":"C","t":"局域网的全称为LocalAreaNetwork，LAN。"},{"k":"D","t":"局域网是覆盖全世界的。"}],"answer":"D","src":"NISP一级模拟题","srcNum":155,"id":"n1_155","analyze":"局域网覆盖范围很小。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列不属于公钥密码的特点的是（）。","options":[{"k":"A","t":"公钥私钥成对出现"},{"k":"B","t":"加密密钥和解密密钥相同"},{"k":"C","t":"公钥加密私钥解密-机密性"},{"k":"D","t":"私钥加密公钥解密-数字签名"}],"answer":"B","src":"NISP一级模拟题","srcNum":156,"id":"n1_156","analyze":"公钥密码的加密密钥和解密密钥不同。","expand":"","tags":["NISP一级","单选题"]},{"stem":"计算机操作系统是管理和控制计算机软硬件资源的计算机程序。以下不属于操作系统基本特征是（）","options":[{"k":"A","t":"共享性"},{"k":"B","t":"并发性"},{"k":"C","t":"封闭性"},{"k":"D","t":"异步性"}],"answer":"C","src":"NISP一级模拟题","srcNum":157,"id":"n1_157","analyze":"操作系统的基本特征有并发性、共享性、随机性、异步性、虚拟（virtual）","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于TCP和UDP的说法不正确的是（）","options":[{"k":"A","t":"TCP协议是面向连接的通信协议。"},{"k":"B","t":"TCP协议能为应用程序提供可靠的通信连接。"},{"k":"C","t":"UDP传输协议是一种不可靠的面向无连接、可以实现多对一、一对多和一对一连接的通信协议。"},{"k":"D","t":"UDP传输协议适用于一次传送大量数据、对可靠性要求高的应用环境。"}],"answer":"D","src":"NISP一级模拟题","srcNum":158,"id":"n1_158","analyze":"UDP传输协议适用于一次只传送少量数据、对可靠性要求不高的应用环境。","expand":"","tags":["NISP一级","单选题"]},{"stem":"使用两种鉴别方式的组合(双因素鉴别)是常用的多因素鉴别形式。用户在使用支付宝进行刷脸买东西的时候使用了那几种身份鉴别的方式（）","options":[{"k":"A","t":"实体所知实体所有"},{"k":"B","t":"实体所有实体特征"},{"k":"C","t":"实体所知实体特征"},{"k":"D","t":"实体所知实体所有实体特征"}],"answer":"C","src":"NISP一级模拟题","srcNum":159,"id":"n1_159","analyze":"登录支付宝账号（实体所知），刷脸识别（实体特征）。","expand":"","tags":["NISP一级","单选题"]},{"stem":"《刑法》第二百八十五条【非法侵入计算机信息系统罪】违反国家规定，侵入国家事务、国防建设、尖端科学技术领域的计算机信息系统的，（）","options":[{"k":"A","t":"处三年以下有期徒刑或者拘役。"},{"k":"B","t":"三年以上五年以下有期徒刑或者拘役"},{"k":"C","t":"10000元罚款"},{"k":"D","t":"1000元罚款"}],"answer":"A","src":"NISP一级模拟题","srcNum":160,"id":"n1_160","analyze":"处三年以下有期徒刑或者拘役。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于网络安全设备的是（）。","options":[{"k":"A","t":"防火墙"},{"k":"B","t":"交换机"},{"k":"C","t":"中继器"},{"k":"D","t":"路由器"}],"answer":"A","src":"NISP一级模拟题","srcNum":161,"id":"n1_161","analyze":"防火墙属于网络安全设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"应用层是TCP/IP体系的最高层，同的应用层协议实现差异较大，根据各自特性都有自身的安全性问题。以下属于应用层的安全风险的是（）","options":[{"k":"A","t":"身份认证简单，通常使用用户名和登录口令进行认证或匿名方式，面临口令破解、身份伪造等攻击威胁。"},{"k":"B","t":"使用明文传输数据，由于应用层协议在设计时对安全性缺乏考虑，通常使用明文传输数据，由此导致了数据泄露、数据伪造等一系列问题，例如攻击者可能通过嗅探等方式获取传输中的敏感信息。"},{"k":"C","t":"缺乏数据完整性保护，由此带来了数据破坏、篡改等问题，例如攻击者可更改用户提交的数据，从而实施欺诈。"},{"k":"D","t":"以上都对"}],"answer":"D","src":"NISP一级模拟题","srcNum":162,"id":"n1_162","analyze":"参考应用层的安全风险问题。","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥基础设施(PKI)也称公开密钥基础设施。以下不属于PKI的组成的是（）","options":[{"k":"A","t":"证书使用者"},{"k":"B","t":"证书权威机构(CA)"},{"k":"C","t":"证书注册机构(RA)"},{"k":"D","t":"证书库和终端实体"}],"answer":"A","src":"NISP一级模拟题","srcNum":163,"id":"n1_163","analyze":"PKI的组成一般包括证书权威机构(CA)、证书注册机构(RA)、证书库和终端实体等部分","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个属于大数据平台安全风险（）","options":[{"k":"A","t":"大数据基础设施的安全风险"},{"k":"B","t":"大数据承载平台自身的安全风险"},{"k":"C","t":"大数据平台软件的安全漏洞风险"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":164,"id":"n1_164","analyze":"大数据平台安全的风险首先是基础设施的安全风险，也就是大数据承载平台自身的安全风险，其次，大数据平台软件也会存在安全漏洞。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于防火墙技术原理的是（）。","options":[{"k":"A","t":"挡住未经授权的访问控制。"},{"k":"B","t":"禁止具有脆弱性的服务带来危害。"},{"k":"C","t":"实施保护，以避免各种IP欺骗和路由攻击。"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":165,"id":"n1_165","analyze":"防火墙技术原理：挡住未经授权的访问控制；禁止具有脆弱性的服务带来危害；实施保护，以避免各种IP欺骗和路由攻击。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学技术在信息安全中应用很广，以下属于信息安全要素的是（）（1）机密性 （2）完整性 （3）可鉴別性 （4）不可否认性 （5）授权与访问控制","options":[{"k":"A","t":"（1）（2）（3）（4）"},{"k":"B","t":"（1）（2）（3）（5）"},{"k":"C","t":"（1）（3）（4）（5）"},{"k":"D","t":"（1）（2）（3）（4）（5）"}],"answer":"D","src":"NISP一级模拟题","srcNum":166,"id":"n1_166","analyze":"：信息安全要素包括：机密性、完整性、可鉴別性、不可否认性、授权与控制访问。","expand":"","tags":["NISP一级","单选题"]},{"stem":"与传统的互联网不同，物联网涉及感知、控制、网络通信、微电子、计算机、软件、嵌入式系统、微机电等技术领域，涵盖的关键技术非常多。典型的物联网体系结构通常包括（）","options":[{"k":"A","t":"感知层、物理层、支撑层和应用层"},{"k":"B","t":"感知层、传输层、支撑层和设备层"},{"k":"C","t":"感知层、传输层、支撑层和应用层"},{"k":"D","t":"感知层、传输层、处理层和应用层"}],"answer":"C","src":"NISP一级模拟题","srcNum":167,"id":"n1_167","analyze":"典型的物联网体系结构通常包括感知层、传输层、支撑层和应用层四个层级。","expand":"","tags":["NISP一级","单选题"]},{"stem":"感知层属于物联网的最底层，下列哪个不属于感知层的技术（）","options":[{"k":"A","t":"实时定位"},{"k":"B","t":"二维码"},{"k":"C","t":"分布式计算"},{"k":"D","t":"短距离无线通信"}],"answer":"C","src":"NISP一级模拟题","srcNum":168,"id":"n1_168","analyze":"分布式计算属于支撑层","expand":"","tags":["NISP一级","单选题"]},{"stem":"安全设备是指企业在生产经营活动中，将危险、有害因素控制在安全范围内，以及减少、预防和消除危害所配备的装置和采取的设备，以下哪个选项不属于安全设备（）。","options":[{"k":"A","t":"防火墙"},{"k":"B","t":"VPN"},{"k":"C","t":"IDS"},{"k":"D","t":"集线器"}],"answer":"D","src":"NISP一级模拟题","srcNum":169,"id":"n1_169","analyze":"集线器不属于安全设备","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线局域网由于使用上的灵活和便利，应用日渐普及，应用广泛也意味着面临越来越多的安全问题。以下属于安全管理防护的是（）。","options":[{"k":"A","t":"为访客设立独立的接入网段，并在无线局域网与业务网之间部署隔离设备。"},{"k":"B","t":"部署入侵检测系统以发现可能的攻击并定期对无线局域网安全性进行审查。"},{"k":"C","t":"限制无线局域网的使用范围，例如仅用于互联网资料查询和日常办公应用。"},{"k":"D","t":"对无线局域网接入使用安全可靠的认证和加密技术，如果有必要，可以使用其他增强认证机制。"}],"answer":"C","src":"NISP一级模拟题","srcNum":170,"id":"n1_170","analyze":"A、B、D属于安全技术防护。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不属于计算机网络按覆盖范围的划分（）。","options":[{"k":"A","t":"城域网"},{"k":"B","t":"局域网"},{"k":"C","t":"广域网"},{"k":"D","t":"专用网"}],"answer":"D","src":"NISP一级模拟题","srcNum":171,"id":"n1_171","analyze":"计算机网络根据覆盖范围分为广域网、城域网和局域网。","expand":"","tags":["NISP一级","单选题"]},{"stem":"随着计算机和通信系统的普及，带动了对数字信息的保护需求。密码学进入近代密码阶段，其标志是（）。","options":[{"k":"A","t":"香农(Shannon)发表了划时代论文“保密系统的通信理论”"},{"k":"B","t":"W.Diffie和M.E.Hellman公布了一种密钥一致性算法"},{"k":"C","t":"转轮机的出现"},{"k":"D","t":"一些学者提出了公开密钥体制"}],"answer":"A","src":"NISP一级模拟题","srcNum":172,"id":"n1_172","analyze":"1949年香农(Shannon)发表了划时代论文“保密系统的通信理论”，奠定了密码学的理论基础。密码学由此进入了近代密码阶段，开始成为一门科学。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我们经常使用Ping命令检查网络通不通，Ping命令属于（）协议，位于 TCP/IP协议的（）。","options":[{"k":"A","t":"ICMP传输层"},{"k":"B","t":"IGMP网络层"},{"k":"C","t":"ICMP网络层"},{"k":"D","t":"IGMP应用层"}],"answer":"C","src":"NISP一级模拟题","srcNum":173,"id":"n1_173","analyze":"Ping命令属于ICMP协议，位于 TCP/IP协议的网络层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在信息系统中，（）是在为系统资源提供最大限度共享的基础上对用户的访问权进行管理，防止对信息的非授权篡改和滥用。","options":[{"k":"A","t":"身份认证"},{"k":"B","t":"访问控制"},{"k":"C","t":"安全审计"},{"k":"D","t":"数字签名"}],"answer":"B","src":"NISP一级模拟题","srcNum":174,"id":"n1_174","analyze":"在信息系统中，访问控制是在为系统资源提供最大限度共享的基础上对用户的访问权进行管理，防止对信息的非授权篡改和滥用。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小蓝用的小绿的密钥加密明文，将密文发送给小绿。小绿再用自己的私钥解密，恢复出明文。以下说法正确的是（）。","options":[{"k":"A","t":"采用了对称密码体制"},{"k":"B","t":"采用了公钥密码体制"},{"k":"C","t":"采用了复合密码体制"},{"k":"D","t":"采用了单钥密码体制"}],"answer":"B","src":"NISP一级模拟题","srcNum":175,"id":"n1_175","analyze":"题干中采取了公钥加密私钥解密的公钥密码体制。","expand":"","tags":["NISP一级","单选题"]},{"stem":"邮件炸弹攻击原理是（ ）","options":[{"k":"A","t":"对受害者服务器发起拒绝服务攻击，使受害者无法接收邮件"},{"k":"B","t":"窃取受害者邮箱密码"},{"k":"C","t":"消耗受害者的邮箱空间"},{"k":"D","t":"攻击受害者电脑，向电脑内植入木马"}],"answer":"C","src":"NISP一级模拟题","srcNum":176,"id":"n1_176","analyze":"邮件炸弹是通过向接收者的邮件地址发送大量的电子邮件，消耗接收者的邮箱空间，最终因空间不足而无法接收新的邮件，导致其他用户发送的电子邮件被丢失或退回。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不是关于防火墙的企业部署方式（）","options":[{"k":"A","t":"单防火墙(无DMZ)部署方式"},{"k":"B","t":"防火墙Route-路由模式"},{"k":"C","t":"单防火墙(DMZ)部署方式"},{"k":"D","t":"双(多)防火墙部署方式"}],"answer":"B","src":"NISP一级模拟题","srcNum":177,"id":"n1_177","analyze":"防火墙的企业部署方式有：单防火墙(无DMZ)部署方式、单防火墙(DMZ)部署方式、双(多)防火墙部署方式。","expand":"","tags":["NISP一级","单选题"]},{"stem":"有一些情况要求由双方均信任的第三方来确认用户和服务器的身份。这个属于哪种鉴别类型（）","options":[{"k":"A","t":"单项鉴别"},{"k":"B","t":"双向鉴别"},{"k":"C","t":"第三方鉴别"},{"k":"D","t":"以上都不是"}],"answer":"C","src":"NISP一级模拟题","srcNum":178,"id":"n1_178","analyze":"有一些情况要求由双方均信任的第三方进行鉴别，以确认用户和服务器的身份。属于第三方鉴别。","expand":"","tags":["NISP一级","单选题"]},{"stem":"状态检测防火墙对数据包的抽取包括（）。","options":[{"k":"A","t":"源地址、源端口号、目的地址、目的端口号、使用协议"},{"k":"B","t":"当前的会话状态、顺序号、应答标记、防火墙的执行动作"},{"k":"C","t":"最新报文的寿命"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":179,"id":"n1_179","analyze":"状态检测防火墙对数据包的数据抽取不仅仅包括数据包的源地址、源端口号、目的地址、目的端口号、使用协议等五元组，还包括会话当前的状态属性、顺序号、应答标记、防火墙的执行动作及最新报文的寿命等信息。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于防火墙的作用的是（）。","options":[{"k":"A","t":"隔离两个不同安全要求的网络。"},{"k":"B","t":"根据定义的控制策略，检查并控制这个两个安全域之间所有流量。"},{"k":"C","t":"进出网络边界的数据进行保护，防止恶意入侵、恶意代码的传播等。"},{"k":"D","t":"保障外部网络数据的安全。"}],"answer":"D","src":"NISP一级模拟题","srcNum":180,"id":"n1_180","analyze":"防火墙保障的内部网络数据的安全。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是无线通信技术与网络技术相结合的产物是通过无线信道来实现网络设备之间的通信，是目前应用最为广泛的一种短程无线传输技术。","options":[{"k":"A","t":"远程网（LHN）"},{"k":"B","t":"局域网（LAN）"},{"k":"C","t":"无线局域网（WLAN）"},{"k":"D","t":"广域网（WAN）"}],"answer":"C","src":"NISP一级模拟题","srcNum":181,"id":"n1_181","analyze":"无线局域网(WLAN)是无线通信技术与网络技术相结合的产物，是通过无线信道来实现网络设备之间的通信，是目前应用最为广泛的一种短程无线传输技术。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学是一门古老又现代的学科。几千年前，它作为神秘性和艺术性的字谜呈现，而现代密码学，作为数学、计算机、电子、通信、网络等领域的一门交叉学科，广泛应用于军事、商业和现代社会人们生产、生活的方方面面。古代密码学的形成于发展在（）。","options":[{"k":"A","t":"1949~1975"},{"k":"B","t":"1940年以前"},{"k":"C","t":"1949年以前"},{"k":"D","t":"1946年以前"}],"answer":"C","src":"NISP一级模拟题","srcNum":182,"id":"n1_182","analyze":"密码学的发展历史，古典密码学（1949年之前）、近代密码学（1949~1975）、现代密码学（1976年以后）。","expand":"","tags":["NISP一级","单选题"]},{"stem":"正确的选择防火墙能够更加有效的防护网络安全，在选择防火墙类型时基本原则包括（）。","options":[{"k":"A","t":"大企业根据部署位置选择防火墙"},{"k":"B","t":"中小企业根据网络规模选择防火墙"},{"k":"C","t":"考查厂商的服务"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":183,"id":"n1_183","analyze":"选择防火墙类型时基本原则有大企业根据部署位置选择防火墙；中小企业根据网络规模选择防火墙；考查厂商的服务。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学中运用（）算法，加密和解密使用不同秘钥。","options":[{"k":"A","t":"对称加密"},{"k":"B","t":"哈希"},{"k":"C","t":"公钥加密"},{"k":"D","t":"随机加密"}],"answer":"C","src":"NISP一级模拟题","srcNum":184,"id":"n1_184","analyze":"公钥加密算法加密解密使用不同的密钥。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下面不属于第二百八十七条 之一 【非法利用信息网络罪】的是（）","options":[{"k":"A","t":"设立用于实施诈骗、传授犯罪方法、制作或者销售违禁物品、管制物品等违法犯罪活动的网站、通讯群组的"},{"k":"B","t":"向他人出售或者提供公民个人信息，情节严重的"},{"k":"C","t":"发布有关制作或者销售毒品、枪支、淫秽物品等违禁物品、管制物品或者其他违法犯罪信息的"},{"k":"D","t":"为实施诈骗等违法犯罪活动发布信息的"}],"answer":"B","src":"NISP一级模拟题","srcNum":185,"id":"n1_185","analyze":"第二百五十三条之一：【侵犯公民个人信息罪】违反国家有关规定，向他人出售或者提供公民个人信息，情节严重的，处三年以下有期徒刑或者拘役，并处或者单处罚金;情节特别严重的，处三年以上七年以下有期徒刑，并处罚金。","expand":"","tags":["NISP一级","单选题"]},{"stem":"数据传输可分为有线传输和无线传输，以下不属于有线传输的是（）。","options":[{"k":"A","t":"光纤"},{"k":"B","t":"双绞线"},{"k":"C","t":"无线电波"},{"k":"D","t":"同轴电缆"}],"answer":"C","src":"NISP一级模拟题","srcNum":186,"id":"n1_186","analyze":"无线电波属于无线传输。","expand":"","tags":["NISP一级","单选题"]},{"stem":"漏洞扫描技术是一类重要的网络安全技术。它和防火墙、入侵检测系统互相配合，能够有效提高网络的安全性。对于漏洞扫描的原理：1、返回响应；2、发送探测数据包；3、读取漏洞信息；4、特征匹配分析。正确的顺序为（）。","options":[{"k":"A","t":"1->3->2->4"},{"k":"B","t":"3->4->2->1"},{"k":"C","t":"1->2->3->4"},{"k":"D","t":"3->2->1->4"}],"answer":"D","src":"NISP一级模拟题","srcNum":187,"id":"n1_187","analyze":"漏洞扫描的原理：1、读取漏洞信息；2、发送探测数据包；3、返回响应；4、特征匹配分析。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不符合数据采集阶段的安全要求（）","options":[{"k":"A","t":"定义采集数据的目的和用途，明确数据采集源和采集数据范围"},{"k":"B","t":"遵循合规原则，确保数据采集的合法性，正当性和必要性"},{"k":"C","t":"遵循数据最大化原则，采集满足业务所需的所有数据"},{"k":"D","t":"遵循质量保障原则，制定数据质量保障的策略、规程和要求"}],"answer":"C","src":"NISP一级模拟题","srcNum":188,"id":"n1_188","analyze":"在数据采集阶段，安全要求为：定义采集数据的目的和用途，明确数据采集源和采集数据范围；遵循合规原则，确保数据采集的合法性，正当性和必要性；遵循数据最小化原则，只采集满足业务所需的最少数据；遵循质量保障原则，制定数据质量保障的策略、规程和要求；遵循确保安全原则，对采集的数据进行分类分级标识，并对不同类和级别的数据实施相应的安全管理策略和保障措施，对数据采集环境、设施和技术采取必要的安全管控措施。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我们经常从网站上下载软件，为了确保系统安全，以下哪个处理措施最正确( )","options":[{"k":"A","t":"下载完成自动安装"},{"k":"B","t":"先做系统备份，安装后有异常直接恢复系统"},{"k":"C","t":"下载后直接安装使用"},{"k":"D","t":"下载后先使用杀毒软件进行病毒查杀再安装使用"}],"answer":"D","src":"NISP一级模拟题","srcNum":189,"id":"n1_189","analyze":"安装前先使用杀毒软件进行病毒查杀可降低安全风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下防范即时通信安全威胁做法错误的是（ ）","options":[{"k":"A","t":"聊天时不发送个人敏感信息"},{"k":"B","t":"进行转账等操作时通过电话等可靠渠道二次确认"},{"k":"C","t":"不随意点击群里的链接"},{"k":"D","t":"在朋友圈发布自己在工作单位的自拍照"}],"answer":"D","src":"NISP一级模拟题","srcNum":190,"id":"n1_190","analyze":"随意发布自己在工作单位的自拍照会有敏感信息泄露等风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"按网络的作用范围可将计算机网络分为广域网、城域网、局域网，下列说法不正确的是（）。","options":[{"k":"A","t":"Internet是目前最大的广域网。"},{"k":"B","t":"城域网的一个重要用途是用作骨干网。"},{"k":"C","t":"城域网通常跨接很大的物理范围，能连接多个城市、国家。"},{"k":"D","t":"在计算机网络和工业业务发展初期，各企业管理信息系统和访问信息系统的用户基本都处在局域网内。"}],"answer":"C","src":"NISP一级模拟题","srcNum":191,"id":"n1_191","analyze":"城域网的作用范围达不到国家。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下可能会造成信息泄露的是（ ）","options":[{"k":"A","t":"将含有机密信息的文件锁在柜中"},{"k":"B","t":"复制和打印的资料及时拿走"},{"k":"C","t":"在微博等社交媒体谈论公司信息"},{"k":"D","t":"离开时，锁定电脑屏幕"}],"answer":"C","src":"NISP一级模拟题","srcNum":192,"id":"n1_192","analyze":"在社交媒体谈论公司信息可能会被别有用心的人看到，造成信息泄露","expand":"","tags":["NISP一级","单选题"]},{"stem":"世界上第一个计算机网络是（）。","options":[{"k":"A","t":"ARPANET"},{"k":"B","t":"INTERNET"},{"k":"C","t":"CHINANET"},{"k":"D","t":"CERNET"}],"answer":"A","src":"NISP一级模拟题","srcNum":193,"id":"n1_193","analyze":"世界上第一个计算机网络是ARPANET。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学作为信息安全的关键技术，其安全目标主要包括三个非常重要的方面：保密性、完整性和可用性。（ ）是确保信息仅被合法用户访问，而不被泄露给非授权的用户、实体或过程，或供其利用的特性。","options":[{"k":"A","t":"保密性"},{"k":"B","t":"完整性"},{"k":"C","t":"可用性"},{"k":"D","t":"以上都不是"}],"answer":"A","src":"NISP一级模拟题","srcNum":194,"id":"n1_194","analyze":"保密性是确保信息仅被合法用户访问，而不被泄露给非授权的用户、实体或过程，或供其利用的特性","expand":"","tags":["NISP一级","单选题"]},{"stem":"在安全设置的账户策略中开启密码必须符合复杂性要求，设置密码长度最小值为2，那么在实际使用中，用户可设置的密码最小长度是（ ）","options":[{"k":"A","t":"6"},{"k":"B","t":"3"},{"k":"C","t":"2"},{"k":"D","t":"8"}],"answer":"B","src":"NISP一级模拟题","srcNum":195,"id":"n1_195","analyze":"密码长度最小值为2，所以密码长度设置范围为2到14个字符，但因为开启了密码必须符合复杂性要求所以密码必须包含大小写字母、数字、特殊字符其中的三项","expand":"","tags":["NISP一级","单选题"]},{"stem":"某单位系统管理员对组织内核心资源的访问制定访问策略，针对每个用户指明能够访问的资源，对于不在指定资源列表中的对象不允许访问。该访问控制策略属于（）。","options":[{"k":"A","t":"自主访问控制"},{"k":"B","t":"强制访问控制"},{"k":"C","t":"基于角色的访问控制"},{"k":"D","t":"基于任务的访问控制"}],"answer":"A","src":"NISP一级模拟题","srcNum":196,"id":"n1_196","analyze":"“针对每个用户指明能够访问的资源”属于自主访问控制。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于主机检测系统的优点的是（）。","options":[{"k":"A","t":"分析网络报文"},{"k":"B","t":"监视所有网络"},{"k":"C","t":"仅能保护安装了产品的主机"},{"k":"D","t":"能够检测到攻击行为的后果"}],"answer":"C","src":"NISP一级模拟题","srcNum":197,"id":"n1_197","analyze":"C选项是主机检测系统的缺点","expand":"","tags":["NISP一级","单选题"]},{"stem":"为保障信息系统的安全性，信息系统还需具备不可否认性，其中不可否认性指（）","options":[{"k":"A","t":"信息在传输、交换、存储和处理过程保持非修改、非破坏和非丢失的特性"},{"k":"B","t":"对流通在网络系统中的信息传播及具体内容能够实现有效控制的特性"},{"k":"C","t":"通信双方在信息交互过程中，所有参与者都不可能否认或抵赖本人所做的操作"},{"k":"D","t":"信息按给定要求不泄漏给非授权的个人、实体或过程"}],"answer":"C","src":"NISP一级模拟题","srcNum":198,"id":"n1_198","analyze":"不可否认性：证明要求保护的事件或动作及其发起实体的行为。在法律上，不可否认意味着交易的一方不能拒绝已经接收到交易，另一方也不能拒绝已经发送的交易。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于序列密码说法不正确的是（）。","options":[{"k":"A","t":"序列密码是单独地加密每个明文位"},{"k":"B","t":"序列密码的加密和解密使用相同的函数"},{"k":"C","t":"由于序列密码小而快，所以它们非常合适计算资源有限的应用"},{"k":"D","t":"现实生活中序列密码的使用比分组密码更为广泛，例如Internet安全领域"}],"answer":"D","src":"NISP一级模拟题","srcNum":199,"id":"n1_199","analyze":"分组密码比序列密码更广泛。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是使信息在客体间流动的一种实体。（）是一种信息实体，或者是从其它主体或客体接收信息的实体。通常（）是指人、进程或设备等。通常数据块、存储页、文件、目录、程序等都属于（）。","options":[{"k":"A","t":"主体客体主体客体"},{"k":"B","t":"主体主体客体客体"},{"k":"C","t":"主体客体客体主体"},{"k":"D","t":"客体主体客体主体"}],"answer":"A","src":"NISP一级模拟题","srcNum":200,"id":"n1_200","analyze":"主体是使信息在客体间流动的一种实体。通常主体是指人、进程或设备等。客体是一种信息实体，或者是从其它主体或客体接收信息的实体。通常数据块、存储页、文件、目录、程序等都属于客体。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，IGMP协议指的是（），位于TCP/IP协议的（）。","options":[{"k":"A","t":"Internet组管理协议传输层"},{"k":"B","t":"Internet组管理协议网络层"},{"k":"C","t":"Internet控制报文协议网络层"},{"k":"D","t":"Internet控制报文协议传输层"}],"answer":"B","src":"NISP一级模拟题","srcNum":201,"id":"n1_201","analyze":"在TCP/IP协议中，IGMP协议指的是Internet 组管理协议，位于TCP/IP协议的网络层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于无线传输带来的不安全因素（）。","options":[{"k":"A","t":"通信内容容易被窃听"},{"k":"B","t":"通信内容可以被更改"},{"k":"C","t":"通信线路被截断"},{"k":"D","t":"通信双方的身份肯被假冒"}],"answer":"C","src":"NISP一级模拟题","srcNum":202,"id":"n1_202","analyze":"无线通信网络带来一些不安全因素，如通信内容容易被窃听、通信内容可以被更改和通信双方身份可能被假冒。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于网闸的局限性的是（）。","options":[{"k":"A","t":"非实时连接"},{"k":"B","t":"实时连接"},{"k":"C","t":"需要专有硬件"},{"k":"D","t":"对应用的支持有限"}],"answer":"B","src":"NISP一级模拟题","srcNum":203,"id":"n1_203","analyze":"网闸是非实时连接的。","expand":"","tags":["NISP一级","单选题"]},{"stem":"https是很多网站采用的网页访问协议，以下关于https与http相比的优势说法正确的是（ ）","options":[{"k":"A","t":"https访问速度比http快"},{"k":"B","t":"https安全性比http高"},{"k":"C","t":"https对服务器资源的占用小于http"},{"k":"D","t":"https性能比http要好"}],"answer":"B","src":"NISP一级模拟题","srcNum":204,"id":"n1_204","analyze":"https是基于HTTP协议，通过SSL或TLS提供加密处理数据、验证对方身份以及数据完整性保护，安全性方面要优于http","expand":"","tags":["NISP一级","单选题"]},{"stem":"从信息系统安全角度处理信息安全问题，设备安全已然成为人们关注的重点，以下属于设备安全的要求的是（）。","options":[{"k":"A","t":"稳定性"},{"k":"B","t":"可靠性"},{"k":"C","t":"可用性"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":205,"id":"n1_205","analyze":"对设备安全的要求包括稳定性、可靠性、可用性等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络安全法第三十五条规定关键信息基础设施的运营者采购网络产品和服务，可能影响国家安全的，应当通过国家（）会同国务院有关部门组织的国家安全审查。","options":[{"k":"A","t":"公安部"},{"k":"B","t":"国家安全部"},{"k":"C","t":"网信部门"},{"k":"D","t":"国家保密局"}],"answer":"C","src":"NISP一级模拟题","srcNum":206,"id":"n1_206","analyze":"网络安全法","expand":"","tags":["NISP一级","单选题"]},{"stem":"依据信息安全基本属性定义，下面数据的完整性体现为（）","options":[{"k":"A","t":"被泄露给非授权用户、实体或过程"},{"k":"B","t":"不能够否认所发送的数据"},{"k":"C","t":"被授权实体访问并按需求使用"},{"k":"D","t":"未经授权不能进行更改"}],"answer":"D","src":"NISP一级模拟题","srcNum":207,"id":"n1_207","analyze":"完整性是保证信息系统中的数据处于完整的状态，确保信息没有遭受篡改和破坏。","expand":"","tags":["NISP一级","单选题"]},{"stem":"为保证安全，在使用浏览器浏览网页时，以下那条是正确的 ( )","options":[{"k":"A","t":"所有网站都可以浏览"},{"k":"B","t":"只浏览证实为安全，合法的网站"},{"k":"C","t":"只要不是有反动言论的网站都可以浏览"},{"k":"D","t":"只要不是盗版软件下载网站都可以浏览"}],"answer":"B","src":"NISP一级模拟题","srcNum":208,"id":"n1_208","analyze":"并不是只有盗版软件下载网站和拥有反动言论的网站会有安全风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪项是正确使用邮箱的方式（ ）","options":[{"k":"A","t":"为工作邮箱和个人邮箱设置不同的密码"},{"k":"B","t":"为工作邮箱设置易于记忆的密码，例如123456"},{"k":"C","t":"使用工作邮箱发送和工作无关的邮件给同事"},{"k":"D","t":"关闭邮箱的SSL支持选项"}],"answer":"A","src":"NISP一级模拟题","srcNum":209,"id":"n1_209","analyze":"设置不同的密码可以防止一个密码泄露影响两个邮箱安全","expand":"","tags":["NISP一级","单选题"]},{"stem":"统一威胁管理系统是集防火墙、防病毒、入侵检测、上网行为管理等多种网络安全功能于一体的网络安全设备。下列哪个是它的优势（）。","options":[{"k":"A","t":"模块化管理，比较容易使用"},{"k":"B","t":"功能集成带来的风险集中"},{"k":"C","t":"资源整合带来的高成本"},{"k":"D","t":"以上都是"}],"answer":"A","src":"NISP一级模拟题","srcNum":210,"id":"n1_210","analyze":"统一威胁管理系统（UTM）的优势：资源整合带来的低成本、模块化管理，比较容易使用、配置工作量小，能够提高安全管理人员的工作效率。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在一个给定的网络中，客户C需要访问服务器S的服务，客户C必须被服务器S鉴别，同时客户C也需要鉴别服务器S，那么这种鉴别属于哪种类型的鉴别（）","options":[{"k":"A","t":"单项鉴别"},{"k":"B","t":"双向鉴别"},{"k":"C","t":"第三方鉴别"},{"k":"D","t":"以上都不是"}],"answer":"B","src":"NISP一级模拟题","srcNum":211,"id":"n1_211","analyze":"在一个给定的网络中，客户C需要访问服务器S的服务，客户C必须被服务器S鉴别，客户C也需要鉴别服务器S，则称为双向鉴别。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于访问控制列表，不正确的说法是（）。","options":[{"k":"A","t":"是以文件为中心建立访问权限表"},{"k":"B","t":"查询特定主体访问客体时不需要遍历查询所有客体的ACL"},{"k":"C","t":"判断对特定客体的授权访问，可访问的主体和访问权限等"},{"k":"D","t":"访问控制列表(ACL)是一种基于包过滤的访问控制技术"}],"answer":"B","src":"NISP一级模拟题","srcNum":212,"id":"n1_212","analyze":"查询特定主体访问客体时需要遍历查询所有客体的ACL","expand":"","tags":["NISP一级","单选题"]},{"stem":"影响密码系统安全性的基本因素不包括（）","options":[{"k":"A","t":"密码算法复杂度"},{"k":"B","t":"密钥随机性"},{"k":"C","t":"密码复杂度"},{"k":"D","t":"密钥长度"}],"answer":"C","src":"NISP一级模拟题","srcNum":213,"id":"n1_213","analyze":"影响密码系统安全性的基本因素包括：密码算法复杂度、密钥机密性和密钥长度等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小刘是某公司新入职的员工，公司要求他注册一个公司网站的账号，小刘使用一个安全一点的密码，请问以下选项中哪个密码是最安全（）。","options":[{"k":"A","t":"与用户名相同的密码"},{"k":"B","t":"自己的姓名和出生日期"},{"k":"C","t":"一个单词"},{"k":"D","t":"数字、字母和特殊符号混合且自己容易记住"}],"answer":"D","src":"NISP一级模拟题","srcNum":214,"id":"n1_214","analyze":"D选项更安全。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于包过滤技术的缺点说法错误的是（）。","options":[{"k":"A","t":"过滤规则集合复杂，配置困难。"},{"k":"B","t":"能防止地址欺骗，不能防止外部客户与内部主机直接连接。"},{"k":"C","t":"对于网络服务较多、结构较为复杂的网络，包过滤的规则可能很多，配置起来复杂，而且对于配置结果不易检查验证配置的正确性。"},{"k":"D","t":"由于过滤判别的只有网络层和传输层的有限信息，所以无法满足对应用层信息进行过滤的安全要求。"}],"answer":"B","src":"NISP一级模拟题","srcNum":215,"id":"n1_215","analyze":"包过滤技术不能防止地址欺骗。","expand":"","tags":["NISP一级","单选题"]},{"stem":"强制访问控制(MAC)是主体和客体都有一个固定的安全属性，系统通过比较客体和主体的安全属性，根据已经确定的访问控制规则限制来决定主体是否可访问客体。关于强制访问控制模型，下面说法错误的是（）","options":[{"k":"A","t":"强制访问控制规则强制执行的，系统中的主体和客体均无权更改。"},{"k":"B","t":"强制访问控制比自主访问控制具有更高的安全性，不能有效防范特洛伊木马。"},{"k":"C","t":"强制访问控制可以防止在用户无意或不负责任的操作时泄露机密信息，适用于专用或安全性要求较高的系统。"},{"k":"D","t":"强制访问控制在用户共享数据方面不灵活。"}],"answer":"B","src":"NISP一级模拟题","srcNum":216,"id":"n1_216","analyze":"强制访问控制比自主访问控制具有更高的安全性，能有效防范特洛伊木马。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于防火墙和网闸的说法错误的是（）。","options":[{"k":"A","t":"防火墙是实现物理隔离的。"},{"k":"B","t":"网闸是是实现物理隔离或协议隔离。"},{"k":"C","t":"通过防火墙进行数据交换，会话双方是实时连接的。"},{"k":"D","t":"通过网闸进行数据交换，会话双方是非实时连接的。"}],"answer":"A","src":"NISP一级模拟题","srcNum":217,"id":"n1_217","analyze":"防火墙是实现逻辑隔离的。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下面哪些不属于即时通信存在的安全风险 ( )","options":[{"k":"A","t":"恶意代码传播"},{"k":"B","t":"网络欺诈"},{"k":"C","t":"即时通信系统自身安全问题"},{"k":"D","t":"操作系统漏洞利用"}],"answer":"D","src":"NISP一级模拟题","srcNum":218,"id":"n1_218","analyze":"即时通信应用系统所面临的安全问题包括：即时通信应用信息系统自身安全风险、利用即时通信传播恶意代码、利用即时通信破坏防御系统、网络欺诈及非法信息","expand":"","tags":["NISP一级","单选题"]},{"stem":"广域网也称远程网，通常跨接很大的物理范围，所覆盖的范围从几十公里到几千公里。以下选项中，属于广域网的是（）。","options":[{"k":"A","t":"宿舍网"},{"k":"B","t":"校园网"},{"k":"C","t":"公司网"},{"k":"D","t":"国家网"}],"answer":"D","src":"NISP一级模拟题","srcNum":219,"id":"n1_219","analyze":"国家网属于广域网。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于对称加密和非对称加密，下列说法正确的是（）","options":[{"k":"A","t":"非对称加密体系要求通信双方事先传递密钥才能完成保密通信，并且密钥管理方便，可实现防止假冒和抵赖"},{"k":"B","t":"非对称加密指加密和解密使用不同密钥的加密算法，也称为公私钥加密。"},{"k":"C","t":"对称加密算法比非对称加密算法快，在保护通信安全方面，对称加密算法具有非对称密码难以企及的优势。"},{"k":"D","t":"非对称加密算法的特点是计算量小、加密速度快、加密效率高。"}],"answer":"B","src":"NISP一级模拟题","srcNum":220,"id":"n1_220","analyze":"A.非对称加密体系不要求通信双方事先传递密钥。C.在保护通信安全方面，非对称加密算法却具有对称密码难以企及的优势。D.对称加密算法的特点是算法公开、计算量小、加密速度快、加密效率高。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个属于工业控制系统（）","options":[{"k":"A","t":"数据采集与监控系统（SCADA）"},{"k":"B","t":"分布式控制系统（DCS）"},{"k":"C","t":"可编辑逻辑控制器（PLC）"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":221,"id":"n1_221","analyze":"数据采集与监控系统（SCADA）、分布式控制系统（DCS）、可编辑逻辑控制器（PLC）都属于工业控制系统。","expand":"","tags":["NISP一级","单选题"]},{"stem":"自主访问模型（DAC）通常使用（）来实现访问控制功能","options":[{"k":"A","t":"访问控制矩阵"},{"k":"B","t":"访问控制能力表"},{"k":"C","t":"访问控制主体"},{"k":"D","t":"访问控制客体"}],"answer":"B","src":"NISP一级模拟题","srcNum":222,"id":"n1_222","analyze":"DAC通常使用访问控制表(ACL)或能力表(CL)来实现访问控制功能","expand":"","tags":["NISP一级","单选题"]},{"stem":"在ISO 的OSI安全体系结构中，以下哪一个安全机制可以提供抗抵赖安全服务（）。","options":[{"k":"A","t":"加密信息"},{"k":"B","t":"数字签名"},{"k":"C","t":"访问控制"},{"k":"D","t":"路由控制"}],"answer":"B","src":"NISP一级模拟题","srcNum":223,"id":"n1_223","analyze":"数字签名可以提供抗抵赖、鉴别和完整性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网卡是网络接口卡(NIC)的简称，它是计算机或其它网络设备所附带的适配器，用于与其他计算机或网络设备进行通信。工作在OSI七层模型中的（）","options":[{"k":"A","t":"物理层"},{"k":"B","t":"数据链路层"},{"k":"C","t":"网络层"},{"k":"D","t":"传输层"}],"answer":"B","src":"NISP一级模拟题","srcNum":224,"id":"n1_224","analyze":"在OSI七层模型中，网卡工作在第二层，即数据链路层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于代理防火墙的优点的是（）。","options":[{"k":"A","t":"可避免内外网主机的直接连接，从可以隐藏内部IP地址，而更好的保护内部计算机。"},{"k":"B","t":"以与认证、授权等安全手段方便地集成，面向用户授权。"},{"k":"C","t":"为用户提供透明的加密机制。"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":225,"id":"n1_225","analyze":"代理防火墙的优点：可避免内外网主机的直接连接，从可以隐藏内部IP地址，而更好的保护内部计算机；以与认证、授权等安全手段方便地集成，面向用户授权；为用户提供透明的加密机制。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络代理技术即通过代理服务器代理网络用户取得网络信息，在代理服务器上可对信息进行合法性验证，从而保护用户的安全。以下关于网络代理技术的说法错误的是（）。","options":[{"k":"A","t":"代理技术又称为应用层网关技术"},{"k":"B","t":"代理技术能完全代替防火墙功能"},{"k":"C","t":"代理技术具备一定的安全防御机制"},{"k":"D","t":"代理服务器能够管理网络信息"}],"answer":"B","src":"NISP一级模拟题","srcNum":226,"id":"n1_226","analyze":"代理技术不能完全代替防火墙","expand":"","tags":["NISP一级","单选题"]},{"stem":"多因素鉴别方法，使用多种鉴别机制检查用户身份的真实性。用户在登录微信是除了用户名/密码，还需要手机短信验证，使用了哪几种身份鉴别的方式（）","options":[{"k":"A","t":"实体所知实体所有"},{"k":"B","t":"实体所知实体特征"},{"k":"C","t":"实体所有实体特征"},{"k":"D","t":"实体所知实体所有实体特征"}],"answer":"A","src":"NISP一级模拟题","srcNum":227,"id":"n1_227","analyze":"用户名/密码（实体所知），手机短信验证（实体所有）","expand":"","tags":["NISP一级","单选题"]},{"stem":"Windows系统默认隐藏扩展名，在Windows的“资源管理器”窗口中，为了改变扩展名的显示情况，应首先选用的菜单是（ ）","options":[{"k":"A","t":"文件"},{"k":"B","t":"编辑"},{"k":"C","t":"查看"},{"k":"D","t":"工具"}],"answer":"C","src":"NISP一级模拟题","srcNum":228,"id":"n1_228","analyze":"点击查看后勾选文件扩展名选项即可","expand":"","tags":["NISP一级","单选题"]},{"stem":"随着网络安全问题的日益凸显，安全设备也呈现多样化趋势，以下不属于网络安全设备的是（）。","options":[{"k":"A","t":"路由器"},{"k":"B","t":"防火墙"},{"k":"C","t":"入侵检测系统"},{"k":"D","t":"网闸"}],"answer":"A","src":"NISP一级模拟题","srcNum":229,"id":"n1_229","analyze":"路由器不是网络安全设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于对称加密的优点的是（）","options":[{"k":"A","t":"算法简单、计算量小"},{"k":"B","t":"加密速度快、加密效率高"},{"k":"C","t":"适合加密大量数据、明文长度与密文长度相等"},{"k":"D","t":"算法强度复杂、加密强度高"}],"answer":"D","src":"NISP一级模拟题","srcNum":230,"id":"n1_230","analyze":"对称加密算法的优点是算法简单、计算量小、加密速度快、加密效率高，适合加密大量数据，明文长度与密文长度相等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"集线器也称为HUB，它的工作原理是把一个端口上收到的数据广播发送到其他所有端口上。是一个工作在（）的设备。","options":[{"k":"A","t":"传输层"},{"k":"B","t":"网络层"},{"k":"C","t":"数据链路层"},{"k":"D","t":"物理层"}],"answer":"D","src":"NISP一级模拟题","srcNum":231,"id":"n1_231","analyze":"集线器也称为HUB，它的工作原理是把一个端口上收到的数据广播发送到其他所有端口上。集线器是一个工作在物理层的设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下基于实体所知的鉴别威胁的是（）。","options":[{"k":"A","t":"暴力破解攻击"},{"k":"B","t":"窃听攻击"},{"k":"C","t":"重放攻击"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":232,"id":"n1_232","analyze":"基于实体所知的鉴别威胁的有：暴力破解攻击、窃听攻击、重放攻击。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在入侵检测系统（IDS）的运行中，最常见的问题是（）。","options":[{"k":"A","t":"误报检测"},{"k":"B","t":"拒绝服务攻击"},{"k":"C","t":"错误拒绝率高"},{"k":"D","t":"分布式拒绝服务攻击"}],"answer":"A","src":"NISP一级模拟题","srcNum":233,"id":"n1_233","analyze":"在入侵检测系统（IDS）的运行中，最常见的问题是误报检测。","expand":"","tags":["NISP一级","单选题"]},{"stem":"从立法体系而言，宪法具有最高的法律效力，一切法律、行政法规、地方性法规、自治条例和单行条例、规章都不得同宪法相抵触。则我国上位法和下位法之间的关系错误的是（）","options":[{"k":"A","t":"法律的效力高于行政法规、地方性法规、规章。"},{"k":"B","t":"行政法规的效力高于地方性法规、规章。"},{"k":"C","t":"法律、行政法规、地方性法规如果有超越权限或下位法违反上位法规定的情形的，将依法予以改变或者撤销。"},{"k":"D","t":"法律、行政法规、地方性法规如果有超越权限或下位法违反上位法规定的，在发现后，将依法予以改变或者撤销，发现之前实施了的维持不变。"}],"answer":"D","src":"NISP一级模拟题","srcNum":234,"id":"n1_234","analyze":"从立法体系而言，宪法具有最高的法律效力，一切法律、行政法规、地方性法规、自治条例和单行条例、规章都不得同宪法相抵触。法律的效力高于行政法规、地方性法规、规章。行政法规的效力高于地方性法规、规章。法律、行政法规、地方性法规如果有超越权限或下位法违反上位法规定的情形的，将依法予以改变或者撤销。","expand":"","tags":["NISP一级","单选题"]},{"stem":"VPN用于在公用网络上建立专用网络，从而进行加密通讯。通常VPN无需在以下哪项使用数字证书和PKI（）。","options":[{"k":"A","t":"安装部署"},{"k":"B","t":"身份验证"},{"k":"C","t":"访问控制"},{"k":"D","t":"密钥管理"}],"answer":"A","src":"NISP一级模拟题","srcNum":235,"id":"n1_235","analyze":"安装部署不需要数字证书和PKI。","expand":"","tags":["NISP一级","单选题"]},{"stem":"如果一个企业注重于数据的保密性，则建议其使用哪种访问控制模型（）","options":[{"k":"A","t":"DAC模型"},{"k":"B","t":"BLP模型"},{"k":"C","t":"Biba模型"},{"k":"D","t":"RBAC模型"}],"answer":"B","src":"NISP一级模拟题","srcNum":236,"id":"n1_236","analyze":"BLP模型侧重于数据的保密性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于强制访问控制模型的是（）","options":[{"k":"A","t":"BLP模型"},{"k":"B","t":"RBAC模型"},{"k":"C","t":"Biba模型"},{"k":"D","t":"Clark-Wilson模型"}],"answer":"B","src":"NISP一级模拟题","srcNum":237,"id":"n1_237","analyze":"典型的强制访问控制模型包括：BLP模型、Biba模型、Clark-Wilson模型、Chinese Wall模型等，RBAC是基于角色的访问控制模型。","expand":"","tags":["NISP一级","单选题"]},{"stem":"随着密码学的不断发展，密码学逐步从艺术走向科学。以下那个不属于密码学的发展阶段（）。","options":[{"k":"A","t":"古典密码阶段"},{"k":"B","t":"近代密码阶段"},{"k":"C","t":"现代密码阶段"},{"k":"D","t":"当代密码阶段"}],"answer":"D","src":"NISP一级模拟题","srcNum":238,"id":"n1_238","analyze":"密码学的发展历史，古典密码学（1949年之前）、近代密码学（1949~1975）、现代密码学（1976年以后）。","expand":"","tags":["NISP一级","单选题"]},{"stem":"域名系统DNS的作用是（）。","options":[{"k":"A","t":"存储IP"},{"k":"B","t":"存储域名"},{"k":"C","t":"将域名转换成IP"},{"k":"D","t":"以上都不对"}],"answer":"C","src":"NISP一级模拟题","srcNum":239,"id":"n1_239","analyze":"域名系统DNS的作用是将域名转换成IP。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于星型拓扑结构的优点的是（）。","options":[{"k":"A","t":"结构简单，连接方便"},{"k":"B","t":"管理和维护都较为容易"},{"k":"C","t":"扩展性强"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":240,"id":"n1_240","analyze":"星型拓扑结构简单，连接方便，管理和维护都较为容易，并且扩展性强，是目前应用最广泛的网络结构。","expand":"","tags":["NISP一级","单选题"]},{"stem":"电子邮件的安全威胁不包括（ ）","options":[{"k":"A","t":"邮件地址欺骗"},{"k":"B","t":"使用公共WIFI收发电子邮件"},{"k":"C","t":"垃圾邮件"},{"k":"D","t":"FTP协议的相关漏洞"}],"answer":"D","src":"NISP一级模拟题","srcNum":241,"id":"n1_241","analyze":"常用的电子邮件协议有SMTP、POP3、IMAP4，FTP协议是文件传输协议和电子邮件关系不大","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于电子邮件说法错误的是（ ）","options":[{"k":"A","t":"电子邮件是一种信息交换的服务方式，是互联网上最古老也是应用最为广泛的服务之一。"},{"k":"B","t":"发送电子邮件时使用的协议是SMTP协议"},{"k":"C","t":"电子邮件不会被用来传播病毒"},{"k":"D","t":"支持多种文件格式的发送"}],"answer":"C","src":"NISP一级模拟题","srcNum":242,"id":"n1_242","analyze":"邮件病毒是依托电子邮件进行传播的蠕虫病毒","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，由TCP协议提供可靠的连接服务，采用（）来创建一个TCP连接；采用（）来断开TCP连接。","options":[{"k":"A","t":"三次握手三次挥手"},{"k":"B","t":"三次握手四次挥手"},{"k":"C","t":"四次握手三次挥手"},{"k":"D","t":"四次握手四次挥手"}],"answer":"B","src":"NISP一级模拟题","srcNum":243,"id":"n1_243","analyze":"TCP协议提供可靠的连接服务，采用三次握手来创建一个TCP连接；采用四次挥手来断开TCP连接。","expand":"","tags":["NISP一级","单选题"]},{"stem":"目前通用的网络模型有两种，OSI模型分为（）层，TCP/IP模型分为（）层。","options":[{"k":"A","t":"73"},{"k":"B","t":"74"},{"k":"C","t":"55"},{"k":"D","t":"54"}],"answer":"B","src":"NISP一级模拟题","srcNum":244,"id":"n1_244","analyze":"目前通用的网络模型有两种，OSI模型分为7层，TCP/IP模型分为4层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于评估密码系统安全性的方法是（）","options":[{"k":"A","t":"实际安全性。对于实际应用中的密码系统而言，不存在破译方法。"},{"k":"B","t":"无条件安全性：这种评价方法考虑的是假定攻击者拥有无限的计算资源，但仍然无法破译该密码系统。"},{"k":"C","t":"计算安全性：这种方法是指如果使用目前最好的方法攻破它所需要的计算资源远远超出攻击者拥有的计算资源，则可以认为这个密码系统是安全的。"},{"k":"D","t":"可证明安全性：这种方法是将密码系统的安全性归结为某个经过深入研究的困难问题(如大整数素因子分解、计算离散对数等)。这种评估方法存在的问题是它只说明了这个密码方法的安全性与某个困难问题相关，没有完全证明问题本身的安全性，并给出它们的等价性证明。"}],"answer":"A","src":"NISP一级模拟题","srcNum":245,"id":"n1_245","analyze":"评估密码系统安全性主要有三种方法：无条件安全性、计算安全性、可证明安全性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"实体身份鉴别一般依据实体所知、实体所有和实体特征。给自己的电脑设置开机密码属于那种身份鉴别方式（）","options":[{"k":"A","t":"实体所知"},{"k":"B","t":"实体所有"},{"k":"C","t":"实体特征"},{"k":"D","t":"实体所感"}],"answer":"A","src":"NISP一级模拟题","srcNum":246,"id":"n1_246","analyze":"电脑设置开机密码、口令属于实体所知。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个不是做好软件安全测试的必要条件？ （）","options":[{"k":"A","t":"充分了解软件安全漏洞"},{"k":"B","t":"拥有软件的全部开发过程文档和源代码"},{"k":"C","t":"评估软件安全风险"},{"k":"D","t":"高效的软件安全测试技术和工具"}],"answer":"B","src":"NISP一级模拟题","srcNum":247,"id":"n1_247","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个不是关于实体所知的鉴别威胁中的暴力破解的防护（）。","options":[{"k":"A","t":"使用安全的密码（自己容易记，别人不好猜，高强度，高复杂度）"},{"k":"B","t":"在会话中引入随机数"},{"k":"C","t":"设置系统、应用的安全策略"},{"k":"D","t":"随机验证码（变形、干扰、滑块、图像识别等）"}],"answer":"B","src":"NISP一级模拟题","srcNum":248,"id":"n1_248","analyze":"在会话中引入随机数是针对重放攻击的防御。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个不属于工控网络的特点（）","options":[{"k":"A","t":"网络通讯协议不同，大量的工控系统采用私有协议"},{"k":"B","t":"对系统稳定性要求高，网络安全造成误报等同于攻击"},{"k":"C","t":"系统运行环境不同，工控系统运行环境相对先进"},{"k":"D","t":"更新代价高，无法像办公网络或互联网那样通过补丁来解决安全问题"}],"answer":"C","src":"NISP一级模拟题","srcNum":249,"id":"n1_249","analyze":"系统运行环境不同，工控系统运行环境相对落后。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，HTTPS协议指的是（）","options":[{"k":"A","t":"HTTP+SSH"},{"k":"B","t":"HTTP+SSL"},{"k":"C","t":"HTTP+SET"},{"k":"D","t":"HTTP+SNMP"}],"answer":"B","src":"NISP一级模拟题","srcNum":250,"id":"n1_250","analyze":"HTTPS协议是由HTTP协议和SSL协议组成。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小李访问一个网站时，页面还没显示，杀毒软件就提示检测到木马病毒，小李访问的这种网站的专业名称是（ ）","options":[{"k":"A","t":"门户网站"},{"k":"B","t":"个人网站"},{"k":"C","t":"挂马网站"},{"k":"D","t":"购物网站"}],"answer":"C","src":"NISP一级模拟题","srcNum":251,"id":"n1_251","analyze":"打开一个网站，结果页面还没显示，杀毒软件就开始报警，提示检测到木马病毒。这是网页恶意代码，这就是典型的网页挂马现象。","expand":"","tags":["NISP一级","单选题"]},{"stem":"由于Internet的安全问题日益突出，基于TCP/IP协议，相关组织和专家在协议的不同层次设计了相应的安全通信协议，用来保障网络各层次的安全。其中，属于或依附于传输层的安全协议是（）。","options":[{"k":"A","t":"IPSec"},{"k":"B","t":"PP2P"},{"k":"C","t":"L2TP"},{"k":"D","t":"SSL"}],"answer":"D","src":"NISP一级模拟题","srcNum":252,"id":"n1_252","analyze":"IPSec工作在网络层，PP2P和L2TP工作在数据链路层，SSL工作在传输层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"邮件病毒是电子邮件的安全威胁之一，为防止邮件中恶意代码的攻击，应该使用下列哪种方式阅读电子邮件（ ）","options":[{"k":"A","t":"纯文本"},{"k":"B","t":"网页"},{"k":"C","t":"程序"},{"k":"D","t":"会话"}],"answer":"A","src":"NISP一级模拟题","srcNum":253,"id":"n1_253","analyze":"以纯文本文件形式阅读一般可避免邮件中恶意代码的攻击","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络安全审计系统是（）。","options":[{"k":"A","t":"一种对网络数据报文进行采集、识别、记录、分析的网络安全设备。"},{"k":"B","t":"对各类网络设备、操作系统、数据库、支撑软件、应用软件进行安全性检查的一类安全产品。"},{"k":"C","t":"对入侵行为进行检测并进行响应的网络安全设备。"},{"k":"D","t":"对内部网络用户的互联网行为进行控制和管理的边界网络安全产品。"}],"answer":"A","src":"NISP一级模拟题","srcNum":254,"id":"n1_254","analyze":"网络安全审计系统是一种对网络数据报文进行采集、识别、记录、分析的网络安全设备。","expand":"","tags":["NISP一级","单选题"]},{"stem":"链路层也称网络接口层或数据链路层，是TCP/IP的最底层，它负责（）。","options":[{"k":"A","t":"接收来自网络层的IP数据报，并把数据报发送到指定的网络上，或从网络上接收物理帧，抽出网络层数据报，交给网络层。"},{"k":"B","t":"用于实现数据包在网络中正确的传递。"},{"k":"C","t":"为两台主机上的应用程序提供端到端的通信服务。"},{"k":"D","t":"为用户提供不同的互联网服务。"}],"answer":"A","src":"NISP一级模拟题","srcNum":255,"id":"n1_255","analyze":"链路层也称网络接口层或数据链路层，是TCP/IP的最底层，它负责接收来自网络层的IP数据报，并把数据报发送到指定的网络上，或从网络上接收物理帧，抽出网络层数据报，交给网络层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"包过滤技术是防火墙最常用的技术。以下不属于包过滤技术的优点的是（）。","options":[{"k":"A","t":"安全性较差，不提供用户认证功能。"},{"k":"B","t":"逻辑简单，功能容易实现，设备价格便宜。"},{"k":"C","t":"处理速度快，在处理速度上具有一定的优势，处理速度很快，对网络性能影响也较小。"},{"k":"D","t":"过滤规则与应用层无关，无须修改主机上的应用程序，易于安装和使用。"}],"answer":"A","src":"NISP一级模拟题","srcNum":256,"id":"n1_256","analyze":"A选项是静态包过滤的缺点。","expand":"","tags":["NISP一级","单选题"]},{"stem":"OSI七层模型分为底层协议和高层协议，底层协议偏重于处理实际的信息传输，复制创建网络通信连接的链路，包括（）；高层协议处理用户服务和各种应用请求，包括（）。","options":[{"k":"A","t":"物理层、数据链路层；网络层、传输层、会话层、表示层、应用层"},{"k":"B","t":"物理层、数据链路层、网络层；传输层、会话层、表示层、应用层"},{"k":"C","t":"物理层、数据链路层、网络层、传输层；会话层、表示层、应用层"},{"k":"D","t":"物理层、数据链路层、网络层、传输层、会话层；表示层、应用层"}],"answer":"C","src":"NISP一级模拟题","srcNum":257,"id":"n1_257","analyze":"OSI七层模型分为底层协议和高层协议，底层协议偏重于处理实际的信息传输，复制创建网络通信连接的链路，包括物理层、数据链路层、网络层、传输层；高层协议处理用户服务和各种应用请求，包括会话层、表示层、应用层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪种方法属于实体所有的鉴别方法（）。","options":[{"k":"A","t":"用户通过自己设置的口令登录系统，完成身份鉴别"},{"k":"B","t":"用户使用个人指纹，通过指纹识别系统的身份鉴别"},{"k":"C","t":"用户利用和系统协商的秘密函数，对系统发送挑战进行正确应答，通过身份鉴别"},{"k":"D","t":"用户使用智能卡完成身份鉴别"}],"answer":"D","src":"NISP一级模拟题","srcNum":258,"id":"n1_258","analyze":"智能卡属于实体所有。","expand":"","tags":["NISP一级","单选题"]},{"stem":"保证信息不被篡改，使信息能正确生成、存储以及传输，体现了信息安全的哪个性质（）","options":[{"k":"A","t":"完整性"},{"k":"B","t":"即时性"},{"k":"C","t":"可控性"},{"k":"D","t":"保密性"}],"answer":"A","src":"NISP一级模拟题","srcNum":259,"id":"n1_259","analyze":"完整性是保证信息系统中的数据处于完整的状态，确保信息没有遭受篡改和破坏。","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥基础设施（PKI）的组成一般包括证书权威机构(CA)、证书注册机构(RA)、证书库和终端实体等部分。以下哪个属于证书权威机构(CA)的工作（）","options":[{"k":"A","t":"作为PKI管理实体和服务的提供者，管理用户数字证书的生成、发放、更新和撤销等工作。"},{"k":"B","t":"是数字证书的申请、审核和注册中心"},{"k":"C","t":"用来发布、存储数字证书和证书撤销列表(CRL)，供用户查询、获取其他用户的数字证书和系统中的证书撤销列表所用"},{"k":"D","t":"拥有公私密钥对和相应公钥证书的最终用户，可以是人、设备、进程等。"}],"answer":"A","src":"NISP一级模拟题","srcNum":260,"id":"n1_260","analyze":"CA是证书签发权威，也称数字证书管理中心，它作为PKI管理实体和服务的提供者，管理用户数字证书的生成、发放、更新和撤销等工作。","expand":"","tags":["NISP一级","单选题"]},{"stem":"密码学作为信息安全的关键技术，其安全目标主要包括三个非常重要的方面：保密性、完整性和（ ）","options":[{"k":"A","t":"可维护性"},{"k":"B","t":"灵活性"},{"k":"C","t":"可用性"},{"k":"D","t":"持久性"}],"answer":"C","src":"NISP一级模拟题","srcNum":261,"id":"n1_261","analyze":"密码学作为信息安全的关键技术，其安全目标主要包括三个非常重要的方面：保密性、完整性和可用性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"为了保证windows系统的安全，我们可以设置账户密码的最长使用期限来强制用户定期修改密码，如果我们在安全设置中将密码最长使用期限设置为了0，那么（ ）","options":[{"k":"A","t":"该账户密码永不过期"},{"k":"B","t":"该账户每次注销时都需要修改密码作为下次登陆时的凭据"},{"k":"C","t":"该账户被锁定，无法登陆"},{"k":"D","t":"该账户被立即禁用"}],"answer":"A","src":"NISP一级模拟题","srcNum":262,"id":"n1_262","analyze":"此安全设置确定在系统要求用户更改某个密码之前可以使用该密码的期间(以天为单位)。可以将密码设置为在某些天数(介于 1 到 999 之间)后到期，或者将天数设置为 0，指定密码永不过期","expand":"","tags":["NISP一级","单选题"]},{"stem":"存在大量应用系统使用MD5对口令明文进行处理成密码散列，攻击者虽然无法从密码散列中还原出口令明文，但由于口令的明文和散列可以视同一一对应的，攻击者可以构造出一张对照表，因此只要获得密码散列，就能根据对照表知道对应的口令明文，这样的对照表通常称为（）","options":[{"k":"A","t":"彩虹表"},{"k":"B","t":"哈希表"},{"k":"C","t":"密码散列表"},{"k":"D","t":"SHA-1表"}],"answer":"A","src":"NISP一级模拟题","srcNum":263,"id":"n1_263","analyze":"存在大量应用系统使用MD5对口令明文进行处理成密码散列，攻击者虽然无法从密码散列中还原出口令明文，但由于口令的明文和散列可以视同一一对应的，攻击者可以构造出一张对照表，因此只要获得密码散列，就能根据对照表知道对应的口令明文，这样的对照表通常称为彩虹表。","expand":"","tags":["NISP一级","单选题"]},{"stem":"随着电子邮件的广泛应用，电子邮件面临的安全威胁越来越多，攻击者可能通过恶意邮件来控制主机，下列设置中不安全的是（ ）","options":[{"k":"A","t":"以超文本格式读取所有邮件"},{"k":"B","t":"禁止自动下载附件"},{"k":"C","t":"禁止使用不信任的宏"},{"k":"D","t":"启用垃圾邮件过滤"}],"answer":"A","src":"NISP一级模拟题","srcNum":264,"id":"n1_264","analyze":"应该设置为以纯文本形式约定邮件","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）作为互联网新兴技术，以其高可伸缩性、成本低廉、运维便利等优点被越来越多的企业采纳使用；（）是指大小超出常规数据库软件工具收集、存储、管理和分析能力的数据集；（）是指通过网络访问可扩展的、灵活的物理或虚拟共享资源池，并按需自助获取和管理资源的模式；（）是指传统数据架构无法有效处理的新数据集。","options":[{"k":"A","t":"云计算大数据云计算大数据"},{"k":"B","t":"大数据云计算大数据云计算"},{"k":"C","t":"云计算云计算大数据大数据"},{"k":"D","t":"大数据大数据云计算云计算"}],"answer":"A","src":"NISP一级模拟题","srcNum":265,"id":"n1_265","analyze":"云计算作为互联网新兴技术，以其高可伸缩性、成本低廉、运维便利等优点被越来越多的企业采纳使用；大数据是指大小超出常规数据库软件工具收集、存储、管理和分析能力的数据集；云计算是指通过网络访问可扩展的、灵活的物理或虚拟共享资源池，并按需自助获取和管理资源的模式；大数据是指传统数据架构无法有效处理的新数据集。","expand":"","tags":["NISP一级","单选题"]},{"stem":"HTTPS协议提供服务的默认端口是（）","options":[{"k":"A","t":"445"},{"k":"B","t":"80"},{"k":"C","t":"443"},{"k":"D","t":"22"}],"answer":"C","src":"NISP一级模拟题","srcNum":266,"id":"n1_266","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"访问控制理论是网络空间安全学科所特有的理论基础。以下属于访问控制的有（）。","options":[{"k":"A","t":"信息隐藏"},{"k":"B","t":"身份认证"},{"k":"C","t":"密码技术"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":267,"id":"n1_267","analyze":"信息隐藏、身份认证、密码技术都属于访问控制。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关键信息基础设施的运营者采购涉及商用密码的网络产品和服务，可能影响国家安全的，应当按照（）的规定，通过国家网信部门会同国家密码管理部门等有关部门组织的国家安全审查。","options":[{"k":"A","t":"中华人民共和国网络安全法"},{"k":"B","t":"中华人民共和国密码法"},{"k":"C","t":"中华人民共和国保密法"},{"k":"D","t":"中华人民共和国国家安全法"}],"answer":"A","src":"NISP一级模拟题","srcNum":268,"id":"n1_268","analyze":"关键信息基础设施的运营者采购涉及商用密码的网络产品和服务，可能影响国家安全的，应当按照《中华人民共和国网络安全法》的规定，通过国家网信部门会同国家密码管理部门等有关部门组织的国家安全审查。","expand":"","tags":["NISP一级","单选题"]},{"stem":"“统一威胁管理”是将防病毒，入侵检测和防火墙等安全需求统一管理，目前市场上已经出现了多种此类安全设备，这里“统一威胁管理”常常被简称为（）。","options":[{"k":"A","t":"FW"},{"k":"B","t":"UTM"},{"k":"C","t":"IDS"},{"k":"D","t":"SOC"}],"answer":"B","src":"NISP一级模拟题","srcNum":269,"id":"n1_269","analyze":"统一威胁管理系统（UTM）","expand":"","tags":["NISP一级","单选题"]},{"stem":"访问控制为用户对系统资源提供最大限度共享的基础上，对用户的访问权限进行管理，防止对信息的非授权篡改和滥用，以下不属于访问控制的作用的是（）","options":[{"k":"A","t":"保证用户在系统的安全策略下正常工作"},{"k":"B","t":"拒绝非法用户的非授权访问"},{"k":"C","t":"拒绝合法用户的越权访问"},{"k":"D","t":"拒绝合法用户的正常访问"}],"answer":"D","src":"NISP一级模拟题","srcNum":270,"id":"n1_270","analyze":"访问控制的作用：保证用户在系统的安全策略下正常工作；拒绝非法用户的非授权访问；拒绝合法用户的越权访问","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）作为“中国智造”和“互联网+先进制造业”的核心要求，是推进制造强国和网络强国的重要基础。（）是把任何物品与互联网连接起来进行信息交换和通讯，以实现智能化识别、定位、跟踪、监控和管理的一种网络。（）是移动通信和互联网发展到一定阶段的必然发展方向和融合产物。","options":[{"k":"A","t":"互联网移动互联网工业互联网"},{"k":"B","t":"物联网工业互联网移动互联网"},{"k":"C","t":"工业互联网物联网移动互联网"},{"k":"D","t":"移动互联网工业互联网物联网"}],"answer":"C","src":"NISP一级模拟题","srcNum":271,"id":"n1_271","analyze":"工业互联网作为“中国智造”和“互联网+先进制造业”的核心要求，是推进制造强国和网络强国的重要基础。物联网(IoT)是把任何物品与互联网连接起来进行信息交换和通讯，以实现智能化识别、定位、跟踪、监控和管理的一种网络。移动互联网是移动通信和互联网发展到一定阶段的必然发展方向和融合产物。","expand":"","tags":["NISP一级","单选题"]},{"stem":"对于主机入侵检测系统，下列说法正确的是（）。","options":[{"k":"A","t":"不能用于加密网络环境"},{"k":"B","t":"能够监视所有系统"},{"k":"C","t":"可移植性好"},{"k":"D","t":"开发、测试的压力都比较小"}],"answer":"B","src":"NISP一级模拟题","srcNum":272,"id":"n1_272","analyze":"主机入侵检测系统能供用于加密网络环境，可移植性差，开发、测试的压力都比较大。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于状态检测防火墙，下列描述错误的是（）。","options":[{"k":"A","t":"状态检测防火墙又称动态包过滤防火墙，是对传统包过滤的功能扩展。"},{"k":"B","t":"状态检测防火墙实质上也是包过滤，但它不仅对IP包头信息进行检查过滤，而且还要检查包的TCP头部信息甚至包的内容。"},{"k":"C","t":"状态检查防火墙不允许规则的动态变化。"},{"k":"D","t":"状态防火墙通过采用状态监视器，对网络通信的各层(包括网络层、传输层以及应用层)实施监测，抽取其中部分数据，形成网络连接的动态状态信息。"}],"answer":"C","src":"NISP一级模拟题","srcNum":273,"id":"n1_273","analyze":"状态检测防火墙引入了动态规则的概念，允许规则的动态变化。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我国国家标准（）对云计算定义为：云计算是指通过网络访问可扩展的、灵活的物理或虚拟共享资源池，并按需自助获取和管理资源的模式。","options":[{"k":"A","t":"《信息安全技术云计算服务安全指南》(GB/T31167-2014)"},{"k":"B","t":"《信息安全技术云计算服务安全》(GB31167-2014)"},{"k":"C","t":"《云计算安全服务》(GB/T31167-2014)"},{"k":"D","t":"《云计算信息安全服务》(GB31167-2014)"}],"answer":"A","src":"NISP一级模拟题","srcNum":274,"id":"n1_274","analyze":"我国国家标准《信息安全技术 云计算服务安全指南》(GB/T 31167-2014)中对云计算定义为：云计算是指通过网络访问可扩展的、灵活的物理或虚拟共享资源池，并按需自助获取和管理资源的模式","expand":"","tags":["NISP一级","单选题"]},{"stem":"基于实体所知的鉴别中，口令鉴别由于简单易行，并且实现成本低，被广泛的应用在各类商业系统中，口令安全也一直是人们关注的重点，一个好的口令应当具备（）。","options":[{"k":"A","t":"使用多种字符"},{"k":"B","t":"定期更换"},{"k":"C","t":"尽量随机"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":275,"id":"n1_275","analyze":"一个好的口令应当使用多种字符、尽量随机、定期更换。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在日常生活中，下列哪个做法可以降低我们信息泄露的风险（ ）","options":[{"k":"A","t":"定期更换各类平台的密码"},{"k":"B","t":"离开电脑时不锁屏"},{"k":"C","t":"在朋友圈晒各类纪念日"},{"k":"D","t":"拆过的快递盒随意丢弃"}],"answer":"A","src":"NISP一级模拟题","srcNum":276,"id":"n1_276","analyze":"定期更换密码可以降低密码被攻击者猜到的可能性","expand":"","tags":["NISP一级","单选题"]},{"stem":"信息时代的海量数据，促进了大数据的形成和发展，其中大数据应用的核心资源是（）。","options":[{"k":"A","t":"人"},{"k":"B","t":"隐私"},{"k":"C","t":"数据"},{"k":"D","t":"互联网"}],"answer":"C","src":"NISP一级模拟题","srcNum":277,"id":"n1_277","analyze":"大数据的核心是数据","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙在网络安全防护中发挥着重要的作用，在选购防火墙时参考标准包括（）。","options":[{"k":"A","t":"总成本"},{"k":"B","t":"稳定性"},{"k":"C","t":"可升级性"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":278,"id":"n1_278","analyze":"选购防火墙时参考标准有总成本、稳定性、可升级性等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"收到垃圾邮件后下列哪种处理方式最合适（ ）","options":[{"k":"A","t":"回信将发件人骂一顿"},{"k":"B","t":"点开看看有没有感兴趣的东西"},{"k":"C","t":"删除该邮件，并将该邮件的发件人拉入黑名单"},{"k":"D","t":"转发该邮件给其他人"}],"answer":"C","src":"NISP一级模拟题","srcNum":279,"id":"n1_279","analyze":"通过设置黑白名单对垃圾邮件进行过滤，这是防范垃圾最直接也是最简单有效的方式","expand":"","tags":["NISP一级","单选题"]},{"stem":"IP协议是无连接的，其信息传输方式是（）。","options":[{"k":"A","t":"广播"},{"k":"B","t":"虚电路"},{"k":"C","t":"数据报"},{"k":"D","t":"多播"}],"answer":"C","src":"NISP一级模拟题","srcNum":280,"id":"n1_280","analyze":"IP协议是无连接的，其信息传输方式是数据报。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在OSI七层模型中，物理层的传输单位是（）","options":[{"k":"A","t":"段"},{"k":"B","t":"分组"},{"k":"C","t":"报文"},{"k":"D","t":"比特流"}],"answer":"D","src":"NISP一级模拟题","srcNum":281,"id":"n1_281","analyze":"物理层的传输单位是比特流。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙的部署位置可能在（）。","options":[{"k":"A","t":"可信网络与不可信网络之间"},{"k":"B","t":"不同安全级别的网络之间"},{"k":"C","t":"两个需要隔离的区域之间"},{"k":"D","t":"以上都有可能"}],"answer":"D","src":"NISP一级模拟题","srcNum":282,"id":"n1_282","analyze":"防火墙的部署位置：可信网络与不可信网络之间；不同安全级别的网络之间；两个需要隔离的区域之间。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络地址转换(NAT)作用是将内部的私有IP地址转换成可以在公网使用的公网IP。NAT的英文全称是（）。","options":[{"k":"A","t":"NetworkAddressTranslation"},{"k":"B","t":"NetworkAddressTraversal"},{"k":"C","t":"NetworkAddressPortTranslation"},{"k":"D","t":"NetworkAddressPortTraversal"}],"answer":"A","src":"NISP一级模拟题","srcNum":283,"id":"n1_283","analyze":"网络地址转换协议（NAT，Network Address Translation）","expand":"","tags":["NISP一级","单选题"]},{"stem":"实体身份鉴别的方法多种多样，且随着技术的进步，鉴别方法的强度不断提高，常见的方法有指令鉴别、令牌鉴别、指纹鉴别等。小红作为合法用户通过指纹验证，使用自己的账户进行支付、转账等操作。这说法属于下列选项中的（）。","options":[{"k":"A","t":"实体所知的鉴别方法"},{"k":"B","t":"实体所有的鉴别方法"},{"k":"C","t":"实体所感的鉴别方法"},{"k":"D","t":"实体特征的鉴别方法"}],"answer":"D","src":"NISP一级模拟题","srcNum":284,"id":"n1_284","analyze":"指纹属于实体特征","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列是小张在使用电子邮件时的一些做法，这些做法中不正确的是（ ）","options":[{"k":"A","t":"使用垃圾邮件过滤功能"},{"k":"B","t":"使用最新版本的电子邮件客户端"},{"k":"C","t":"直接打开邮件中的附件"},{"k":"D","t":"为邮箱设置安全的密码"}],"answer":"C","src":"NISP一级模拟题","srcNum":285,"id":"n1_285","analyze":"邮件中的附件可能含有病毒，应该先用杀毒软件等查杀后再打开","expand":"","tags":["NISP一级","单选题"]},{"stem":"小张的邮箱突然收到了大量的垃圾邮件，占满了邮箱空间导致无法接受新的邮件，小张受到的这种攻击方式叫做（ ）","options":[{"k":"A","t":"邮件炸弹"},{"k":"B","t":"邮件病毒"},{"k":"C","t":"邮件地址欺骗"},{"k":"D","t":"暴力破解"}],"answer":"A","src":"NISP一级模拟题","srcNum":286,"id":"n1_286","analyze":"邮件炸弹是垃圾邮件的一种，通过向接收者的邮件地址发送大量的电子邮件，消耗接收者的邮箱空间，最终因空间不足而无法接收新的邮件，导致其他用户发送的电子邮件被丢失或退回。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小蓝通过账号，密码和验证码成功登陆某银行的个人网银系统，此过程属于以下哪一类（）。","options":[{"k":"A","t":"个人网银和用户之间的双向鉴别"},{"k":"B","t":"由可信第三方完成的用户身份鉴别"},{"k":"C","t":"个人网银系统对用户身份的单向鉴别"},{"k":"D","t":"用户对个人网银系统合法性的单向鉴别"}],"answer":"C","src":"NISP一级模拟题","srcNum":287,"id":"n1_287","analyze":"小蓝通过账号，密码和验证码成功登陆某银行的个人网银系统，属于个人网银系统对用户身份的单向鉴别。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于对称密码算法缺点，以下说法错误的是（）。","options":[{"k":"A","t":"安全信道难以实现"},{"k":"B","t":"算法复杂、计算量大"},{"k":"C","t":"安全交换密钥问题及密钥管理复杂"},{"k":"D","t":"无法解决对消息的篡改、否认等问题"}],"answer":"B","src":"NISP一级模拟题","srcNum":288,"id":"n1_288","analyze":"对称密码算法的算法简单、计算量小。","expand":"","tags":["NISP一级","单选题"]},{"stem":"容灾系统可用性与指标RPO、RTO的关系是（ ）","options":[{"k":"A","t":"RPO和RTO越大，可用性越大"},{"k":"B","t":"RPO和RTO越小，可用性越大"},{"k":"C","t":"RPO越大，RTO越小，可用性越大"},{"k":"D","t":"RPO越小，RTO越大，可用性越大"}],"answer":"B","src":"NISP一级模拟题","srcNum":289,"id":"n1_289","analyze":"理论上RPO和RTO可以为0，越大则代表效果差，损失越大","expand":"","tags":["NISP一级","单选题"]},{"stem":"从安全的角度考虑，下列哪个上网习惯是不好的（ ）","options":[{"k":"A","t":"安装知名度和评价高的杀毒软件"},{"k":"B","t":"不更新软件和操作系统"},{"k":"C","t":"浏览完网页后及时清理浏览记录和cookie"},{"k":"D","t":"只下载和安装经过签名、安全的ActiveX控件"}],"answer":"B","src":"NISP一级模拟题","srcNum":290,"id":"n1_290","analyze":"不更新软件和操作系统可能会使一些漏洞一直存在得不到修复","expand":"","tags":["NISP一级","单选题"]},{"stem":"一个密码系统至少由明文、密文、加密算法、解密算法和密钥5部分组成，而其安全性是由下列哪个选项决定的（）。","options":[{"k":"A","t":"加密算法"},{"k":"B","t":"解密算法"},{"k":"C","t":"密钥"},{"k":"D","t":"加密算法和解密算法"}],"answer":"C","src":"NISP一级模拟题","srcNum":291,"id":"n1_291","analyze":"系统的保密性不依赖于加密体制和算法的保密，而依赖于密钥。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于网络安全设备说法正确的是（）。","options":[{"k":"A","t":"入侵检测系统的主要作用是发现并报告系统中未授权或违反安全策略的行为。"},{"k":"B","t":"虚拟专用网是在公共网络中，利用隧道技术，建立一个永久、安全的通信网络。"},{"k":"C","t":"防火墙既能实现内外网物理隔离，又能实现内外网逻辑隔离。"},{"k":"D","t":"安全隔离与信息交换系统也称为网闸，需要信息交换时，同一时间可以和两个不同安全级别的网络连接。"}],"answer":"A","src":"NISP一级模拟题","srcNum":292,"id":"n1_292","analyze":"B虚拟专用网是在公共网络中，利用隧道技术，建立一个临时的、安全的网络；C防火墙不能实现内外网物理隔离；D在需要信息交换时，安全隔离与信息交换系统内部隔离安全交换单元模拟形成开关，同一时间只和一个网络进行连接，不会同时连接两个网络。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于数字签名的基本特性的是（）","options":[{"k":"A","t":"不可伪造性"},{"k":"B","t":"不可否认性"},{"k":"C","t":"消息完整性"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":293,"id":"n1_293","analyze":"数字签名的基本特性：不可伪造性、不可否认性、消息完整性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"重放攻击又称重播攻击、回放攻击，是指攻击者发送一个目的主机（需要登录的服务器）已接收过的数据包，特别是在认证的过程中用于认证用户身份时所接收的数据包以达到欺骗系统的目的。以下不属于重放攻击的防御措施的是（）","options":[{"k":"A","t":"在会话中引入时间戳"},{"k":"B","t":"错误次数超过5次锁定账户"},{"k":"C","t":"使用一次性口令"},{"k":"D","t":"在会话中引入随机数"}],"answer":"B","src":"NISP一级模拟题","srcNum":294,"id":"n1_294","analyze":"B选项是用来防御暴力破解、枚举。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙的策略有（）。","options":[{"k":"A","t":"接受：允许通过。"},{"k":"B","t":"拒绝：拒绝信息通过，通知发送信息的信息源。"},{"k":"C","t":"丢弃：直接丢弃信息，不通知信息源。"},{"k":"D","t":"以上都是。"}],"answer":"D","src":"NISP一级模拟题","srcNum":295,"id":"n1_295","analyze":"防火墙的策略有：接受、拒绝、丢弃","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个是关于云计算主要的特征中“按需自助服务”的描述（）","options":[{"k":"A","t":"客户通过标准接入机制,利用计算机、移动电话、平板等各种终端通过网络随时随地使用服务。"},{"k":"B","t":"云服务商将资源(如:计算资源、存储资源、网络资源等)提供给多个客户使用,这些物理的、虚拟的资源根据客户的需求进行动态分配或重新分配"},{"k":"C","t":"云计算可按照多种计量方式(如按次付费或充值使用等)自动控制或量化资源,计量的对象可以是存储空间、计算能力、网络带宽或账户数等"},{"k":"D","t":"在不需或较少云服务商的人员参与情况下,客户能根据需要获得所需计算资源,如自主确定资源占用时间和数量等"}],"answer":"D","src":"NISP一级模拟题","srcNum":296,"id":"n1_296","analyze":"按需自助服务：在不需或较少云服务商的人员参与情况下,客户能根据需要获得所需计算资源,如自主确定资源占用时间和数量等","expand":"","tags":["NISP一级","单选题"]},{"stem":"统一威胁管理系统是集防火墙、防病毒、入侵检测、上网行为管理等多种网络安全功能于一体的网络安全设备。它的局限性有（）。","options":[{"k":"A","t":"功能集成带来了风险集中，不符合“纵深防御”的安全管理思想"},{"k":"B","t":"功能集成带来的系统复杂性、不同模块的协作问题"},{"k":"C","t":"功能集成带来的性能瓶颈"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":297,"id":"n1_297","analyze":"统一威胁管理系统（UTM）的局限性有：功能集成带来了风险集中，不符合“纵深防御”的安全管理思想；功能集成带来的系统复杂性、不同模块的协作问题；功能集成带来的性能瓶颈。","expand":"","tags":["NISP一级","单选题"]},{"stem":"公钥基础设施（PKI）的组成一般包括证书权威机构(CA)、证书注册机构(RA)、证书库和终端实体等部分。以下哪个属于证书注册机构(RA)的工作（）。","options":[{"k":"A","t":"作为PKI管理实体和服务的提供者，管理用户数字证书的生成、发放、更新和撤销等工作。"},{"k":"B","t":"是数字证书的申请、审核和注册中心"},{"k":"C","t":"用来发布、存储数字证书和证书撤销列表(CRL)，供用户查询、获取其他用户的数字证书和系统中的证书撤销列表所用"},{"k":"D","t":"拥有公私密钥对和相应公钥证书的最终用户，可以是人、设备、进程等。"}],"answer":"B","src":"NISP一级模拟题","srcNum":298,"id":"n1_298","analyze":"证书注册机构(RA)负责数字证书的申请、审核和注册中心。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于如何防范钓鱼网站的做法，以下哪个选项最合适( )","options":[{"k":"A","t":"仔细核对域名"},{"k":"B","t":"查询网站备案信息"},{"k":"C","t":"查看网页有没有使用Https进行保护"},{"k":"D","t":"以上选项的综合使用"}],"answer":"D","src":"NISP一级模拟题","srcNum":299,"id":"n1_299","analyze":"攻击者在设置钓鱼网站的地址时，选择的往往都是与仿冒网站非常相似的域名。查询网站的备案信息可以确定网站是否合规网站，没有备案信息，或备案信息与网站不一致，那么该网站的安全性就存疑了。很多网络钓鱼网站出于成本或其他原因，通常会选择Http这类没有加密的协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"哈希函数的碰撞是指（）。","options":[{"k":"A","t":"两个不同的消息，得到相同的消息摘要。"},{"k":"B","t":"两个相同的消息，得到不同的消息摘要。"},{"k":"C","t":"消息摘要长度和消息长度不一样。"},{"k":"D","t":"消息摘要长度和消息长度一样。"}],"answer":"A","src":"NISP一级模拟题","srcNum":300,"id":"n1_300","analyze":"哈希函数的碰撞是指两个不同的消息，得到相同的消息摘要。","expand":"","tags":["NISP一级","单选题"]},{"stem":"哈希函数也称为（），它可以将（）信息映射为（）的值。","options":[{"k":"A","t":"随机函数固定长度固定长度"},{"k":"B","t":"随机散列函数任意有限长度固定长度"},{"k":"C","t":"单项散列函数任意有限长度固定长度"},{"k":"D","t":"双向随机函数固定长度固定长度"}],"answer":"C","src":"NISP一级模拟题","srcNum":301,"id":"n1_301","analyze":"哈希函数也称为单向散列函数，它可以将任意有限长度信息映射为固定长度的值。","expand":"","tags":["NISP一级","单选题"]},{"stem":"古典密码阶段从古代到19世纪末，在这个阶段中，人类有众多的密码实践，典型的范例是著名的凯撒密码。已知凯撒密码的偏移量k=3，若密文为DWWDFN QRZ，则明文是（）。","options":[{"k":"A","t":"ATTACKNOW"},{"k":"B","t":"BUUBDLOPX"},{"k":"C","t":"AYYADLNOW"},{"k":"D","t":"ZSSZBJMNV"}],"answer":"A","src":"NISP一级模拟题","srcNum":302,"id":"n1_302","analyze":"凯撒密码偏移量为k=3，密文DWWDFN QRZ往前移动三位得到明文ATTACK NOW。","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是多个访问节点通过通信链路连接到一个中央节点进行相互通信组成的结构，中央节点根据集中的通信控制策略对不同的访问节点的访问进行管理和控制。","options":[{"k":"A","t":"星型拓扑"},{"k":"B","t":"网状拓扑"},{"k":"C","t":"环型拓扑"},{"k":"D","t":"树型拓扑"}],"answer":"A","src":"NISP一级模拟题","srcNum":303,"id":"n1_303","analyze":"星型拓扑是多个访问节点通过通信链路连接到一个中央节点进行相互通信组成的结构，中央节点根据集中的通信控制策略对不同的访问节点的访问进行管理和控制。","expand":"","tags":["NISP一级","单选题"]},{"stem":"移动终端对于信息安全的重要意义在于（）。","options":[{"k":"A","t":"移动终端中存储着大量的用户个人信息。"},{"k":"B","t":"移动终端已经成为用户身份验证的一种物品。"},{"k":"C","t":"移动终端已经成为大量的义务办理渠道，例如手机银行。"},{"k":"D","t":"以上都对"}],"answer":"D","src":"NISP一级模拟题","srcNum":304,"id":"n1_304","analyze":"移动终端中存储着大量的用户个人信息;移动终端已经成为用户身份验证的一种物品;移动终端已经成为大量的义务办理渠道。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在局域网中，MAC指的是（）。","options":[{"k":"A","t":"物理层"},{"k":"B","t":"数据链路层"},{"k":"C","t":"介质访问控制子层"},{"k":"D","t":"逻辑访问控制子层"}],"answer":"C","src":"NISP一级模拟题","srcNum":305,"id":"n1_305","analyze":"在局域网中，MAC指的是介质访问控制子层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下基于实体所有的鉴别威胁的是（）。","options":[{"k":"A","t":"用于鉴别的物品可能被复制"},{"k":"B","t":"用于鉴别的物品可能被篡改"},{"k":"C","t":"用于鉴别的物品可能被损坏"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":306,"id":"n1_306","analyze":"基于实体所有的鉴别威胁有：用于鉴别的物品可能被复制、篡改、损坏。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在windows系统中如果想禁止外网访问自己的某个端口可以（ ）","options":[{"k":"A","t":"设置防火墙的出站规则"},{"k":"B","t":"设置防火墙的入站规则"},{"k":"C","t":"无须设置"},{"k":"D","t":"以上都不对"}],"answer":"B","src":"NISP一级模拟题","srcNum":307,"id":"n1_307","analyze":"出站规则就是本机访问外网、入站规则就是外网访问本机","expand":"","tags":["NISP一级","单选题"]},{"stem":"能完成不同的VLAN之间数据传递的设备是（）","options":[{"k":"A","t":"二层交换机"},{"k":"B","t":"中继器"},{"k":"C","t":"路由器"},{"k":"D","t":"防火墙"}],"answer":"C","src":"NISP一级模拟题","srcNum":308,"id":"n1_308","analyze":"能完成不同的VLAN之间数据传递的设备是路由器。","expand":"","tags":["NISP一级","单选题"]},{"stem":"云计算是一种计算资源的新型利用模式,客户以购买服务的方式,通过网络获得计算、存储、软件等不同类型的资源。以下哪个不是云计算的特征（）","options":[{"k":"A","t":"服务不可计量"},{"k":"B","t":"快速伸缩性"},{"k":"C","t":"泛在接入"},{"k":"D","t":"资源池化"}],"answer":"A","src":"NISP一级模拟题","srcNum":309,"id":"n1_309","analyze":"云计算主要有以下特征：按需自助服务、泛在接入、资源池化、快速伸缩性、服务可计量","expand":"","tags":["NISP一级","单选题"]},{"stem":"传输层协议允许应用程序同其他应用程序通信。以下属于传输层协议的是（）","options":[{"k":"A","t":"TCP"},{"k":"B","t":"ipconfig"},{"k":"C","t":"ping"},{"k":"D","t":"register"}],"answer":"A","src":"NISP一级模拟题","srcNum":310,"id":"n1_310","analyze":"","expand":"","tags":["NISP一级","单选题"]},{"stem":"DNS即网域名称系统，它将域名和IP地址一一映射。DNS服务对应的网络端口号是（）。","options":[{"k":"A","t":"21"},{"k":"B","t":"53"},{"k":"C","t":"69"},{"k":"D","t":"52"}],"answer":"B","src":"NISP一级模拟题","srcNum":311,"id":"n1_311","analyze":"DNS服务对应的端口号为53。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙的种类较多，可以从多个角度对其进行分类，按照防火墙放置的位置不同可以分为（）和（）。","options":[{"k":"A","t":"软件防火墙硬件防火墙"},{"k":"B","t":"个人防火墙区域防火墙"},{"k":"C","t":"个人防火墙企业防火墙"},{"k":"D","t":"区域防火墙内部防火墙"}],"answer":"C","src":"NISP一级模拟题","srcNum":312,"id":"n1_312","analyze":"防火墙的种类较多，可以从多个角度对其进行分类，按照防火墙放置的位置不同可以分为个人防火墙和企业防火墙。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下那个不是古典密码的主要分类（）","options":[{"k":"A","t":"代替密码"},{"k":"B","t":"置换密码"},{"k":"C","t":"代替密码和置换密码的组合"},{"k":"D","t":"分组密码"}],"answer":"D","src":"NISP一级模拟题","srcNum":313,"id":"n1_313","analyze":"古典密码的主要分类：代替密码、置换密码、代替密码和置换密码的组合","expand":"","tags":["NISP一级","单选题"]},{"stem":"数据加密是保障数据安全的重要手段，以下不属于密码体制的是（）","options":[{"k":"A","t":"明文空间"},{"k":"B","t":"密文空间"},{"k":"C","t":"通信协议"},{"k":"D","t":"密钥空间"}],"answer":"C","src":"NISP一级模拟题","srcNum":314,"id":"n1_314","analyze":"密码体制不包括通信协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在一家公司的两个部门各有一个局域网，那么将它们互连的最简单的方法是使用（）。","options":[{"k":"A","t":"交换机"},{"k":"B","t":"路由器"},{"k":"C","t":"中继器"},{"k":"D","t":"网桥"}],"answer":"A","src":"NISP一级模拟题","srcNum":315,"id":"n1_315","analyze":"交换机可以为接入交换机的任意两个网络节点提供独享的电信号通路。","expand":"","tags":["NISP一级","单选题"]},{"stem":"消息认证码MAC是消息内容和秘密钥的公开函数，其英文全称是（）。","options":[{"k":"A","t":"MessageAuthenticationCode"},{"k":"B","t":"MessagAuthenticationCode"},{"k":"C","t":"MessageAuthenticationDate"},{"k":"D","t":"MessagAuthenticationCode"}],"answer":"A","src":"NISP一级模拟题","srcNum":316,"id":"n1_316","analyze":"消息认证码MAC英文名称是Message Authentication Code。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪种关系，更容易被即时通信中的安全威胁利用 ( )","options":[{"k":"A","t":"自己的领导"},{"k":"B","t":"陌生人"},{"k":"C","t":"不熟悉的朋友"},{"k":"D","t":"拉黑的联系人"}],"answer":"A","src":"NISP一级模拟题","srcNum":317,"id":"n1_317","analyze":"大多数人对于自己的领导都有较高信任度，所以更容易被利用","expand":"","tags":["NISP一级","单选题"]},{"stem":"关闭windows系统的445端口后无法使用下列哪个功能（ ）","options":[{"k":"A","t":"共享文件夹"},{"k":"B","t":"远程桌面"},{"k":"C","t":"Telnet"},{"k":"D","t":"FTP"}],"answer":"A","src":"NISP一级模拟题","srcNum":318,"id":"n1_318","analyze":"远程桌面端口3389、Telnet端口23、FTP端口21","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于强制访问控制模型中的BLP模型，以下说法正确的是（）","options":[{"k":"A","t":"BLP模型是最早的一种安全模型，也是最有名的多级安全策略模型"},{"k":"B","t":"BLP模型是一个严格形式化的模型，并给出了形式化的证明"},{"k":"C","t":"既有自主访问控制，又有强制访问控制"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":319,"id":"n1_319","analyze":"参考BLP模型概念和访问控制策略。","expand":"","tags":["NISP一级","单选题"]},{"stem":"从安全角度来看，使用下列哪种方式接入互联网使用银行APP进行转账安全性最高（ ）","options":[{"k":"A","t":"星巴克的WIFI"},{"k":"B","t":"自己的手机5G网络"},{"k":"C","t":"机场的免费WIFI"},{"k":"D","t":"以上都对"}],"answer":"B","src":"NISP一级模拟题","srcNum":320,"id":"n1_320","analyze":"不要随意连接公共网络，更不要连接后操作网银和微信转账等功能","expand":"","tags":["NISP一级","单选题"]},{"stem":"常见的访问控制模型有（）","options":[{"k":"A","t":"自主访问控制"},{"k":"B","t":"强制访问控制"},{"k":"C","t":"基于角色地访问控制模型"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":321,"id":"n1_321","analyze":"常见的访问控制模型有：自主访问控制、强制访问控制、基于角色地访问控制模型","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线局域网的基本概念包括（）。","options":[{"k":"A","t":"无线接入点、服务集标识和信道"},{"k":"B","t":"无线工作站、标识和传输通道"},{"k":"C","t":"无线工作站、服务集和信道"},{"k":"D","t":"无线信号、服务集和信道"}],"answer":"A","src":"NISP一级模拟题","srcNum":322,"id":"n1_322","analyze":"无线局域网的基本概念包括无线接入点、服务集标识和信道。","expand":"","tags":["NISP一级","单选题"]},{"stem":"养成良好的上网习惯，有助于避免泄露重要的个人信息，以下行为中容易造成隐私泄露的是（ ）","options":[{"k":"A","t":"注册无法完全信任的网站时，账号密码不应该与重要网站使用的账号和密码相同"},{"k":"B","t":"为电脑设置自动锁屏"},{"k":"C","t":"定期清理网页浏览记录"},{"k":"D","t":"上网时直接关闭网页，不退出账号"}],"answer":"D","src":"NISP一级模拟题","srcNum":323,"id":"n1_323","analyze":"直接关闭网页，cookies不会被自动删除，有泄露的风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"EIA/TIA的布线标准中规定了两种双绞线的线序568A和568B。568B的线序为（）。","options":[{"k":"A","t":"橙白-橙、绿白-蓝、蓝白-绿、棕白-棕"},{"k":"B","t":"橙白-橙、绿白-绿、蓝白-蓝、棕白-棕"},{"k":"C","t":"绿白-绿、橙白-蓝、蓝白-橙、棕白-棕"},{"k":"D","t":"绿白-蓝、橙白-绿、蓝白-橙、棕白-棕"}],"answer":"A","src":"NISP一级模拟题","srcNum":324,"id":"n1_324","analyze":"568B线序：橙白-橙、绿白-蓝、蓝白-绿、棕白-棕","expand":"","tags":["NISP一级","单选题"]},{"stem":"二维码是现在生活中非常重要的一部分，但随意二维码可能带来信息泄露等安全风险，下列选项中相对安全的是（ ）","options":[{"k":"A","t":"朋友圈中微商发布的二维码"},{"k":"B","t":"小道消息得来的信用卡提额二维码"},{"k":"C","t":"街头扫描送礼品的二维码"},{"k":"D","t":"在官网下载的APP时扫描的官方公众号二维码"}],"answer":"D","src":"NISP一级模拟题","srcNum":325,"id":"n1_325","analyze":"官网的公众号二维码一般都是安全的","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于交换机的物理分层方式的是（）。","options":[{"k":"A","t":"接入层"},{"k":"B","t":"汇聚层"},{"k":"C","t":"核心层"},{"k":"D","t":"交换层"}],"answer":"D","src":"NISP一级模拟题","srcNum":326,"id":"n1_326","analyze":"交换机的物理分层方式：接入层、汇聚层、核心层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网络环境日益复杂，人们对安全防护技术的要求也在不断提高，以下关于防火墙技术的发展要求说法错误的是（）","options":[{"k":"A","t":"信息过滤的深度越来越浅"},{"k":"B","t":"安全协议的优化是必要的"},{"k":"C","t":"与操作系统相耦合越来越紧密"},{"k":"D","t":"由被动防护转变为智能、动态地保护内部网络"}],"answer":"A","src":"NISP一级模拟题","srcNum":327,"id":"n1_327","analyze":"防火墙技术发展对信息过滤的深度越来越深。","expand":"","tags":["NISP一级","单选题"]},{"stem":"( )游戏是计算机病毒的第一个雏形，体现了病毒自我复制的基本思想","options":[{"k":"A","t":"星际大战"},{"k":"B","t":"群雄争霸"},{"k":"C","t":"磁芯大战"},{"k":"D","t":"以上都不正确"}],"answer":"C","src":"NISP一级模拟题","srcNum":328,"id":"n1_328","analyze":"磁芯大战(core war or core wars)就是汇编程序间的大战，程序在虚拟机中运行，并试图破坏其他程序，生存到最后即为胜者。会自我繁殖的程序","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个选项不是即时通信应用系统所面临的安全问题（ ）","options":[{"k":"A","t":"传播恶意代码"},{"k":"B","t":"伪造人设取得好感后实施诈骗"},{"k":"C","t":"损坏手机硬件"},{"k":"D","t":"散播非法信息"}],"answer":"C","src":"NISP一级模拟题","srcNum":329,"id":"n1_329","analyze":"即时通信应用系统所面临的安全问题包括：即时通信应用信息系统自身安全风险、利用即时通信传播恶意代码、利用即时通信破坏防御系统、网络欺诈及非法信息","expand":"","tags":["NISP一级","单选题"]},{"stem":"PPP协议提供了中在点到点链路上封装网络层协议信息的标准方法，其英文是（）。","options":[{"k":"A","t":"ThePoint-to-PointProtocol"},{"k":"B","t":"Point-to-PointProtocoloverEthernet"},{"k":"C","t":"Point-Point-PointProtocol"},{"k":"D","t":"EthernetProtocol"}],"answer":"A","src":"NISP一级模拟题","srcNum":330,"id":"n1_330","analyze":"PPP协议提供了中在点到点链路上封装网络层协议信息的标准方法，其英文是（The Point-to-Point Protocol）","expand":"","tags":["NISP一级","单选题"]},{"stem":"数字签名不能实现的安全特性为（）。","options":[{"k":"A","t":"保密通信"},{"k":"B","t":"防抵赖"},{"k":"C","t":"防伪造"},{"k":"D","t":"防冒充"}],"answer":"A","src":"NISP一级模拟题","srcNum":331,"id":"n1_331","analyze":"数字签名的作用不在于保密通信。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在无线局域网的概念中，无线接入点（AP）是（）。","options":[{"k":"A","t":"用于标识无线网络，可与将一个无线局域网分为几个需要不同身份验证的子网络。"},{"k":"B","t":"用于将无线工作站与无线局域网进行有效连接。"},{"k":"C","t":"是以无线信号作为传输媒体的数据信号传送通道。"},{"k":"D","t":"以上说法都不对。"}],"answer":"B","src":"NISP一级模拟题","srcNum":332,"id":"n1_332","analyze":"无线接入点(AP),用于将无线工作站与无线局域网进行有效连接。","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线局域网目前广泛使用的协议是（）标准族。","options":[{"k":"A","t":"IEEE802.11x"},{"k":"B","t":"IEEE802.1"},{"k":"C","t":"IEEE801.1x"},{"k":"D","t":"IEEE802.11a"}],"answer":"A","src":"NISP一级模拟题","srcNum":333,"id":"n1_333","analyze":"无线局域网目前广泛使用的协议是IEEE802.11x标准族。","expand":"","tags":["NISP一级","单选题"]},{"stem":"开放系统互连模型(OSI)是国际标准化组织发布的通信模型，OSI七层模型从低到高依次是（）","options":[{"k":"A","t":"物理层、数据链路层、网络层、传输层、会话层、表示层和应用层"},{"k":"B","t":"物理层、数据链路层、传输层、网络层、会话层、表示层和应用层"},{"k":"C","t":"物理层、数据链路层、传输层、网络层、表示层、会话层和应用层"},{"k":"D","t":"物理层、网络层、数据链路层、传输层、表示层、会话层和应用层"}],"answer":"A","src":"NISP一级模拟题","srcNum":334,"id":"n1_334","analyze":"OSI七层模型从低到高依次是物理层、数据链路层、网络层、传输层、会话层、表示层和应用层。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于物联网安全风险下列说法不正确的是（）","options":[{"k":"A","t":"物联网导致的隐私泄露问题"},{"k":"B","t":"物联网平台不存在安全漏洞带来的安全问题"},{"k":"C","t":"物联网终端的移动性对信息安全带来的管理困难问题"},{"k":"D","t":"物联网快速增长的设备数量使得对设备的更新和维护都较为困难，终端设备的漏洞很难得到有效的修复"}],"answer":"B","src":"NISP一级模拟题","srcNum":335,"id":"n1_335","analyze":"物联网平台存在的安全漏洞带来的安全问题。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于WAF产品功能的描述中，不正确的是（）。","options":[{"k":"A","t":"WAF产品应该具备针对应用层DOS攻击的防护能力。"},{"k":"B","t":"WAF的应用交付能力可以完全保障用户的敏感信息的安全。"},{"k":"C","t":"WAF可以阻止非授权访问的攻击者窃取客户端或者网站上含有敏感信息的文件。"},{"k":"D","t":"基于URL的应用层访问控制和HTTP请求的合规性检查，都属于WAF的应用合规功能。"}],"answer":"B","src":"NISP一级模拟题","srcNum":336,"id":"n1_336","analyze":"WAF的应用交付能力可以完全保障用户的敏感信息的安全，太绝对。","expand":"","tags":["NISP一级","单选题"]},{"stem":"传输线路是信息发送设备和接受设备之间的物理通路，不同传输介质具有不同的安全特性，以下属于网络传输介质的是（）。","options":[{"k":"A","t":"同轴电缆"},{"k":"B","t":"双绞线"},{"k":"C","t":"光纤"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":337,"id":"n1_337","analyze":"常见的网络传输介质有：同轴电缆、双绞线、光纤、无线传输。","expand":"","tags":["NISP一级","单选题"]},{"stem":"SMTP/POP3两个协议在传输数据时是明文传输，下列最可能产生的安全风险是 ( )","options":[{"k":"A","t":"信息泄露"},{"k":"B","t":"信息伪造"},{"k":"C","t":"信息丢失"},{"k":"D","t":"信息篡改"}],"answer":"A","src":"NISP一级模拟题","srcNum":338,"id":"n1_338","analyze":"相较于其他选项，信息被截获泄露是最容易发生的","expand":"","tags":["NISP一级","单选题"]},{"stem":"路由器、防火墙、交换机等网络设备是整个互联网世界的联系纽带，占据着非常重要的地位，是计算机网络的节点。网络设备的安全性尤为重要。下列漏洞中不属于网络设备漏洞的是（）。","options":[{"k":"A","t":"网络摄像头漏洞"},{"k":"B","t":"交换机设备漏洞"},{"k":"C","t":"Windows系统漏洞"},{"k":"D","t":"防火墙漏洞"}],"answer":"C","src":"NISP一级模拟题","srcNum":339,"id":"n1_339","analyze":"Windows系统漏洞不属于网络设备漏洞。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不属于大数据面临的安全威胁的是（）。","options":[{"k":"A","t":"虚拟化VMWare漏洞攻击"},{"k":"B","t":"信息泄露或丢失"},{"k":"C","t":"大数据滥用、误用风险"},{"k":"D","t":"非授权访问、拒绝服务攻击"}],"answer":"A","src":"NISP一级模拟题","srcNum":340,"id":"n1_340","analyze":"虚拟化VMWare漏洞攻击属于云计算所面临的安全威胁。","expand":"","tags":["NISP一级","单选题"]},{"stem":"《刑法》第二百八十六条：违反国家规定，对计算机信息系统功能进行删除、修改、增加、干扰，造成计算机信息系统不能正常运行，后果严重的，（）；后果特别严重的，（）。","options":[{"k":"A","t":"处五年以下有期徒刑或者拘役；处五年以上有期徒刑。"},{"k":"B","t":"三年以上五年以下有期徒刑或者拘役；处五年以上有期徒刑。"},{"k":"C","t":"处五年以上有期徒刑；处五年以上十年以下有期徒刑。"},{"k":"D","t":"处五年以上有期徒刑；处十年以上有期徒刑。"}],"answer":"A","src":"NISP一级模拟题","srcNum":341,"id":"n1_341","analyze":"处五年以下有期徒刑或者拘役；处五年以上有期徒刑。","expand":"","tags":["NISP一级","单选题"]},{"stem":"同轴电缆显著的特征是频带较宽，其中高端的频带最大可达到（）。","options":[{"k":"A","t":"3GHz"},{"k":"B","t":"5GHz"},{"k":"C","t":"10GHz"},{"k":"D","t":"15GHz"}],"answer":"C","src":"NISP一级模拟题","srcNum":342,"id":"n1_342","analyze":"同轴电缆显著的特征是频带较宽，其中高端的频带最大可达到10GHz。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪个场景属于身份鉴别过程（）。","options":[{"k":"A","t":"用户依照提示输入用户名、口令和短信验证码，成功登录该应用。"},{"k":"B","t":"用户在网络上共享了的一份加密的pdf文档，以阻止其他人下载查看文档中的内容。"},{"k":"C","t":"用户给自己编写的文档加上水印。"},{"k":"D","t":"用户在网上下载了一份带水印的文档，去掉了水印。"}],"answer":"A","src":"NISP一级模拟题","srcNum":343,"id":"n1_343","analyze":"A选项属于身份鉴别的过程。","expand":"","tags":["NISP一级","单选题"]},{"stem":"安全传输层协议TLS用于在两个通信应用程序之间提供保密性和数据完整性，它的英文全称是（）。","options":[{"k":"A","t":"TransportLayerStcureProtocol"},{"k":"B","t":"TransportLayerSecurityProtocol"},{"k":"C","t":"TransferLayerSecureProtocol"},{"k":"D","t":"TransportLayerSecureProtocol"}],"answer":"B","src":"NISP一级模拟题","srcNum":344,"id":"n1_344","analyze":"安全传输层协议TLS它的英文全称Transport Layer Security Protocol","expand":"","tags":["NISP一级","单选题"]},{"stem":"（）是针对没有国家标准而又需要在全国某个行业范围内统一的技术要求而制定的标准。","options":[{"k":"A","t":"国家标准"},{"k":"B","t":"行业标准"},{"k":"C","t":"国际标准"},{"k":"D","t":"地方标准"}],"answer":"B","src":"NISP一级模拟题","srcNum":345,"id":"n1_345","analyze":"行业标准是针对没有国家标准而又需要在全国某个行业范围内统一的技术要求而制定的标准。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下哪项属于入侵防御系统的入侵防护技术（）。","options":[{"k":"A","t":"恶意站点检测"},{"k":"B","t":"Web分类过滤"},{"k":"C","t":"专业抗DDoS"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":346,"id":"n1_346","analyze":"入侵防御系统的入侵防护技术有：恶意站点检测、web分类过滤、专业抗DDoS等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下选项关于电子邮件存在的安全隐患说法不准确的是 ( )","options":[{"k":"A","t":"电子邮件传输协议不加密"},{"k":"B","t":"攻击者可能通过自建SMTP服务器来实现发送伪造地址的邮件"},{"k":"C","t":"电子邮件缺乏对发送者严格的身份验证机制"},{"k":"D","t":"电子邮件的使用者都缺乏安全意识"}],"answer":"D","src":"NISP一级模拟题","srcNum":347,"id":"n1_347","analyze":"D选项说法过于绝对","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，接收邮件使用的是POP3，默认端口号为（）。","options":[{"k":"A","t":"138"},{"k":"B","t":"110"},{"k":"C","t":"112"},{"k":"D","t":"139"}],"answer":"B","src":"NISP一级模拟题","srcNum":348,"id":"n1_348","analyze":"在TCP/IP协议中，接收邮件使用的是POP3，默认端口号为110。","expand":"","tags":["NISP一级","单选题"]},{"stem":"某公司已有漏洞扫描和入侵检测系统(Intrusion Detection System，IDS)产品，需要购买防火墙，以下做法应当优先考虑的是（）。","options":[{"k":"A","t":"任选一款防火墙"},{"k":"B","t":"选购一款当前最先进的防火墙"},{"k":"C","t":"选购一款便宜的防火墙"},{"k":"D","t":"选购一款同已有的安全产品设备联动的防火墙"}],"answer":"D","src":"NISP一级模拟题","srcNum":349,"id":"n1_349","analyze":"在技术条件允许情况下，可以实现IDS和FW的联动。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于自主访问控制模型DAC，以下说法错误的是（）","options":[{"k":"A","t":"DAC资源的所有者，往往也是资源地创建者，可以规定谁有权访问它们地资源。"},{"k":"B","t":"DAC可为用户提供灵活调整地安全策略，具有较好地易用性和可扩展性。"},{"k":"C","t":"DAC具有某种访问能力地主体能够自主地将访问权的某个子集授予其他主体。"},{"k":"D","t":"DAC常用于多种商务系统中，安全性较高。"}],"answer":"D","src":"NISP一级模拟题","srcNum":350,"id":"n1_350","analyze":"DAC常用于多种商务系统中，安全性较低","expand":"","tags":["NISP一级","单选题"]},{"stem":"双绞线传输带宽也在逐步扩大，从最初的仅能用于语音传输的一类线发展到目前达到10Gbps带宽的七类线。最常用的以太网属于（）。","options":[{"k":"A","t":"五类线"},{"k":"B","t":"超五类线"},{"k":"C","t":"六类线"},{"k":"D","t":"七类线"}],"answer":"A","src":"NISP一级模拟题","srcNum":351,"id":"n1_351","analyze":"最常用的以太网电缆是五类线。","expand":"","tags":["NISP一级","单选题"]},{"stem":"很多互联网应用重要操作时都需要给手机发一个带验证码的短信，关于短信验证，以下说法哪个是正确的（）。","options":[{"k":"A","t":"手机号具有唯一性，因此可被用于做身份验证依据。"},{"k":"B","t":"互联网应用必须通过手机短信才能进行验证。"},{"k":"C","t":"手机短信具有极高的安全性，所以被用于身份验证。"},{"k":"D","t":"以上都对"}],"answer":"A","src":"NISP一级模拟题","srcNum":352,"id":"n1_352","analyze":"手机号具有唯一性，因此可被用于做身份验证依据。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在BLP模型中，现有两个安全级为A＝＜机密，｛外交，商务｝＞、B＝＜秘密，｛外交｝＞，AB之间的支配关系为（）。","options":[{"k":"A","t":"A支配B"},{"k":"B","t":"B支配A"},{"k":"C","t":"没有支配关系"},{"k":"D","t":"以上都不正确"}],"answer":"A","src":"NISP一级模拟题","srcNum":353,"id":"n1_353","analyze":"安全级之间的支配关系（密级高于或等于、范畴包含）。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于数据备份说法错误的是（ ）","options":[{"k":"A","t":"数据备份能恢复由于人为操作失误删除的文件"},{"k":"B","t":"备份的数据必须和源文件在同一分区中"},{"k":"C","t":"通过数据备份，能防止硬件损坏原因导致的数据丢失风险"},{"k":"D","t":"可以使用专用备份软件进行数据备份"}],"answer":"B","src":"NISP一级模拟题","srcNum":354,"id":"n1_354","analyze":"备份的数据的源文件无需在同一分区，甚至无需在同一磁盘","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下不是上网行为管理产品的功能的是（）。","options":[{"k":"A","t":"能有效的防止内部人员接触非法信息、恶意信息，避免国家、企业秘密或敏感信息泄露。"},{"k":"B","t":"可对内部人员的互联网访问行为进行实时监控。"},{"k":"C","t":"提供了在数据流通过时的病毒检测能力。"},{"k":"D","t":"对网络流量资源进行管理。"}],"answer":"C","src":"NISP一级模拟题","srcNum":355,"id":"n1_355","analyze":"在组织机构的互联网出口处部署上网行为管理产品，能有效的防止内部人员接触非法信息、恶意信息，避免国家、企业秘密或敏感信息泄露，并可对内部人员的互联网访问行为进行实时监控，对网络流量资源进行管理，对提高工作效率有极大的帮助。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我国国家标准（）对于工业控制系统的定义是：工业控制系统(ICS)是一个通用术语,它包括多种工业生产中使用的控制系统,包括监控和数据采集系统(SCADA)、分布式控制系统(DCS)和其他较小的控制系统,如可编程逻辑控制器(PLC)。","options":[{"k":"A","t":"GB32919—2016《信息安全技术工业控制系统安全控制应用指南》"},{"k":"B","t":"GB/T32919—2016《工业控制系统安全控制应用》"},{"k":"C","t":"GB32919—2016《工业控制系统安全控制应用》"},{"k":"D","t":"GB/T32919—2016《信息安全技术工业控制系统安全控制应用指南》"}],"answer":"D","src":"NISP一级模拟题","srcNum":356,"id":"n1_356","analyze":"我国国家标准GB/T32919—2016 《信息安全技术 工业控制系统安全控制应用指南》对于工业控制系统的定义是：工业控制系统(ICS)是一个通用术语,它包括多种工业生产中使用的控制系统,包括监控和数据采集系统(SCADA)、分布式控制系统(DCS)和其他较小的控制系统,如可编程逻辑控制器(PLC)。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在windows系统中隐藏文件和系统文件默认是不可见的，在cmd.exe中，以下哪个命令可以列举出隐藏文件和系统文件？","options":[{"k":"A","t":"dir/a"},{"k":"B","t":"dir/q"},{"k":"C","t":"dir/s"},{"k":"D","t":"dir/l"}],"answer":"A","src":"NISP一级模拟题","srcNum":357,"id":"n1_357","analyze":"/q 显示文件所有者、/s 显示指定目录和所有子目录中的文件、/l 用小写显示","expand":"","tags":["NISP一级","单选题"]},{"stem":"在网络信息系统建设中部署防火墙，往往用于提高内部网络的安全防护能力。某公司准备部署一台防火墙来保护内网主机，下列选项中部署位置正确的是（）。","options":[{"k":"A","t":"外网——内网主机——防火墙——交换机"},{"k":"B","t":"外网——交换机——内网主机——防火墙"},{"k":"C","t":"外网——内网主机——交换机——防火墙"},{"k":"D","t":"外网——防火墙——交换机——内网主机"}],"answer":"D","src":"NISP一级模拟题","srcNum":358,"id":"n1_358","analyze":"防火墙一般部署在内网和外网边界。","expand":"","tags":["NISP一级","单选题"]},{"stem":"防火墙是网络信息系统建设中常采用的一类产品，它在内外网隔离方面的作用是（）。","options":[{"k":"A","t":"既能物理隔离，又能逻辑隔离"},{"k":"B","t":"能物理隔离，不能逻辑隔离"},{"k":"C","t":"不能物理隔离，能逻辑隔离"},{"k":"D","t":"不能物理隔离，也不能逻辑隔离"}],"answer":"C","src":"NISP一级模拟题","srcNum":359,"id":"n1_359","analyze":"防火墙能实现逻辑隔离，不能物理隔离。","expand":"","tags":["NISP一级","单选题"]},{"stem":"目前广泛应用于浏览器与服务器之间身份认证和加密数据传输的协议是（）。","options":[{"k":"A","t":"SSH协议"},{"k":"B","t":"SMTP协议"},{"k":"C","t":"SSL协议"},{"k":"D","t":"HTTP协议"}],"answer":"C","src":"NISP一级模拟题","srcNum":360,"id":"n1_360","analyze":"目前广泛应用于浏览器与服务器之间身份认证和加密数据传输的协议是SSL协议。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于移动互联网安全风险，下列属于开放信道带来的安全风险的是（）","options":[{"k":"A","t":"通信内容可能被窃听，篡改、通信用户身份可能被假冒等安全风险。"},{"k":"B","t":"业务流程缺乏安全风险分析，使得用户的个人利益受到损害。"},{"k":"C","t":"智能终端功能不断的多样化，使得安全风险不断累积，为用户带来了越来越多的安全风险。"},{"k":"D","t":"对不良信息没有严格审核，产生了一些不良的影响，包括色情、虚假、夸大甚至非法言论。"}],"answer":"A","src":"NISP一级模拟题","srcNum":361,"id":"n1_361","analyze":"开封信道会带来的安全风险有：通信内容可能被窃听，篡改、通信用户身份可能被假冒等安全风险。","expand":"","tags":["NISP一级","单选题"]},{"stem":"通过扫描发现系统漏洞后，可通过以下哪种方式来弥补漏洞( )","options":[{"k":"A","t":"安装系统补丁"},{"k":"B","t":"重装系统"},{"k":"C","t":"卸载所有软件"},{"k":"D","t":"利用杀毒软件进行杀毒"}],"answer":"A","src":"NISP一级模拟题","srcNum":362,"id":"n1_362","analyze":"安装系统补丁，就是通过安装相应的补丁软件，补上系统中的漏洞","expand":"","tags":["NISP一级","单选题"]},{"stem":"大数据的生命周期包括（）","options":[{"k":"A","t":"数据采集、数据存储、数据处理、数据分发、数据删除"},{"k":"B","t":"数据采集、数据存储、数据处理、数据加密、数据删除"},{"k":"C","t":"数据采集、数据加密、数据处理、数据分发、数据删除"},{"k":"D","t":"数据采集、数据存储、数据处理、数据分发、数据加密"}],"answer":"A","src":"NISP一级模拟题","srcNum":363,"id":"n1_363","analyze":"大数据的生命周期包括数据采集、数据存储、数据处理、数据分发、数据删除等","expand":"","tags":["NISP一级","单选题"]},{"stem":"对于实际使用的密码系统而言，由于至少存在一种破译方法，即暴力攻击法，因此都不能满足无条件安全性，只能达到计算安全性。下面哪个密码系统没有达到实际安全（）","options":[{"k":"A","t":"破译该密码系统的实际计算量(包括计算时间或费用)巨大。"},{"k":"B","t":"破译该密码系统所需要的计算时间超过被加密信息的生命周期。"},{"k":"C","t":"破译该密码系统的费用超过被加密信息本身的价值。"},{"k":"D","t":"破译该密码系统实际计算量和开销不大。"}],"answer":"D","src":"NISP一级模拟题","srcNum":364,"id":"n1_364","analyze":"密码系统要达到实际安全，就要满足以下准则：（1）破译该密码系统的实际计算量(包括计算时间或费用)巨大，以至于在实际中是无法实现的。（2）破译该密码系统所需要的计算时间超过被加密信息的生命周期。例如，战争中发起战斗攻击的作战命令只需要在战斗打响前保密。（3）破译该密码系统的费用超过被加密信息本身的价值。如果一个密码系统能够满足以上准则之一，就可以认为是实际安全的。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列选项中对防止垃圾邮件没有作用的是（ ）","options":[{"k":"A","t":"不随意公开邮箱地址"},{"k":"B","t":"使用好邮件管理、黑白名单功能"},{"k":"C","t":"定期备份邮件"},{"k":"D","t":"使用专业的反垃圾邮件软件"}],"answer":"C","src":"NISP一级模拟题","srcNum":365,"id":"n1_365","analyze":"定期备份邮件能防止重要邮件丢失但不能防止垃圾邮件","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列关于垃圾邮件的说法正确的是（ ）","options":[{"k":"A","t":"垃圾邮件是未经用户许可而发送到用户邮件地址的电子邮件"},{"k":"B","t":"邮件内容中包含垃圾字眼的就是垃圾邮件"},{"k":"C","t":"收件人事先预定的广告、电子刊物等具有宣传性质的电子邮件属于垃圾邮件"},{"k":"D","t":"和工作无关的邮件就是垃圾邮件"}],"answer":"A","src":"NISP一级模拟题","srcNum":366,"id":"n1_366","analyze":"垃圾邮件是未经用户许可而发送到用户邮件地址的电子邮件，通常情况下是各类广告、欺骗信息如赚钱、色情、赌博等。","expand":"","tags":["NISP一级","单选题"]},{"stem":"如果将未经处理的信息发布在朋友圈、微博、论坛等社交媒体中可能造成（ ）","options":[{"k":"A","t":"信息泄露"},{"k":"B","t":"信息丢失"},{"k":"C","t":"信息篡改"},{"k":"D","t":"信息拦截"}],"answer":"A","src":"NISP一级模拟题","srcNum":367,"id":"n1_367","analyze":"攻击者可能通过搜索引擎，报纸、杂志、文库等各类媒体，微博、论坛、社交网站等各类社交媒体收集到你的信息，造成信息泄露","expand":"","tags":["NISP一级","单选题"]},{"stem":"当你收到一份邮件时，比较安全的处理办法是（ ）","options":[{"k":"A","t":"确定发件人是否可信，然后使用杀毒软件对附件进行查杀后在查看"},{"k":"B","t":"直接打开附件"},{"k":"C","t":"只要邮件是认识的人发来的，那它就是安全的"},{"k":"D","t":"按照邮件中的要求填写个人详细信息"}],"answer":"A","src":"NISP一级模拟题","srcNum":368,"id":"n1_368","analyze":"确定发件人是否可信后使用杀毒软件对附件进行查杀后在查看可有效的降低安全风险","expand":"","tags":["NISP一级","单选题"]},{"stem":"一个信息管理系统通常会对用户进行分组并实施访问控制。下列选项中，对访问控制的作用的理解错误的是（）。","options":[{"k":"A","t":"对经过身份鉴别后的合法用户提供所有服务"},{"k":"B","t":"在用户对系统资源提供最大限度共享的基础上，对用户的访问权进行管理"},{"k":"C","t":"拒绝非法用户的非授权访问请求"},{"k":"D","t":"防止对信息的非授权篡改和滥用"}],"answer":"A","src":"NISP一级模拟题","srcNum":369,"id":"n1_369","analyze":"访问控制的核心：允许合法用户的授权访问，防止非法用户的访问和合法用户的越权访问。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列哪个选项不属于即时通信应用（ ）","options":[{"k":"A","t":"QQ"},{"k":"B","t":"网易新闻"},{"k":"C","t":"微信"},{"k":"D","t":"钉钉"}],"answer":"B","src":"NISP一级模拟题","srcNum":370,"id":"n1_370","analyze":"即时通信软件是通过即时通信技术来实现在线聊天、交流的软件","expand":"","tags":["NISP一级","单选题"]},{"stem":"在OSI参考模型中有7个层次，提供了相应的安全服务来加强信息系统的安全性，以下哪一层提供了保密性、身份鉴别、数据完整性服务（）。","options":[{"k":"A","t":"物理层"},{"k":"B","t":"表示层"},{"k":"C","t":"网络层"},{"k":"D","t":"传输层"}],"answer":"C","src":"NISP一级模拟题","srcNum":371,"id":"n1_371","analyze":"网络层和应用层可以提供保密性、身份鉴别、完整性、抗抵赖、访问控制服务。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于入侵检测系统中的异常检测系统，下列说法正确的是（）。","options":[{"k":"A","t":"设定异常的行为模式"},{"k":"B","t":"假设所有的入侵行为都是异常的"},{"k":"C","t":"基于系统和基于设备的异常"},{"k":"D","t":"以上都对"}],"answer":"B","src":"NISP一级模拟题","srcNum":372,"id":"n1_372","analyze":"异常检测技术设定“正常”的行为模式、假设所有的入侵都是异常的、基于系统和基于用户的异常。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于OSI七层模型来说，下列哪个不是分层结构的优点（）","options":[{"k":"A","t":"各层之间相互独立"},{"k":"B","t":"增加复杂性"},{"k":"C","t":"促进标准化工作"},{"k":"D","t":"协议开发模块化"}],"answer":"B","src":"NISP一级模拟题","srcNum":373,"id":"n1_373","analyze":"分层结构的特点：各层之间相互独立；降低复杂性；促进标准化工作；协议开发模块化。","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于国家秘密载体管理，以下说法错误的是（）","options":[{"k":"A","t":"制作国家秘密载体，应当由机关、单位或者经保密行政管理部门保密审查合格的单位承担，制作场所应当符合保密要求"},{"k":"B","t":"收发国家秘密载体，应当履行清点、编号、登记、签收手续"},{"k":"C","t":"传递国家秘密载体，应当通过国有邮政企业进行，而不能通过民营快递企业"},{"k":"D","t":"复制国家秘密载体或者摘录、引用、汇编属于国家秘密的内容，应当按照规定报批，不得擅自改变原件的密级、保密期限和知悉范围，复制件应当加盖复制机关、单位戳记，并视同原件进行管理"}],"answer":"C","src":"NISP一级模拟题","srcNum":374,"id":"n1_374","analyze":"传递国家秘密载体,应当通过机要交通、机要通信或者其他符合保密要求的方式进行。","expand":"","tags":["NISP一级","单选题"]},{"stem":"入侵防御系统（IPS）一般布于防火墙和外来网络的设备之间，依靠对数据包的检测进行防御，以下选项中属于IPS的主要功能的是（）。","options":[{"k":"A","t":"实时监视和拦截攻击"},{"k":"B","t":"保护客户端"},{"k":"C","t":"虚拟补丁"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":375,"id":"n1_375","analyze":"IPS的主要功能：实时监视和拦截攻击；保护客户端；虚拟补丁。","expand":"","tags":["NISP一级","单选题"]},{"stem":"用于连接设备、网络及进行相互协商、转换的部件就是网络互联设备，以下不属于网络互联设备的是（）。","options":[{"k":"A","t":"中继器"},{"k":"B","t":"网卡"},{"k":"C","t":"集线器"},{"k":"D","t":"防火墙"}],"answer":"D","src":"NISP一级模拟题","srcNum":376,"id":"n1_376","analyze":"常见的互联设备有：网卡、中继器、集线器、网桥、交换机、路由器、网关。","expand":"","tags":["NISP一级","单选题"]},{"stem":"我们在配置电子邮件客户端时，从安全的角度来看，哪种说法最合适 ( )","options":[{"k":"A","t":"启用电子邮件客户端软件对SSL的支持选项，可以对邮件进行加密和签名"},{"k":"B","t":"不启用电子邮件客户端软件对SSL的支持选项，影响性能"},{"k":"C","t":"不启用电子邮件客户端软件对SSL的支持选项，因为启用后没有区别，浪费时间"},{"k":"D","t":"看情况，一般不需要启用SSL支持选项"}],"answer":"A","src":"NISP一级模拟题","srcNum":377,"id":"n1_377","analyze":"未经加密的邮件很容易被攻击者获取，应该启用电子邮件客户端软件对SSL的支持选项","expand":"","tags":["NISP一级","单选题"]},{"stem":"门禁卡的作用不包括以下哪项（）。","options":[{"k":"A","t":"身份鉴别"},{"k":"B","t":"访问控制"},{"k":"C","t":"定位追踪"},{"k":"D","t":"出入凭证"}],"answer":"C","src":"NISP一级模拟题","srcNum":378,"id":"n1_378","analyze":"门禁卡的作用不包括定位追踪。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于移动互联网安全防护的说法不正确的是（）","options":[{"k":"A","t":"设备/环境安全：设备环境不重要，能运行就可以。"},{"k":"B","t":"业务应用安全：业务管理信息安全和控制信息安全。"},{"k":"C","t":"技术系统安全：信息完整性，保密性，不可否认性。"},{"k":"D","t":"个人隐私保护：不传播非法、违背社会公德、侵犯公民隐私的信息。"}],"answer":"A","src":"NISP一级模拟题","srcNum":379,"id":"n1_379","analyze":"设备/环境安全：设备环境符合标准要求，防攻击防入侵。","expand":"","tags":["NISP一级","单选题"]},{"stem":"集线器的主要功能是对接收到的信号进行再生整形放大，以扩大网络的传输距离，同时把所有节点集中在以它为中心的节点上。下面关于集线器的描述正确的是（）。","options":[{"k":"A","t":"集线器不能延伸网络可操作的距离"},{"k":"B","t":"集线器不能过滤网络流量"},{"k":"C","t":"集线器不能成为中心节点"},{"k":"D","t":"集线器不能放大变弱的信号"}],"answer":"B","src":"NISP一级模拟题","srcNum":380,"id":"n1_380","analyze":"集线器不能过滤网络流量。","expand":"","tags":["NISP一级","单选题"]},{"stem":"分组密码算法是十分重要的密码算法，以下描述错误的是（）。","options":[{"k":"A","t":"分组密码算法要求输入明文按组分成固定长度的块"},{"k":"B","t":"分组密码算法也称为序列密码算法"},{"k":"C","t":"分组密码算法每次计算得到固定长度的密文输出块"},{"k":"D","t":"常见的DES、IDEA算法都属于分组密码算法"}],"answer":"B","src":"NISP一级模拟题","srcNum":381,"id":"n1_381","analyze":"分组密码是在加密过程中将明文进行分组后在进行加密，序列密码又叫流密码对每一个字节进行加密。","expand":"","tags":["NISP一级","单选题"]},{"stem":"邮件炸弹攻击是（ ）","options":[{"k":"A","t":"破坏受害者的邮箱服务器"},{"k":"B","t":"消耗受害者的邮箱空间"},{"k":"C","t":"破坏受害者的邮件客户端"},{"k":"D","t":"破坏受害者的电脑"}],"answer":"B","src":"NISP一级模拟题","srcNum":382,"id":"n1_382","analyze":"邮件炸弹是通过向接收者的邮件地址发送大量的电子邮件，消耗接收者的邮箱空间，最终因空间不足而无法接收新的邮件，导致其他用户发送的电子邮件被丢失或退回。","expand":"","tags":["NISP一级","单选题"]},{"stem":"微信突然收到好友发来的一个网络投票链接，最合理的处理方式是（ ）","options":[{"k":"A","t":"打电话和朋友确认不是被盗号，并确认投票原因和内容后，再酌情考虑是否投票"},{"k":"B","t":"不投票，假装没有看到"},{"k":"C","t":"把好友拉黑"},{"k":"D","t":"和朋友关系很好，直接打开投票链接"}],"answer":"A","src":"NISP一级模拟题","srcNum":383,"id":"n1_383","analyze":"因为有安全风险，所以要和好友确认后再决定是否投票","expand":"","tags":["NISP一级","单选题"]},{"stem":"关于入侵检测系统的局限性下列说法正确的是（）。","options":[{"k":"A","t":"入侵检测虽然能检测到攻击，但由于攻击方式、类型众多，对用户的要求不高。"},{"k":"B","t":"由于网络传输能力快速增长，对入侵检测系统的性能要求也越来越高，这使得入侵检测难以满足实际业务需要。"},{"k":"C","t":"入侵检测系统不需要用户具备一定的网络安全知识，系统的配置、管理也较为复杂。"},{"k":"D","t":"入侵检测系统采取了各类不同的检测技术，入侵检测系统高虚警率问题得以解决。"}],"answer":"B","src":"NISP一级模拟题","srcNum":384,"id":"n1_384","analyze":"入侵检测也存在一些问题，这些问题包括：入侵检测虽然能检测到攻击，但由于攻击方式、类型众多，对用户有较高的要求，需要用户具备一定的网络安全知识，系统的配置、管理也较为复杂；由于网络传输能力快速增长，对入侵检测系统的性能要求也越来越高，这使得入侵检测难以满足实际业务需要；尽管采取了各类不同的检测技术，但入侵检测系统高虚警率问题仍然难以解决。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下关于大数据的特征说法不正确的是（）","options":[{"k":"A","t":"大量（Volume）：非结构化数据的超大规模和增长，总数据量的80％～90％。"},{"k":"B","t":"多样（Variety）：大数据的异构和多样性，很多不同形式（文本、图像、视频、机器数据等）。"},{"k":"C","t":"价值（Value）：大量的不想关信息，对未来趋势与模式的可预测分析，深度复杂分析（机器学习、人工智能）。"},{"k":"D","t":"高速（Velocity）：批量式分析，数据输入、处理与丢弃，事后见效。"}],"answer":"D","src":"NISP一级模拟题","srcNum":385,"id":"n1_385","analyze":"高速（Velocity）：实时分析而非批量式分析，数据输入、处理与丢弃，立竿见影而非事后见效。","expand":"","tags":["NISP一级","单选题"]},{"stem":"对于OSI七层模型中，传输层的作用是（）","options":[{"k":"A","t":"不同应用程序的数据隔离，同步服务"},{"k":"B","t":"逻辑寻址，路径选择"},{"k":"C","t":"提供端到端的数据传输服务，建立逻辑连接"},{"k":"D","t":"建立、维护和拆除物理链路层的连接"}],"answer":"C","src":"NISP一级模拟题","srcNum":386,"id":"n1_386","analyze":"传输层的作用提供端到端的数据传输服务，建立逻辑连接","expand":"","tags":["NISP一级","单选题"]},{"stem":"小王浏览网页时弹出“全网最热网游，注册即送一千元大礼包”的广告，点击广告后该网页游戏提示“您的浏览器缺少插件，请安装插件”，这种情况下如何处理最合适（ ）","options":[{"k":"A","t":"立即安装插件，有免费的游戏大礼包，不要白不要"},{"k":"B","t":"安装杀毒软件后再打开该页面"},{"k":"C","t":"先做系统备份，如果打开网页后有异常大不了恢复系统"},{"k":"D","t":"网页游戏一般是不需要安装插件的，这种情况骗局的可能性非常大，不安装"}],"answer":"D","src":"NISP一级模拟题","srcNum":387,"id":"n1_387","analyze":"无法确定该网站是否可靠，安装插件分险太大","expand":"","tags":["NISP一级","单选题"]},{"stem":"如果一个企业注重于数据的完整性，则建议其使用哪种访问控制模型（）","options":[{"k":"A","t":"DAC模型"},{"k":"B","t":"BLP模型"},{"k":"C","t":"Biba模型"},{"k":"D","t":"RBAC模型"}],"answer":"C","src":"NISP一级模拟题","srcNum":388,"id":"n1_388","analyze":"Biba模型解决了系统内数据的完整性问题。","expand":"","tags":["NISP一级","单选题"]},{"stem":"以下属于防病毒网关设备的优势（）。","options":[{"k":"A","t":"病毒库只需要更新一套"},{"k":"B","t":"很难被恶意代码停止"},{"k":"C","t":"通过和终端保护使用不同厂商的产品，能够形成异构保护"},{"k":"D","t":"以上都是"}],"answer":"D","src":"NISP一级模拟题","srcNum":389,"id":"n1_389","analyze":"防病毒网关设备的优势有：病毒库只需要更新一套；很难被恶意代码停止；通过和终端保护使用不同厂商的产品，能够形成异构保护。","expand":"","tags":["NISP一级","单选题"]},{"stem":"学校的校园网络根据覆盖范围，属于（）。","options":[{"k":"A","t":"局域网"},{"k":"B","t":"专用网"},{"k":"C","t":"城域网"},{"k":"D","t":"广域网"}],"answer":"A","src":"NISP一级模拟题","srcNum":390,"id":"n1_390","analyze":"学校的校园网根据覆盖范围属于局域网。","expand":"","tags":["NISP一级","单选题"]},{"stem":"两份包含不同内容的文件通过哈希函数得到相同的散列值，这违背了哈希函数的（）。","options":[{"k":"A","t":"单向性"},{"k":"B","t":"机密性"},{"k":"C","t":"弱抗碰撞性"},{"k":"D","t":"强抗碰撞性"}],"answer":"D","src":"NISP一级模拟题","srcNum":391,"id":"n1_391","analyze":"本题违背了哈希函数的强抗碰撞性。","expand":"","tags":["NISP一级","单选题"]},{"stem":"IPV6 将32 位地址空间扩展到（）","options":[{"k":"A","t":"64位"},{"k":"B","t":"128位"},{"k":"C","t":"256位"},{"k":"D","t":"1024位"}],"answer":"B","src":"NISP一级模拟题","srcNum":392,"id":"n1_392","analyze":"128位的,ipv4是32位的","expand":"","tags":["NISP一级","单选题"]},{"stem":"计算机互联的主要目的是（）。","options":[{"k":"A","t":"集中计算"},{"k":"B","t":"资源共享"},{"k":"C","t":"制定网络协议"},{"k":"D","t":"将计算机技术与ton更新技术相结合"}],"answer":"B","src":"NISP一级模拟题","srcNum":393,"id":"n1_393","analyze":"计算机互联的主要目的是资源共享。","expand":"","tags":["NISP一级","单选题"]},{"stem":"在TCP/IP协议中，接收邮件使用的是（）。","options":[{"k":"A","t":"POP"},{"k":"B","t":"POP3"},{"k":"C","t":"PPP"},{"k":"D","t":"PPTP"}],"answer":"B","src":"NISP一级模拟题","srcNum":394,"id":"n1_394","analyze":"在TCP/IP协议中，接收邮件使用的是POP3。","expand":"","tags":["NISP一级","单选题"]},{"stem":"小张在某网站上找到了一篇他需要的资料，可以免费下载，但是下载要求在网站上使用邮箱进行注册，以下哪个做法是最正确的（ ）","options":[{"k":"A","t":"使用自己常用的邮箱进行注册，并把密码设置为和自己邮箱相同，便于记忆"},{"k":"B","t":"使用自己常用的邮箱进行注册，把网站密码设置和邮箱不同的密码"},{"k":"C","t":"单独申请一个邮箱用来注册不常用的网站，密码单独设置"},{"k":"D","t":"不注册，不下载了"}],"answer":"C","src":"NISP一级模拟题","srcNum":395,"id":"n1_395","analyze":"C选项安全性最高","expand":"","tags":["NISP一级","单选题"]},{"stem":"身份鉴别的相关实体包括（）。","options":[{"k":"A","t":"验证者被验证者"},{"k":"B","t":"被验证者验证者可信赖者"},{"k":"C","t":"被验证者可信赖者"},{"k":"D","t":"验证者可信赖者"}],"answer":"B","src":"NISP一级模拟题","srcNum":396,"id":"n1_396","analyze":"身份鉴别的相关实体包括被验证者、验证者、可信赖者。","expand":"","tags":["NISP一级","单选题"]},{"stem":"省、直辖市的人民代表大会和它们的常务委员会，在不同宪法、法律、行政法规相抵触的前提下，可以制定地方性法规，报（）备案。","options":[{"k":"A","t":"省人民代表大会常务委员会"},{"k":"B","t":"市人民代表大会常务委员会"},{"k":"C","t":"全国人民代表大会常务委员会"},{"k":"D","t":"国务院"}],"answer":"C","src":"NISP一级模拟题","srcNum":397,"id":"n1_397","analyze":"省、直辖市的人民代表大会和它们的常务委员会，在不同宪法、法律、行政法规相抵触的前提下，可以制定地方性法规，报全国人民代表大会常务委员会备案。","expand":"","tags":["NISP一级","单选题"]},{"stem":"下列操作中可能为windows系统终端带来安全威胁的是（ ）","options":[{"k":"A","t":"启用安全设置中的用可还原的加密来储存密码"},{"k":"B","t":"为系统更新的补丁"},{"k":"C","t":"启用MicrosofeDefender"},{"k":"D","t":"关闭不需要的服务"}],"answer":"A","src":"NISP一级模拟题","srcNum":398,"id":"n1_398","analyze":"使用可还原的加密储存密码与储存纯文本密码在本质上是相同的，所以启用后可能带来安全分险","expand":"","tags":["NISP一级","单选题"]},{"stem":"无线局域网由于使用上的灵活和便利，应用日渐普及，应用广泛也意味着面临越来越多的安全问题。以下属于安全技术防护的是（）。","options":[{"k":"A","t":"结合组织机构业务需求对无线局域网的应用进行评估，制定使用和管理策略。"},{"k":"B","t":"部署入侵检测系统以发现可能的攻击并定期对无线局域网安全性进行审查。"},{"k":"C","t":"明确定义并限制无线局域网的使用范围，尽量不在无线网络中传输和处理机密和敏感数据。"},{"k":"D","t":"限制无线局域网的使用范围，例如仅用于互联网资料查询和日常办公应用。"}],"answer":"B","src":"NISP一级模拟题","srcNum":399,"id":"n1_399","analyze":"A、C、D属于安全管理防护。","expand":"","tags":["NISP一级","单选题"]},{"stem":"信息发送者使用（）进行数字签名。","options":[{"k":"A","t":"自己的私钥"},{"k":"B","t":"自己的公钥"},{"k":"C","t":"对方的私钥"},{"k":"D","t":"对方的公钥"}],"answer":"A","src":"NISP一级模拟题","srcNum":400,"id":"n1_400","analyze":"信息发送者使用自己的私钥进行数字签名。","expand":"","tags":["NISP一级","单选题"]},{"stem":"哈希函数可以将任意有限长度信息映射为固定长度的值。以下哪个不是安全的哈希函数所满足的性质（）","options":[{"k":"A","t":"单向性"},{"k":"B","t":"双向性"},{"k":"C","t":"弱抗碰撞性"},{"k":"D","t":"强抗碰撞性"}],"answer":"B","src":"NISP一级模拟题","srcNum":401,"id":"n1_401","analyze":"哈希函数具有单向性，消息通过哈希函数计算出哈希值，但是不能由哈希值反向计算出消息的原始内容。","expand":"","tags":["NISP一级","单选题"]},{"stem":"网桥也叫桥接器，是用于连接两个局域网的一种存储/转发设备，作用与中继器类似，网桥工作在（）。","options":[{"k":"A","t":"物理层"},{"k":"B","t":"数据链路层"},{"k":"C","t":"传输层"},{"k":"D","t":"网络层"}],"answer":"B","src":"NISP一级模拟题","srcNum":402,"id":"n1_402","analyze":"网桥也叫桥接器，是用于连接两个局域网的一种存储/转发设备，作用与中继器类似，网桥工作在数据链路层。","expand":"","tags":["NISP一级","单选题"]}];
+const KEY = 'nisp-l1-quiz-v1';
+const byId = Object.fromEntries(DATA.map(q => [q.id, q]));
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+    return {
+      seen: s.seen || {},
+      wrong: s.wrong || {},
+      removed: s.removed || {},
+      answerCount: s.answerCount || 0,
+      correctCount: s.correctCount || 0,
+      session: s.session || null,
+      sessionTs: Number(s.sessionTs) || 0
+    };
+  } catch (e) {
+    return { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null, sessionTs: 0 };
+  }
+}
+let S = load();
+let lastMode = 'random';
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(S));
+  if (window.QuizSync) window.QuizSync.schedule();
+}
+
+/* ---- 跨设备进度同步（旁路模块：任何网络失败都退回本地，绝不影响答题） ----
+ * 每次 push 前先 pull 校准，保证「响应丢失重试」不会重复计数，并能识别云端 reset。
+ */
+var QuizSync = (function () {
+  'use strict';
+
+  var SB_URL = 'https://monwlglwpwwbejrifwmj.supabase.co';
+  var SB_KEY = 'sb_publishable_ruUIXDxjj_LyZysCMf0_FQ_2ewm-cRq';
+  var RPC_PULL = SB_URL + '/rest/v1/rpc/quiz_pull';
+  var RPC_PUSH = SB_URL + '/rest/v1/rpc/quiz_push';
+  var DEBOUNCE_MS = 1500;
+  var RETRY_DELAYS = [2000, 5000, 10000];
+
+  var owner = '';
+  var key = '';
+  var mode = 'local';          // 'cloud' | 'local'
+  var status = 'local';        // 'synced' | 'syncing' | 'local'
+  var lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, sessionTs: 0 };
+  var queue = null;            // 串行请求队列
+  var timer = null;
+  var pending = false;
+  var stateEl = null;
+  var hasBaseline = false;     // 是否已与云端建立过同步基线（首次 pull 不做 reset 判定）
+  var sessionChanged = false;  // 本次 merge 是否采纳了云端会话（供 init 决定切到哪个视图）
+
+  function cloneSet(src) {
+    var out = {};
+    if (src && typeof src === 'object') {
+      Object.keys(src).forEach(function (id) { if (src[id]) out[id] = true; });
+    }
+    return out;
+  }
+
+  function setStatus(next) {
+    status = next;
+    if (!stateEl) stateEl = document.getElementById('syncState');
+    if (!stateEl) return;
+    var text = '云同步：';
+    if (next === 'synced') text += '已同步';
+    else if (next === 'syncing') text += '同步中';
+    else text += '仅本机';
+    if (next === 'local' && mode === 'local') text += ' · 请退出后重新登录一次以启用';
+    stateEl.textContent = text;
+  }
+
+  // 只落盘，不再触发同步调度（避免 pull/push 回写时自激循环）
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  function refreshUI() {
+    try { if (typeof renderHome === 'function') renderHome(); } catch (e) {}
+  }
+
+  function baseline() {
+    lastSynced = {
+      seen: cloneSet(S.seen),
+      wrong: cloneSet(S.wrong),
+      answerCount: Number(S.answerCount) || 0,
+      correctCount: Number(S.correctCount) || 0,
+      sessionTs: Number(S.sessionTs) || 0
+    };
+  }
+
+  function readAuth() {
+    try {
+      var s = JSON.parse(localStorage.getItem('xinmo_access') || 'null');
+      if (!s || typeof s !== 'object') return null;
+      var u = typeof s.u === 'string' ? s.u.trim().toLowerCase() : '';
+      var k = typeof s.k === 'string' ? s.k : '';
+      if (!u || u.length > 64 || !k || k.length < 16) return null;   // 老会话没有 k：降级为仅本机
+      // 一级题库用带后缀的 owner，与 NISP 二级题库的云端进度隔离，互不覆盖。
+      // 函数限制 owner ≤ 64 字符，故先给后缀留位再截断。
+      var suffix = '#n1';
+      var owner = u.slice(0, 64 - suffix.length) + suffix;
+      return { u: owner, k: k };
+    } catch (e) { return null; }
+  }
+
+  function request(url, body) {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SB_KEY,
+        Authorization: 'Bearer ' + SB_KEY
+      },
+      body: JSON.stringify(body),
+      cache: 'no-store'
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  // 失败最多重试 3 次，退避 2s / 5s / 10s（由调用方传入「一次完整尝试」）
+  function retrying(fn) {
+    var attempt = 0;
+    function run() {
+      return fn().catch(function (err) {
+        if (attempt >= RETRY_DELAYS.length) throw err;
+        var delay = RETRY_DELAYS[attempt];
+        attempt += 1;
+        return new Promise(function (resolve) {
+          setTimeout(resolve, delay);
+        }).then(run);
+      });
+    }
+    return run();
+  }
+
+  /**
+   * 把云端快照合并进 S。
+   * data 为 null 表示云端还没有该账号记录（把本地当前状态作为基线）。
+   * 若「本地已同步的计数 > 云端计数」，只可能是云端被 p_reset 清过 —— 此时全量以云端为准；
+   * 首次与云端交互（hasBaseline 为 false）不做该判定，避免误删本地未推送进度。
+   */
+  function mergeCloud(data, applySession) {
+    sessionChanged = false;
+    if (!data) {
+      // 云端还没有该账号记录：基线留空，这样首次 push 会把本地全部进度当作增量上传
+      lastSynced = { seen: {}, wrong: {}, answerCount: 0, correctCount: 0, sessionTs: 0 };
+      hasBaseline = true;
+      return;
+    }
+    var cloudSeen = data.seen || {};
+    var cloudWrong = data.wrong || {};
+    var cloudAnswer = Number(data.answerCount) || 0;
+    var cloudCorrect = Number(data.correctCount) || 0;
+    var wasReset = hasBaseline && (Number(lastSynced.answerCount) || 0) > cloudAnswer;
+
+    if (wasReset) {
+      // 云端被重置：本地旧进度整体作废，全量以云端为准
+      S.removed = {};
+      S.seen = {};
+      Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+      S.wrong = {};
+      Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) S.wrong[id] = true; });
+      S.answerCount = cloudAnswer;
+      S.correctCount = cloudCorrect;
+    } else {
+      // seen 只增不减：直接并集
+      Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+      // wrong 以云端为准（别处已清空的错题不会被并集加回来），
+      // 但保留「本地新增且尚未推送」的错题，避免丢本地进度
+      var pendingWrong = {};
+      Object.keys(S.wrong).forEach(function (id) {
+        if (S.wrong[id] && !lastSynced.wrong[id]) pendingWrong[id] = true;
+      });
+      var mergedWrong = {};
+      // 本地刚删除（尚未推送）的错题不要从云端合并回来（删除意图持久化在 S.removed）
+      Object.keys(cloudWrong).forEach(function (id) {
+        if (cloudWrong[id] && !(S.removed || {})[id]) mergedWrong[id] = true;
+      });
+      Object.keys(pendingWrong).forEach(function (id) { mergedWrong[id] = true; });
+      S.wrong = mergedWrong;
+      // 计数取两端较大值：本地尚未推送的增量随后由 push 的 delta 补上
+      S.answerCount = Math.max(Number(S.answerCount) || 0, cloudAnswer);
+      S.correctCount = Math.max(Number(S.correctCount) || 0, cloudCorrect);
+    }
+
+    // 练习会话（session）合并：LWW，只有云端时间戳更新才采纳（数据来自云端快照）。
+    // 且只在 applySession 为 true（页面初始化时的 pull）生效 —— push 前的校准绝不能把
+    // 用户正在做的题换掉。
+    if (applySession === true) {
+      var cloudSessionTs = Number(data.sessionTs || 0);
+      var localSessionTs = Number(S.sessionTs || 0);
+      if (cloudSessionTs > localSessionTs) {
+        S.session = data.session || null;
+        S.sessionTs = cloudSessionTs;
+        sessionChanged = true;
+      } else if (hasBaseline && Number(lastSynced.sessionTs || 0) > 0 &&
+                 cloudSessionTs === 0 && data.session == null && localSessionTs > 0) {
+        // 只有「确实同步过、且云端曾经有过会话、现在被清零」才认定是另一台设备 resetAll：
+        // 首次启用（hasBaseline=false 或 lastSynced.sessionTs===0）一律不清本地会话
+        S.session = null;
+        S.sessionTs = 0;
+        sessionChanged = true;
+      }
+    }
+
+    // 同步基线取「云端快照」：push 的 delta 始终等于「本地 - 云端」，
+    // 本地尚未推送的增量才不会被 baseline 吃掉
+    lastSynced = {
+      seen: cloneSet(cloudSeen),
+      wrong: cloneSet(cloudWrong),
+      answerCount: cloudAnswer,
+      correctCount: cloudCorrect,
+      sessionTs: Number(data.sessionTs) || 0
+    };
+    hasBaseline = true;
+    persist();
+    refreshUI();
+  }
+
+  // 单次拉取（不含重试、不改状态位）；applySession 控制是否允许用云端会话覆盖本地
+  function pullOnce(applySession) {
+    return request(RPC_PULL, { p_owner: owner, p_key: key }).then(function (data) {
+      mergeCloud(data, applySession === true);
+    });
+  }
+
+  // 页面加载 / 手动拉取：带重试与状态位；默认允许采纳云端会话
+  function pull(applySession) {
+    if (mode !== 'cloud') return Promise.resolve();
+    setStatus('syncing');
+    return retrying(function () { return pullOnce(applySession !== false); }).then(function () {
+      setStatus('synced');
+    }).catch(function () {
+      setStatus('local');
+    });
+  }
+
+  // 静默拉取：不改状态位、不弹提示；失败则 reject，调用方据此放弃本次 push。
+  // 注意：push 前的校准绝不采纳云端会话（applySession=false），避免打断正在答题的用户。
+  function pullSilent() {
+    if (mode !== 'cloud') return Promise.reject(new Error('local-mode'));
+    return pullOnce(false);
+  }
+
+  // 用当前 baseline 计算增量并单次推送（不含重试）
+  function pushOnce(options) {
+    var opt = options || {};
+    var seen = S.seen || {};
+    var wrong = S.wrong || {};
+    var seenAdd = {};
+    var wrongAdd = {};
+    // 待删除的错题 id 来自持久化的 S.removed（刷新后仍在）；为空时传 []，绝不传 null
+    var wrongRemove = Object.keys(S.removed || {});
+
+    Object.keys(seen).forEach(function (id) { if (seen[id] && !lastSynced.seen[id]) seenAdd[id] = true; });
+    Object.keys(wrong).forEach(function (id) { if (wrong[id] && !lastSynced.wrong[id]) wrongAdd[id] = true; });
+
+    // 只上传未推送的增量，避免多设备重复计数
+    var dAnswer = Math.max(0, (Number(S.answerCount) || 0) - (Number(lastSynced.answerCount) || 0));
+    var dCorrect = Math.max(0, (Number(S.correctCount) || 0) - (Number(lastSynced.correctCount) || 0));
+
+    var body = {
+      p_owner: owner,
+      p_key: key,
+      p_seen_add: seenAdd,
+      p_wrong_add: wrongAdd,
+      p_wrong_remove: wrongRemove,
+      p_delta_answer: dAnswer,
+      p_delta_correct: dCorrect,
+      p_reset: opt.reset === true,
+      p_session: S.session || null,
+      p_session_ts: Number(S.sessionTs) || 0
+    };
+
+    return request(RPC_PUSH, body).then(function (data) {
+      if (data) {
+        var cloudSeen = data.seen || {};
+        var cloudWrong = data.wrong || {};
+        Object.keys(cloudSeen).forEach(function (id) { if (cloudSeen[id]) S.seen[id] = true; });
+        // 本次 push 已把所有本地增量送达云端，wrong 直接以云端为准（reset / 别处清空能生效）
+        var nextWrong = {};
+        Object.keys(cloudWrong).forEach(function (id) { if (cloudWrong[id]) nextWrong[id] = true; });
+        S.wrong = nextWrong;
+        S.answerCount = Number(data.answerCount) || 0;
+        S.correctCount = Number(data.correctCount) || 0;
+      }
+      S.removed = {};          // 删除意图已被云端接受，落盘清空
+      hasBaseline = true;
+      baseline();
+      persist();
+      refreshUI();
+    });
+  }
+
+  /**
+   * 对外同步入口：每次尝试都「先静默 pull 校准 baseline → 再重算 delta 推送」。
+   * 即使上一次请求已被服务端提交、只是响应丢失，重试时 delta 也会自动归零，天然幂等。
+   * pullSilent 失败则整次放弃（绝不带过期 baseline 硬推），只把状态置为「仅本机」。
+   */
+  function syncNow(options) {
+    if (mode !== 'cloud') return Promise.resolve();
+    var opt = options || {};
+    setStatus('syncing');
+    return retrying(function () {
+      return pullSilent().then(function () { return pushOnce(opt); });
+    }).then(function () {
+      setStatus('synced');
+    }).catch(function () {
+      setStatus('local');
+    });
+  }
+
+  function enqueue(task) {
+    if (!queue) queue = Promise.resolve();
+    queue = queue.then(function () {
+      if (mode !== 'cloud') return null;
+      return task().catch(function () { return null; });
+    });
+    return queue;
+  }
+
+  function cancelTimer() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    pending = false;
+  }
+
+  function schedule() {
+    if (mode !== 'cloud') return;
+    pending = true;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function () {
+      timer = null;
+      if (!pending) return;
+      pending = false;
+      enqueue(function () { return syncNow(); });
+    }, DEBOUNCE_MS);
+  }
+
+  function flush() {
+    if (mode !== 'cloud') return;
+    if (!pending) return;
+    cancelTimer();
+    enqueue(function () { return syncNow(); });
+  }
+
+  // resetWrong：把当前错题 id 并入持久化的 S.removed，再清空 S.wrong（刷新后删除意图仍在）
+  function resetWrong() {
+    if (mode !== 'cloud') return;
+    cancelTimer();
+    if (Object.keys(S.wrong || {}).length) {
+      S.removed = Object.assign({}, S.removed, S.wrong);
+      S.wrong = {};
+      persist();
+    }
+    enqueue(function () { return syncNow(); });
+  }
+
+  // resetAll：整库重置（全量覆盖，无需先 pull；重复执行结果相同，天然幂等）
+  function resetRemote() {
+    if (mode !== 'cloud') return;
+    cancelTimer();
+    enqueue(function () {
+      setStatus('syncing');
+      return retrying(function () { return pushOnce({ reset: true }); }).then(function () {
+        setStatus('synced');
+      }).catch(function () {
+        setStatus('local');
+      });
+    });
+  }
+
+  function init() {
+    stateEl = document.getElementById('syncState');
+    var auth = readAuth();
+    if (!auth) {
+      mode = 'local';
+      setStatus('local');
+      return;
+    }
+    owner = auth.u;
+    key = auth.k;
+    mode = 'cloud';
+    baseline();
+    setStatus('syncing');
+    enqueue(function () {
+      return pull(true).then(function () {
+        if (!sessionChanged) return;
+        sessionChanged = false;
+        // 云端会话更新：直接切到对应视图；session 为 null 表示另一台设备 resetAll 了
+        if (S.session) {
+          lastMode = S.session.mode || 'random';
+          renderQuiz();   // i >= ids.length 时内部会走 renderDone（结果页）
+        } else {
+          renderHome();
+          show('homeView');
+        }
+      });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flush();
+    });
+    window.addEventListener('pagehide', function () { flush(); });
+  }
+
+  init();
+
+  return {
+    schedule: schedule,
+    flush: flush,
+    resetWrong: resetWrong,
+    resetRemote: resetRemote,
+    pull: pull,
+    push: syncNow,
+    status: function () { return status; },
+    mode: function () { return mode; },
+    sessionChanged: function () { return sessionChanged; }
+  };
+})();
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('zh-CN');
+const wrongIds = () => Object.keys(S.wrong);
+const seenCount = () => Object.keys(S.seen).length;
+
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function show(view) {
+  ['homeView', 'quizView', 'doneView'].forEach(v => $(v).classList.toggle('hidden', v !== view));
+}
+
+function renderHome() {
+  $('sTotal').textContent = fmt(DATA.length);
+  $('sSeen').textContent = fmt(seenCount());
+  $('sWrong').textContent = fmt(wrongIds().length);
+  $('sRate').textContent = S.answerCount ? Math.round(S.correctCount / S.answerCount * 100) + '%' : '—';
+  const left = DATA.length - seenCount();
+  $('startRandomLabel').textContent = left > 0 ? '开始随机练习' : '开始新一轮练习';
+  $('startRandomMeta').textContent = left > 0 ? `剩余 ${fmt(left)} 题未练` : '题库已全部练过';
+  const w = wrongIds().length;
+  $('wrongMeta').textContent = w ? `${fmt(w)} 题待巩固` : '暂无错题';
+  $('startWrong').disabled = w === 0;
+  $('homeTip').textContent = S.session && S.session.i < S.session.ids.length
+    ? '有一轮练习尚未完成，点击上方按钮可继续。'
+    : '';
+}
+
+function newSession(mode) {
+  let ids;
+  if (mode === 'wrong') {
+    ids = shuffle(wrongIds());
+  } else {
+    ids = shuffle(DATA.map(q => q.id).filter(id => !S.seen[id]));
+    if (!ids.length) ids = shuffle(DATA.map(q => q.id));
+  }
+  S.session = { mode, ids, i: 0, right: 0, bad: 0, answered: false, selected: null };
+  S.sessionTs = Date.now();   // 只有会话真变化才 bump，避免无变化的 save 覆盖另一台设备
+  save();
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const sess = S.session;
+  if (!sess || sess.i >= sess.ids.length) { renderDone(); return; }
+  const q = byId[sess.ids[sess.i]];
+  if (!q) { sess.i++; save(); return renderQuiz(); }
+  show('quizView');
+  $('modeBadge').textContent = sess.mode === 'wrong' ? '错题重练' : '随机练习';
+  $('modeBadge').className = 'badge' + (sess.mode === 'wrong' ? ' mode-wrong' : '');
+  $('qCounter').textContent = `${sess.i + 1} / ${sess.ids.length}`;
+  $('qScore').textContent = sess.i ? `本轮 ✓${sess.right}  ✗${sess.bad}` : '';
+  $('progressBar').style.width = (sess.i / sess.ids.length * 100) + '%';
+  $('qSource').textContent = `${q.src} · 原第 ${q.srcNum} 题`;
+  $('qStem').textContent = q.stem;
+
+  // 选项按题库原始 A/B/C/D 顺序显示，不再随机重排：
+  // 答案字母与精讲解析中的字母引用均以原顺序为准，避免「正确答案 B」
+  // 与屏幕上 B 选项内容不一致。题目顺序仍保持随机抽取。
+  const box = $('options');
+  box.innerHTML = '';
+  q.options.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.k = o.k;
+    b.innerHTML = `<span class="opt-key">${o.k}</span><span>${escapeHtml(o.t)}</span>`;
+    b.onclick = () => pick(o.k);
+    box.appendChild(b);
+  });
+
+  $('nextBtn').disabled = !sess.answered;
+  $('nextBtn').textContent = sess.i === sess.ids.length - 1 ? '查看结果' : '下一题';
+  $('hint').textContent = '键盘 A–D 或 1–4 选答案，回车下一题';
+  $('feedback').className = 'feedback';
+  $('feedback').textContent = '';
+  $('explain').classList.add('hidden');
+  $('explain').innerHTML = '';
+  if (sess.answered) paintAnswer(sess.selected, q);
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function paintAnswer(selected, q) {
+  const sess = S.session;
+  const buttons = [...$('options').children];
+  buttons.forEach(b => {
+    b.classList.add('locked');
+    b.onclick = null;
+    const k = b.dataset.k;
+    if (k === q.answer) b.classList.add('right');
+    if (k === selected && selected !== q.answer) b.classList.add('wrong');
+  });
+  const fb = $('feedback');
+  const ansText = q.options.find(o => o.k === q.answer).t;
+  if (selected === q.answer) {
+    fb.className = 'feedback ok';
+    fb.textContent = '回答正确';
+    $('explain').classList.add('hidden');
+    $('explain').innerHTML = '';
+  } else {
+    if (selected) {
+      fb.className = 'feedback no';
+      fb.innerHTML = `回答错误　正确答案 <span class="ans">${q.answer}. ${escapeHtml(ansText)}</span>`;
+    } else {
+      fb.className = 'feedback no';
+      fb.innerHTML = `本题未作答　正确答案 <span class="ans">${q.answer}. ${escapeHtml(ansText)}</span>`;
+    }
+    showExplain(q);
+  }
+  $('nextBtn').disabled = false;
+}
+
+function showExplain(q) {
+  const el = $('explain');
+  const ansText = q.options.find(o => o.k === q.answer).t;
+  const tags = (q.tags || []).join(' · ');
+  el.innerHTML =
+    `<div class="ex-head"><span class="ex-badge">精讲</span>` +
+    `<span class="ex-ans">正确答案 ${q.answer}. ${escapeHtml(ansText)}</span></div>` +
+    `<div class="ex-row"><b>解析</b><span>${escapeHtml(q.analyze || '暂无解析')}</span></div>` +
+    `<div class="ex-row extend"><b>延伸</b><span>${escapeHtml(q.expand || '暂无延伸')}</span></div>` +
+    (tags ? `<div class="ex-tags">知识点：${escapeHtml(tags)}</div>` : '');
+  el.classList.remove('hidden');
+}
+
+function pick(k) {
+  const sess = S.session;
+  if (!sess || sess.answered) return;
+  const q = byId[sess.ids[sess.i]];
+  sess.answered = true;
+  sess.selected = k;
+  S.answerCount++;
+  if (k === q.answer) {
+    sess.right++;
+    S.correctCount++;
+    if (sess.mode === 'wrong') delete S.wrong[q.id];
+  } else {
+    sess.bad++;
+    S.wrong[q.id] = (S.wrong[q.id] || 0) + 1;
+  }
+  S.seen[q.id] = true;
+  S.sessionTs = Date.now();   // 会话状态（已答 / 选项 / 对错）变了
+  save();
+  paintAnswer(k, q);
+  $('qScore').textContent = `本轮 ✓${sess.right}  ✗${sess.bad}`;
+}
+
+function nextQuestion() {
+  const sess = S.session;
+  if (!sess) return renderHome();
+  if (!sess.answered) return;
+  sess.i++;
+  sess.answered = false;
+  sess.selected = null;
+  S.sessionTs = Date.now();   // 推进到下一题
+  save();
+  if (sess.i >= sess.ids.length) renderDone(); else renderQuiz();
+}
+
+function renderDone() {
+  const sess = S.session || { right: 0, bad: 0, ids: [], i: 0, mode: 'random' };
+  lastMode = sess.mode;
+  const total = sess.right + sess.bad;
+  show('doneView');
+  $('doneTitle').textContent = sess.mode === 'wrong' ? '错题重练完成' : '本轮练习完成';
+  const left = DATA.length - seenCount();
+  $('doneText').textContent = sess.mode === 'wrong'
+    ? `还剩 ${fmt(wrongIds().length)} 道错题，答对的题已从错题本移除。`
+    : (left > 0 ? `题库还剩 ${fmt(left)} 道未练，继续随机抽题吧。` : '整本题库都练过一轮了，可以开始新一轮。');
+  $('doneRight').textContent = fmt(sess.right);
+  $('doneWrong').textContent = fmt(sess.bad);
+  $('doneRate').textContent = total ? Math.round(sess.right / total * 100) + '%' : '—';
+  const again = $('againBtn');
+  again.innerHTML = sess.mode === 'wrong'
+    ? `<span>再练一轮错题</span><small>${fmt(wrongIds().length)} 题</small>`
+    : `<span>继续随机练习</span><small>剩余 ${fmt(left)} 题</small>`;
+  again.disabled = sess.mode === 'wrong' && wrongIds().length === 0;
+  S.sessionTs = Date.now();   // 让服务端 LWW 接受这次 null（否则另一台设备会停在最后一题）
+  S.session = null;
+  save();
+}
+
+// 事件绑定
+$('startRandom').onclick = () => newSession('random');
+$('startWrong').onclick = () => newSession('wrong');
+$('nextBtn').onclick = nextQuestion;
+$('againBtn').onclick = () => newSession(lastMode);
+$('doneHome').onclick = () => { renderHome(); show('homeView'); };
+$('homeBtn').onclick = () => { renderHome(); show('homeView'); };
+$('resetWrong').onclick = () => {
+  if (!wrongIds().length) return;
+  if (confirm('确定清空错题本吗？已练记录与统计不会清除。')) {
+    // 删除意图先持久化到 S.removed，否则刷新后会被云端并集加回来
+    S.removed = Object.assign({}, S.removed, S.wrong);
+    S.wrong = {};
+    save();
+    renderHome();
+    if (window.QuizSync) window.QuizSync.resetWrong();
+  }
+};
+$('resetAll').onclick = () => {
+  if (confirm('确定重置全部进度吗？已练记录、错题本、正确率都会清空。')) {
+    localStorage.removeItem(KEY);
+    S = { seen: {}, wrong: {}, removed: {}, answerCount: 0, correctCount: 0, session: null, sessionTs: 0 };
+    renderHome();
+    show('homeView');
+    if (window.QuizSync) window.QuizSync.resetRemote();
+  }
+};
+
+document.addEventListener('keydown', e => {
+  if ($('quizView').classList.contains('hidden')) return;
+  const sess = S.session;
+  if (!sess) return;
+  const key = e.key.toUpperCase();
+  if (!sess.answered) {
+    const q = byId[sess.ids[sess.i]];
+    const idx = 'ABCD'.indexOf(key);
+    const alt = '1234'.indexOf(e.key);
+    const byLetter = idx >= 0 ? q.options.find(o => o.k === 'ABCD'[idx]) : null;
+    const byNumber = alt >= 0 ? q.options[alt] : null;
+    if (byLetter) pick(byLetter.k);
+    else if (byNumber) pick(byNumber.k);
+    else return;
+    e.preventDefault();
+  } else if (e.key === 'Enter' || e.key === ' ' || key === 'N') {
+    nextQuestion();
+    e.preventDefault();
+  }
+});
+
+// 启动
+if (S.session && S.session.i < S.session.ids.length && byId[S.session.ids[S.session.i]]) {
+  renderQuiz();
+} else {
+  S.sessionTs = Date.now();   // 让服务端 LWW 接受这次 null（否则另一台设备会停在最后一题）
+  S.session = null;
+  save();
+  renderHome();
+  show('homeView');
+}
+</script>
+<!-- 资源仓库返回导航 -->
+<style>
+.repo-back{position:fixed;left:18px;bottom:18px;z-index:99999;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;background:rgba(17,26,44,.86);color:#f2f6ff;text-decoration:none;font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;box-shadow:0 6px 22px rgba(0,0,0,.22);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.16);transition:transform .18s ease,background .18s ease}
+.repo-back:hover{transform:translateY(-2px);background:rgba(31,48,80,.94);color:#fff;text-decoration:none}
+@media (max-width:520px){.repo-back{left:12px;bottom:12px;padding:8px 12px;font-size:12px}}
+</style>
+<a class="repo-back" href="../../index.html" title="返回 xinmo.work 资源仓库">← 返回资源仓库</a>
+<!-- AI 小助手悬浮组件（由 deploy/inject_ai_assistant.py 注入） -->
+<!-- 右上角账号入口（由 deploy/inject_account_corner.py 注入） -->
+<script src="../../assets/js/account-corner.js"></script>
+<script src="../../assets/js/ai-assistant.js"></script>
+</body>
+</html>
