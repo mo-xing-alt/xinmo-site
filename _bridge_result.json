@@ -1,0 +1,7 @@
+{
+ "job_id": "20261120-122353-1cf556",
+ "ts": 1795148645,
+ "exit_code": 0,
+ "ok": true,
+ "output": "== HTTPS 跟随重定向 ==\nindex.html               200 20971bytes\ncxmooc-tools.user.js     200 210697bytes\nzhihuishu.user.js        200 146632bytes\ncourse163.user.js        200 155482bytes\nUPSTREAM-LICENSE.txt     200 1068bytes\n"
+}
