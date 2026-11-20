@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-135200-433d9c",
- "ts": 1795153932,
- "exit_code": 0,
- "ok": true,
- "output": "== 下载 memory.html\n== 下载 vault-data.js\n== 下载 assets/css/memory.css\n== 下载 assets/js/crypto-gateway.js\n== 下载 assets/js/markdown-lite.js\n== 下载 assets/js/memory-app.js\n== 下载 owner.html\n== 下载 assets/js/guard.js\n== DONE：私人记忆档案页面已上线\n-rw-r--r-- 1 www-data www-data  4291 Nov 20 13:52 /var/www/xinmo-site/memory.html\n-rw-r--r-- 1 www-data www-data 19402 Nov 20 13:52 /var/www/xinmo-site/vault-data.js\n"
-}
