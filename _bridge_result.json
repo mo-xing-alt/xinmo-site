@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-132709-51cae8",
- "ts": 1795152441,
- "exit_code": 0,
- "ok": true,
- "output": "-rw-r--r-- 1 www-data www-data 10932 Nov 20 13:27 /var/www/xinmo-site/assets/js/resources.js\nab0692aa38e2736e96eee616f6811829  /tmp/xm_res.bin\n"
-}
