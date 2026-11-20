@@ -1,0 +1,7 @@
+{
+ "job_id": "20261120-135224-845eae",
+ "ts": 1795153952,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== 新文件 ===\nmemory.html                         OK\nvault-data.js                       OK\nassets/css/memory.css               OK\nassets/js/crypto-gateway.js         OK\nassets/js/markdown-lite.js          OK\nassets/js/memory-app.js             OK\n=== guard.js 记忆入口 ===\n1\n=== 全站首页仍正常 ===\n<title>新模学习 · 学以报国，技以利民</title>\n=== Caddy ===\nactive\n"
+}
