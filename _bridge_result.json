@@ -1,0 +1,7 @@
+{
+ "job_id": "20261120-122156-b9911c",
+ "ts": 1795148528,
+ "exit_code": -1,
+ "ok": false,
+ "output": "ERROR: [Errno 7] Argument list too long: 'bash'"
+}
