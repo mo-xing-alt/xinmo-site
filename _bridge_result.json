@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-160625-c1145d",
- "ts": 1795161997,
- "exit_code": 0,
- "ok": true,
- "output": "== 解包三维记忆图谱 ==\n== 覆盖到站点 ==\n== 校验 ==\n-rw-r--r-- 1 root root  13436 Nov 20 16:06 /var/www/xinmo-site/assets/js/memory-graph.js\n-rw-r--r-- 1 root root 669884 Nov 20 16:06 /var/www/xinmo-site/assets/js/vendor/three.min.js\n0\n0\n== DONE ==\n"
-}
