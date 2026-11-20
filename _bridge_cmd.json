@@ -1,0 +1,1 @@
+{"id": "20261120-132709-51cae8", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "mkdir -p \"$(dirname '/var/www/xinmo-site/assets/js/resources.js')\" && base64 -d /tmp/xm_res.b64 > /tmp/xm_res.bin && sudo cp /tmp/xm_res.bin '/var/www/xinmo-site/assets/js/resources.js' && ls -l '/var/www/xinmo-site/assets/js/resources.js' && md5sum /tmp/xm_res.bin", "ts": 1795152429}
