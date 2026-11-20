@@ -1,0 +1,7 @@
+{
+ "job_id": "20261120-111239-163082",
+ "ts": 1795144368,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== 主机名/系统 ===\niZj6ca25kk8i9p55qv6fcxZ\nLinux iZj6ca25kk8i9p55qv6fcxZ 6.8.0-63-generic #66-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:25:30 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux\n=== 桥接服务 ===\nactive\n=== 网站目录 ===\ndrwxr-xr-x 6 www-data www-data 4096 Nov 19 11:35 /var/www/xinmo-site\n网站存在\n站点文件数: 119\n=== Caddy 服务 ===\nactive\n=== 网站首页标题 ===\n<title>新模学习 · 学以报国，技以利民</title>\n"
+}
