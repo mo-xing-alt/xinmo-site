@@ -1,0 +1,1 @@
+{"id": "20261120-122018-d35e41", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "hostname && date -u +%FT%TZ && systemctl is-active xinmo-bridge", "ts": 1795148418}
