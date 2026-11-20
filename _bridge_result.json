@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-160706-80011c",
- "ts": 1795162038,
- "exit_code": 0,
- "ok": true,
- "output": "=== memory.html 图谱标记 ===\n5\n=== memory-app.js 图谱标记 ===\n2\n=== 文件大小对比 ===\n 6201 /var/www/xinmo-site/memory.html\n18338 /var/www/xinmo-site/assets/js/memory-app.js\n47302 /var/www/xinmo-site/vault-data.js\n71841 total\n=== 本地文件字节 ===\n本地 memory.html 应含图谱\n"
-}
