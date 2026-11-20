@@ -1,0 +1,7 @@
+{
+ "job_id": "20261120-122328-192c91",
+ "ts": 1795148620,
+ "exit_code": 0,
+ "ok": true,
+ "output": "== HTTP 状态 ==\nindex.html               308 0bytes\ncxmooc-tools.user.js     308 0bytes\nzhihuishu.user.js        308 0bytes\ncourse163.user.js        308 0bytes\nUPSTREAM-LICENSE.txt     308 0bytes\n== 页面关键内容 ==\n3\n@version      2.5.2\r\n@author       CodFrm\r\n== 资源卡片 ==\n2\n"
+}
