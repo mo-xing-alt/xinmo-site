@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-132643-3f55cf",
- "ts": 1795152412,
- "exit_code": 0,
- "ok": true,
- "output": "-rw-r--r-- 1 root root 118458 Nov 20 13:26 /var/www/xinmo-site/tools/大一上防挂科题/index.html\n987546af7c555d3c9fb024f01e506a3c  /tmp/xm_page.bin\n"
-}
