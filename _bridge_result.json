@@ -1,7 +1,0 @@
-{
- "job_id": "20261120-122232-cff446",
- "ts": 1795148564,
- "exit_code": 0,
- "ok": true,
- "output": "== pages done ==\ntotal 52\n-rw-r--r-- 1 www-data www-data 24229 Nov 20 12:01 chaoxing-speed.user.js\n-rw-r--r-- 1 www-data www-data 20971 Nov 20 12:22 index.html\n-rw-r--r-- 1 www-data www-data  1068 Nov 20 12:22 UPSTREAM-LICENSE.txt\n"
-}
