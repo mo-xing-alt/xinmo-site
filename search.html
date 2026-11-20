@@ -20,12 +20,15 @@
       <span class="brand-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.4 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.3l6.6-.9 2.9-6Z"/></svg></span>
       <span class="brand-text"><strong>新模学习</strong><small>XINMO STUDY</small></span>
     </a>
+    <button class="nav-toggle" type="button" aria-label="展开导航" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <nav class="main-nav" aria-label="站内导航">
       <a href="./index.html">首页</a>
       <a href="./library.html">资源工具库</a>
       <a href="./search.html" aria-current="page">站内搜索</a>
       <a href="./me.html">用户中心</a>
-      <a href="certificates.html" data-cert-nav>证书</a>
+      <a href="./certificates.html" data-cert-nav>证书</a>
     </nav>
   </div>
 </header>
@@ -105,6 +108,7 @@
   document.querySelectorAll('[data-year]').forEach(function(el){el.textContent=new Date().getFullYear();});
 })();
 </script>
+<script src="./assets/js/nav-toggle.js"></script>
 <script src="./assets/js/guard.js"></script>
 </body>
 </html>

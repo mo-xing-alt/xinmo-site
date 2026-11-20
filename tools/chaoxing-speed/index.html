@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="网页视频倍速油猴脚本：给任意网站的 HTML5 视频加 0.5–16× 悬浮倍速面板，学习通、B站、慕课、YouTube、网盘播放器通用。" />
-<title>网页视频倍速（油猴脚本） · xinmo.work</title>
+<meta name="description" content="学习通/智慧树/中国大学MOOC 工具（CodFrm/cxmooc-tools 原样托管）与自写网页视频倍速油猴脚本：0.5–16× 悬浮倍速面板。" />
+<title>网课工具与网页视频倍速（油猴脚本） · xinmo.work</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23c9820a'/%3E%3Cpath d='M36 10 22 36h9l-3 18 14-26h-9z' fill='%23fff'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../../assets/css/site.css" />
 <script>
@@ -64,6 +64,23 @@
   :root[data-theme="dark"] .cx-warn b { color: #ffc45c; }
   .cx-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: #17203a; color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 12.5px; opacity: 0; pointer-events: none; transition: .25s; z-index: 99; }
   .cx-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 第三方开源脚本分区 */
+  .cx-upstream { border-color: #b8730a; }
+  :root[data-theme="dark"] .cx-upstream { border-color: #ffc45c; }
+  .cx-upstream .tag { background: linear-gradient(135deg, #c9820a, #e0a83a); color: #fff; }
+  .cx-scroll { overflow-x: auto; }
+  .cx-scripts { display: grid; grid-template-columns: repeat(3, minmax(190px, 1fr)); gap: 12px; margin: 4px 0 6px; }
+  @media (max-width: 720px) { .cx-scripts { grid-template-columns: 1fr; } }
+  .cx-script { border: 1px solid var(--border); border-radius: 13px; padding: 16px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+  .cx-script .cx-sname { font-size: 14.5px; font-weight: 700; color: var(--heading); }
+  .cx-script .cx-sfor { font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+  .cx-script .cx-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cx-script .cx-badges span { font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: var(--amber-soft); color: #b8730a; }
+  :root[data-theme="dark"] .cx-script .cx-badges span { color: #ffc45c; }
+  .cx-script a.cx-install { display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin-top: auto; padding: 10px 12px; border-radius: 10px; background: linear-gradient(135deg, #c9820a, #d99a2b); color: #fff; font-weight: 600; font-size: 12.5px; text-decoration: none; }
+  .cx-script a.cx-install:hover { filter: brightness(1.06); }
+  .cx-script a.cx-install.sec { background: var(--surface); color: var(--amber); border: 1px solid var(--amber); }
 </style>
 </head>
 <body>
@@ -77,6 +94,52 @@
     </div>
     <a class="cx-back" href="../../index.html">← 返回资源仓库</a>
   </div>
+
+  <!-- 第三方开源脚本：CodFrm/cxmooc-tools（原样托管，保留上游署名） -->
+  <section class="cx-sec cx-upstream">
+    <span class="tag">THIRD-PARTY · 原样托管</span>
+    <h2>网课小工具 · CodFrm/cxmooc-tools</h2>
+    <p style="margin:0 0 4px;color:var(--muted);font-size:13px;line-height:1.9">
+      以下三个脚本来自开源项目 <a href="https://github.com/CodFrm/cxmooc-tools" target="_blank" rel="noopener" style="color:var(--accent)">CodFrm/cxmooc-tools</a>（MIT 协议），版本号 <b>2.5.2</b>。
+      本页按上游源码原样构建、<b>未改动任何逻辑</b>，仅托管脚本文件方便你自己安装；作者与版权归原作者 CodFrm 所有，许可证见 <a href="./UPSTREAM-LICENSE.txt" target="_blank" rel="noopener" style="color:var(--accent)">UPSTREAM-LICENSE.txt</a>。
+    </p>
+    <div class="cx-scroll">
+      <div class="cx-scripts">
+        <div class="cx-script">
+          <div class="cx-sname">超星 / 学习通</div>
+          <div class="cx-sfor">适配学习通课程、作业、考试等页面。</div>
+          <div class="cx-badges"><span>油猴脚本</span><span>v2.5.2</span></div>
+          <a class="cx-install" href="./cxmooc-tools.user.js" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></svg>
+            安装脚本
+          </a>
+        </div>
+        <div class="cx-script">
+          <div class="cx-sname">智慧树 / 知到</div>
+          <div class="cx-sfor">适配智慧树视频与考试页面。</div>
+          <div class="cx-badges"><span>油猴脚本</span><span>v2.5.2</span></div>
+          <a class="cx-install" href="./zhihuishu.user.js" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></svg>
+            安装脚本
+          </a>
+        </div>
+        <div class="cx-script">
+          <div class="cx-sname">中国大学 MOOC</div>
+          <div class="cx-sfor">适配 icourse163 课程页面。</div>
+          <div class="cx-badges"><span>油猴脚本</span><span>v2.5.2</span></div>
+          <a class="cx-install" href="./course163.user.js" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></svg>
+            安装脚本
+          </a>
+        </div>
+      </div>
+    </div>
+    <p class="cx-note">安装方式：先装 Tampermonkey / Violentmonkey 油猴插件，再点上面对应平台的「安装脚本」，油猴弹出安装页确认即可。三个脚本请按你实际使用的平台选装，无需全装。</p>
+    <div class="cx-warn" style="margin-top:14px">
+      <b>自用与风险提示：</b>以上脚本功能较强（含自动挂机、倍速、题库答题等），可能违反对应课程平台的用户协议或服务条款，平台若判定异常可能导致学习记录无效、成绩受影响或账号受限。
+      请仅在<b>个人自有账号、自己负责</b>的前提下酌情使用，并自行判断是否符合所在学校/平台的规定；由此产生的任何后果由使用者自行承担。本站仅作文件托管，不代表推荐或背书。
+    </div>
+  </section>
 
   <section class="cx-hero">
     <span class="tag">TAMPERMONKEY SCRIPT</span>
@@ -112,7 +175,11 @@
       <li>胶囊可以拖动，位置会保存，不挡站点自己的按钮。</li>
       <li>全屏播放时面板会跟着进全屏，照样能调。</li>
       <li>视频在 iframe / Shadow DOM 里也能识别（脚本对所有站点生效，含播放器子页）。</li>
+      <li><strong>暂停自动续播</strong>：开 2× 以上时，若平台检测到高倍速强行暂停视频，脚本会自动续播（面板底部可开关）。你自己手动点的暂停不会被打断；降到 1× 时该功能不启用。</li>
+      <li><strong>平台限速保护</strong>：抖音最高锁 4×、学习通/中国大学MOOC 最高锁 2×——这些平台会把非原生倍速重置回 1× 或对高倍速风控（弹"网络不稳定"/验证码）。脚本会自动限速并每 250ms 抢回被重置的倍速，避免触发风控。其它网站不限速（最高 16×）。</li>
+      <li><strong>强制模式（3.0 新增）</strong>：面板底部金色按钮，开启后<strong>无视平台限速</strong>（可开满 16×），并从底层锁死倍速——平台改不回 1×、也停不掉视频。默认关闭，需手动开。逃生阀：<code>Shift + \</code> 立即关闭。</li>
     </ul>
+    <p class="cx-note" style="color:#b45309;border-left:3px solid #f59e0b;padding-left:12px;margin-top:14px"><strong>⚠ 强制模式说明与风险</strong>：它只突破<strong>浏览器前端</strong>的限制（改倍速、暂停、假弹窗）。<strong>无法突破平台服务端的风控</strong>——如学习通的「操作异常验证码」、学习时长统计，这些判定在服务器上，前端脚本无能为力；触发后仍需你人工处理。强行高倍速刷网课可能违反平台规则、影响账号，请自行斟酌、谨慎使用。</p>
   </section>
 
   <section class="cx-sec">
@@ -122,8 +189,24 @@
       <p>先刷新页面；确认 Tampermonkey 图标上显示脚本已启用。面板只在页面里存在 HTML5 <code>&lt;video&gt;</code> 时出现，纯 Canvas 自绘播放器、Flash、或完全走 DRM 的封闭播放器可能识别不到。视频在 iframe 里时，面板会出现在 iframe 自己的右下角。仍然没有的话，打开 Tampermonkey 面板看「网页视频倍速」是否被禁用。</p>
     </details>
     <details>
+      <summary>开 2× 以上弹出「网络不稳定，请稍后继续」？</summary>
+      <p>这是学习通 / 中国大学MOOC 等平台<strong>伪装的倍速检测提示</strong>——不是真的网络问题，而是检测到你开了高倍速，故意弹窗打断播放。脚本 2.2 起会自动拦截这类假弹窗（真正的其它提示照常显示），并配合「自动续播」让视频继续。保持面板底部开关 <code>✓ 防打断</code> 即可。若平台改用需要人工点确认的其它方式，建议降到 2×。</p>
+    </details>
+    <details>
+      <summary>抖音上倍速总是自动变回 1×？</summary>
+      <p>抖音会把「非平台原生的倍速」周期性重置回 1×。脚本 2.3 起每 250ms 主动抢回倍速，并把抖音上限锁在 4×（够用且更稳）。你设 8× 时实际显示「4×·限4×」是正常的。刷新页面后生效。</p>
+    </details>
+    <details>
+      <summary>什么是「强制模式」，会被封号吗？</summary>
+      <p>强制模式（面板金色按钮）从底层锁住倍速：平台把速度改回 1×、或调用暂停，都会被脚本挡回去，无视站点限速。它<strong>只在你的浏览器里生效</strong>，不修改平台服务器数据。但要注意：网课平台的服务端会记录你的学习行为（播放心跳、时长、验证码），高倍速仍可能被平台判定异常、要求人工验证甚至影响成绩——这部分脚本管不了。建议只在自己复习、不考核时长的场景使用，别用来刷课。</p>
+    </details>
+    <details>
+      <summary>强制模式卡住了/想恢复普通？</summary>
+      <p>按 <code>Shift + \</code> 立即关闭强制模式；或点面板金色按钮切成 <code>◇</code>。关闭后限速保护恢复正常。</p>
+    </details>
+    <details>
       <summary>倍速被自动改回 1×？</summary>
-      <p>部分播放器会在暂停 / 拖动进度 / 切集后重置倍速。脚本会尝试恢复（最多每 600ms 一次）。如果仍被反复重置，说明该站点有异常倍速检测，别硬来。</p>
+      <p>部分播放器会在暂停 / 拖动进度 / 切集后重置倍速。脚本会尝试恢复（事件 + 每 250ms 定时兜底）。学习通/中国大学MOOC 为避开风控已锁 2×；其它站点若仍被反复重置，说明有异常倍速检测，别硬来。</p>
     </details>
     <details>
       <summary>为什么最高只有 16×？</summary>

@@ -29,6 +29,20 @@ window.RESOURCE_CATALOG = {
   ],
   items: [
     {
+      id: "nisp-level1-quiz",
+      title: "NISP 一级题库练习",
+      subtitle: "402 道真题 · 完全离线",
+      description: "国家信息安全水平考试 NISP 一级模拟题 402 道，随机抽题、即时判分、自动收错题本，附带每道题的正确答案与解析。进度保存在浏览器本地，完全离线可用，键盘 A/B/C/D 或 1-4 就能作答。",
+      category: "study",
+      icon: "quiz",
+      accent: "teal",
+      url: "./resources/nisp-level1-quiz/index.html",
+      tags: ["402 道题", "错题本", "正确答案+解析", "离线可用", "键盘作答"],
+      meta: "单文件页面 · 离线也能用",
+      status: "可用",
+      updated: "2026-11-19"
+    },
+    {
       id: "info-security-quiz",
       title: "信息安全题库练习",
       subtitle: "随机答疑 · 404 道精选题",
@@ -74,15 +88,15 @@ window.RESOURCE_CATALOG = {
       id: "chaoxing-speed",
       title: "网页视频倍速（油猴脚本）",
       subtitle: "任意平台 · 0.5–16×",
-      description: "给任意网站的 HTML5 视频加一个悬浮倍速面板，0.5–16× 可调：学习通、B站、慕课、YouTube、网盘播放器通用。支持预设、微调、快捷键、拖动位置与记忆，全屏播放时面板也会跟进去。需要先装 Tampermonkey / Violentmonkey；脚本只改播放速度，不碰账号密码。",
+      description: "给任意网站的 HTML5 视频加一个悬浮倍速面板，0.5–16× 可调：学习通、B站、慕课、YouTube、网盘播放器通用。支持预设、微调、快捷键、拖动位置与记忆，全屏播放时面板也会跟进去。需要先装 Tampermonkey / Violentmonkey；脚本只改播放速度，不碰账号密码。本页另附第三方开源项目 CodFrm/cxmooc-tools（MIT）原样托管的三个网课脚本供自取。",
       category: "tool",
       icon: "code",
       accent: "amber",
       url: "./tools/chaoxing-speed/index.html",
-      tags: ["任意平台", "网页视频", "倍速", "油猴脚本", "0.5-16倍", "全屏可用"],
+      tags: ["任意平台", "网页视频", "倍速", "油猴脚本", "0.5-16倍", "全屏可用", "cxmooc-tools"],
       meta: "浏览器脚本 · 需装油猴",
       status: "可用",
-      updated: "2026-11-12"
+      updated: "2026-11-20"
     },
     {
       id: "video-speed",
