@@ -80,6 +80,16 @@
             'color:inherit;opacity:.34;padding:5px 9px;border-radius:8px;background:rgba(127,127,127,.10);';
           document.body.appendChild(owner);
         }
+        // 私人档案隐形入口：仅本机有 owner 标记时出现，其他访客 DOM 中没有此节点。
+        var memoryLink = document.createElement('a');
+        memoryLink.id = 'xinmoMemoryLink';
+        memoryLink.href = root + 'memory.html';
+        memoryLink.textContent = '记忆';
+        memoryLink.title = '私人记忆档案（仅本机可见）';
+        memoryLink.style.cssText = 'position:fixed;z-index:99997;right:14px;bottom:88px;text-decoration:none;' +
+          'font:11px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;' +
+          'color:inherit;opacity:.3;padding:5px 9px;border-radius:8px;background:rgba(127,127,127,.10);';
+        document.body.appendChild(memoryLink);
       }
     } catch (e) {}
 

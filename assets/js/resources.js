@@ -21,7 +21,7 @@
  *   soon        true 时渲染为「筹备中」占位卡，不需要 url
  * ============================================================ */
 window.RESOURCE_CATALOG = {
-  updated: "2026-11-12",
+  updated: "2026-11-20",
   categories: [
     { id: "study", label: "学习练习" },
     { id: "cert", label: "证书备考" },
@@ -167,6 +167,20 @@ window.RESOURCE_CATALOG = {
       meta: "纯前端 · 需登录 · 跨端脚本导出",
       status: "可用",
       updated: "2026-11-12"
+    },
+    {
+      id: "gaoshu-fangguake",
+      title: "大一上防挂科题",
+      subtitle: "50 题 · 零基础逐步解析",
+      description: "大一高等数学（同济版上册）期末保过练习卷 50 题，分函数与极限、连续、导数与微分、中值定理与导数应用四块，极值 5 题单列可跳过。每题按零基础逐步讲解：先说明这一步在做什么，再写算式与所依据的公式，选择题、填空题逐项点出错因；另附 10 条高频易错点与考前一晚 2 小时 40 分的复习顺序。后续章节题会持续更新到本页，地址不变。",
+      category: "tool",
+      icon: "tool",
+      accent: "teal",
+      url: "./tools/大一上防挂科题/index.html",
+      tags: ["50 道题", "零基础解析", "逐项错因", "易错点清单", "考前一晚顺序", "可打印"],
+      meta: "纯前端 · 单文件 · 离线可用",
+      status: "可用",
+      updated: "2026-11-20"
     },
     {
       id: "coming-soon",

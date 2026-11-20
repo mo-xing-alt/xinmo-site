@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>高数期末保过练习卷 · 零基础逐题详解版</title>
+<meta name="description" content="大一高等数学（同济版上册）期末保过练习卷，50道基础题保持原样，解析改为零基础逐步版：每步标明在做什么、依据哪条公式、为什么这样变形，选择填空逐项说明错因，并附高频易错点与考前一晚复习清单。">
+<meta name="robots" content="noindex, nofollow" />
+<!-- 访问控制守卫 -->
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+
+<style>
+:root{
+  --ink:#18242c; --muted:#5d6f7a; --line:#e2e8ea; --bg:#f4f6f7; --card:#ffffff;
+  --accent:#0f766e; --accent-soft:#e7f3f1; --ans:#1c6b46; --ans-bg:#edf7f1;
+  --warn:#9a5b00; --warn-bg:#fdf4e3; --math:"Times New Roman","Cambria Math",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  overflow-wrap:break-word;
+  margin:0; padding:18px 14px 56px; background:var(--bg); color:var(--ink);
+  font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+}
+.wrap{max-width:780px;margin:0 auto}
+header.top{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 18px 18px;margin-bottom:14px}
+.kicker{margin:0 0 6px;font-size:12.5px;letter-spacing:.4px;color:var(--accent);font-weight:600}
+h1{margin:0 0 10px;font-size:23px;line-height:1.4;letter-spacing:.2px}
+.lede{margin:0;color:#3d4f59;font-size:14.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:12.5px;color:#42545f;background:#f1f4f5;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+nav.toc{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;-webkit-overflow-scrolling:touch}
+nav.toc a{flex:0 0 auto;font-size:13px;color:#2b4a52;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+nav.toc a:active{background:var(--accent-soft)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 18px;margin:0 0 14px}
+h2{margin:0 0 4px;font-size:19px;line-height:1.45;display:flex;align-items:center;gap:9px}
+h2 .no{flex:0 0 auto;width:27px;height:27px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
+h2 .tag{font-size:11.5px;font-weight:600;color:var(--warn);background:var(--warn-bg);border:1px solid #f0dfbd;border-radius:6px;padding:1px 7px;letter-spacing:.3px}
+.sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+h3{margin:22px 0 8px;font-size:15.5px;color:#20454e;border-left:3px solid var(--accent);padding-left:9px}
+.keys{background:#f5f8f9;border:1px solid #e6edef;border-radius:11px;padding:12px 14px;margin:0 0 6px}
+.keys p{margin:0 0 7px;font-size:14px;line-height:1.85}
+.keys p:last-child{margin-bottom:0}
+.keys b{color:#1d4d55}
+.m{font-family:var(--math);font-size:1.06em;letter-spacing:.2px;white-space:normal;overflow-wrap:break-word}
+article.q{border-top:1px solid var(--line);padding:16px 0 4px;margin-top:6px}
+article.q:first-of-type{border-top:0;padding-top:6px}
+.qhead{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.qno{flex:0 0 auto;min-width:24px;height:24px;border-radius:7px;background:#eef3f4;color:#28505a;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:3px}
+.qtype{flex:0 0 auto;font-size:11.5px;color:#6a7c86;border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-top:4px}
+.qtext{flex:1 1 auto;font-size:15.5px;line-height:1.85}
+.opts{display:flex;flex-wrap:wrap;gap:4px 18px;margin:8px 0 4px;font-size:15px;color:#31434c}
+.opts span{min-width:44%}
+.ans{margin:10px 0 8px;background:var(--ans-bg);border-left:3px solid var(--ans);border-radius:0 8px 8px 0;padding:7px 11px;font-size:14.5px;color:#174a33}
+.ans b{color:var(--ans);margin-right:6px;font-size:13px;letter-spacing:.4px}
+.sol{background:#fbfcfc;border:1px solid #e8eef0;border-radius:10px;padding:13px 13px 6px;margin:0 0 10px}
+.solhead{margin:0 0 10px;font-size:11.5px;font-weight:700;color:#456a73;letter-spacing:.8px}
+.step{display:flex;gap:9px;padding:0 0 11px;margin:0 0 11px;border-bottom:1px dashed #e9eff0}
+.step:last-of-type{border-bottom:0;margin-bottom:0;padding-bottom:6px}
+.sn{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:5px}
+.sb{flex:1 1 auto;min-width:0}
+.what{margin:0 0 4px;font-size:12px;color:#7d8f98;line-height:1.6}
+.do{margin:0;font-size:15px;line-height:1.95;color:#26363f}
+.basis{margin:0 0 11px;font-size:13px;line-height:1.8;color:#3f5a63;background:#f1f6f7;border-left:3px solid #b6cdd2;padding:7px 10px;border-radius:0 7px 7px 0}
+.basis b{color:#28505a}
+.optbox{margin:0 0 10px}
+.opt-title{margin:0 0 2px;font-size:12px;font-weight:700;color:#8a6a2f;letter-spacing:.4px}
+ul.optwhy{list-style:none;margin:0;padding:0;font-size:14px;line-height:1.85;color:#43555e}
+ul.optwhy li{padding:5px 0;border-top:1px dashed #eef2f3}
+ul.optwhy li:first-child{border-top:0}
+.key{display:inline-block;min-width:18px;font-weight:700;margin-right:4px}
+.key.bad{color:#a8443a}
+.key.good{color:#1c6b46}
+.note{background:var(--warn-bg);border:1px solid #f0dfbd;border-radius:10px;padding:11px 13px;font-size:14px;color:#5d4108;margin:12px 0;line-height:1.85}
+ol.clean,ul.clean{margin:8px 0;padding-left:22px}
+ol.clean li,ul.clean li{margin:6px 0;font-size:14.8px}
+table.mini{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+table.mini th,table.mini td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.mini th{background:#f4f7f8;color:#2b4a52;font-weight:600}
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding:10px 0 0}
+@media (max-width:400px){
+  body{padding:12px 10px 44px;font-size:15.5px}
+  section{padding:16px 13px}
+  h1{font-size:20px}
+  .opts span{min-width:100%}
+  .do,.qtext{font-size:15px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  section,header.top{border-color:#ccc}
+  article.q{break-inside:avoid}
+  nav.toc{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a href="../../library.html" aria-label="返回工具列表" style="display:inline-block;margin-bottom:12px;padding:7px 12px;border:1px solid #e2e8ea;border-radius:999px;background:#fff;color:#5d6f7a;font-size:12.5px;text-decoration:none">← 返回工具列表</a>
+
+<header class="top">
+  <p class="kicker">大一高等数学 · 同济版上册 · 期末保过卷 · 零基础详解版</p>
+  <h1>期末保过练习卷：50 题不变，解析细到每一步</h1>
+  <p class="lede">题目和板块与原卷完全一致，只把解析重写成了“零基础版”：每一小步先说明这步在做什么，再写算式，最后给出依据的公式或定理；选择题、填空题逐项说明错在哪。极值 5 题同样按这个标准写，仍可单独跳过。</p>
+  <div class="chips">
+    <span class="chip">50 道题</span>
+    <span class="chip">每题 3–6 步</span>
+    <span class="chip">逐项错因</span>
+    <span class="chip">公式全写出</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#how">怎么用</a>
+  <a href="#s1">一 函数与极限</a>
+  <a href="#s2">二 连续</a>
+  <a href="#s3">三 导数与微分</a>
+  <a href="#s4">四 中值定理与导数应用</a>
+  <a href="#s5">五 极值基础（选做）</a>
+  <a href="#s6">高频易错点</a>
+  <a href="#s7">考前一晚清单</a>
+</nav>
+
+<section id="how">
+  <h2><span class="no">0</span>解析怎么看</h2>
+  <p class="sub">这次每个解析都拆成了编号小步，按顺序往下读就不会卡住。</p>
+  <ul class="clean">
+    <li><b>灰色小字</b>是“这一步要干什么”，先看它，知道方向再看算式。</li>
+    <li><b>蓝色框</b>把这道题用到的公式原文抄了出来，对照上面标了编号的步骤看；考试时把这些公式名字写上，步骤分就有了。</li>
+    <li><b>“错项排查”</b>只在选择、填空题出现，逐个说清其余选项错在哪；填空题没有选项，就列出最常见的错误答案和错因。</li>
+    <li><b>不用背整段解析。</b>记住每一步“为什么这么做”，比记住算式有用。</li>
+  </ul>
+  <div class="note">做题顺序建议：先盖住答案自己写，写完对照每一步；哪一步没想到，就在旁边标个记号，考前一晚只看这些记号。</div>
+</section>
+
+<section id="s1">
+  <h2><span class="no">一</span>函数与极限</h2>
+  <p class="sub">这一章是地基。极限算不出来，后面的连续、导数都写不下去。</p>
+
+  <h3>必背公式与结论（够用就行）</h3>
+  <div class="keys">
+    <p><b>两个重要极限：</b><span class="m">lim(x→0) sin x / x = 1</span>；<span class="m">lim(x→∞)(1 + 1/x)<sup>x</sup> = e</span>，<span class="m">lim(x→0)(1 + x)<sup>1/x</sup> = e</span>。</p>
+    <p><b>等价无穷小（x→0）：</b><span class="m">sin x ~ tan x ~ arcsin x ~ arctan x ~ ln(1+x) ~ e<sup>x</sup> − 1 ~ x</span>；<span class="m">1 − cos x ~ x<sup>2</sup>/2</span>；<span class="m">(1+x)<sup>a</sup> − 1 ~ ax</span>。</p>
+    <p><b>有理式求极限（x→∞）：</b>分子分母同除以最高次幂，看谁次数高。分子次数高趋于 ∞，分母次数高趋于 0，次数相同就是最高次项系数之比。</p>
+    <p><b>0/0 型三招：</b>因式分解约去零因子、等价无穷小替换（只对乘积因子）、根式有理化。</p>
+    <p><b>无穷小 × 有界量 = 无穷小</b>（例如 <span class="m">x·sin(1/x)</span>，x→0）。</p>
+  </div>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><span class="qtype">选择</span><span class="qtext"><span class="m">lim(x→2) (x<sup>2</sup> − 4)/(x − 2)</span> 等于（　）</span></div>
+    <div class="opts"><span>A. 0</span><span>B. 2</span><span>C. 4</span><span>D. 不存在</span></div>
+    <div class="ans"><b>答案</b>C</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先把 x = 2 代进去，看看能不能直接算出数</p><p class="do">分子：2<sup>2</sup> − 4 = 4 − 4 = 0；分母：2 − 2 = 0。得到 0/0。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">判断类型：0/0 不能直接写答案</p><p class="do">0/0 是一个“没有意义”的式子，不是数字 0。它说明分子分母同时含有让它们变成 0 的因子，需要先约分。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把分子分解，目的是找出能和分母约掉的因子</p><p class="do">x<sup>2</sup> − 4 = x<sup>2</sup> − 2<sup>2</sup> = (x + 2)(x − 2)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">约去公因子 (x − 2)，说明为什么可以约</p><p class="do">原式 = (x + 2)(x − 2)/(x − 2) = x + 2。之所以能约，是因为 x→2 只表示“x 无限接近 2”，并不等于 2，所以 x − 2 ≠ 0，可以做除法。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">现在分母不再是 0，直接代入求值</p><p class="do">lim(x→2)(x + 2) = 2 + 2 = 4。</p></div></div>
+      <p class="basis"><b>用到：</b>平方差公式 <span class="m">a<sup>2</sup> − b<sup>2</sup> = (a + b)(a − b)</span>；极限四则运算法则 <span class="m">lim f(x)/g(x) = lim f(x) / lim g(x)</span>（要求分母极限不为 0）。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>看到分子分母都算成 0，就把 0/0 当成了 0。0/0 不是数，必须继续变形。</li>
+        <li><span class="key bad">B</span>只把 x = 2 代进了 x 这一项，漏掉了 +2。正确结果是 2 + 2 = 4。</li>
+        <li><span class="key good">C</span>约分后代入得 4，正确。</li>
+        <li><span class="key bad">D</span>认为“分母为 0 所以极限不存在”。只有当分子不趋于 0 时才是这样；这里分子也趋于 0，约分后极限存在。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><span class="qtype">选择</span><span class="qtext"><span class="m">lim(x→∞) (3x<sup>2</sup> + 2x − 1)/(x<sup>2</sup> − 5)</span> 等于（　）</span></div>
+    <div class="opts"><span>A. 0</span><span>B. 1</span><span>C. 3</span><span>D. ∞</span></div>
+    <div class="ans"><b>答案</b>C</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看 x 趋于无穷时，分子分母各自往哪走</p><p class="do">x→∞ 时，3x<sup>2</sup> 和 x<sup>2</sup> 都无限变大，所以是 ∞/∞ 型。∞/∞ 也没有直接意义，不能写答案。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">决定同除以最高次幂 x<sup>2</sup>，理由是让每一项都变成能算的数</p><p class="do">分子分母同时除以 x<sup>2</sup>（同时除同一个不为 0 的量，分数值不变）：<br>分子 = 3 + 2/x − 1/x<sup>2</sup>，分母 = 1 − 5/x<sup>2</sup>。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">用“常数除以无穷大趋于 0”把带 x 的项全部消掉</p><p class="do">x→∞ 时，2/x → 0，1/x<sup>2</sup> → 0，5/x<sup>2</sup> → 0。于是分子 → 3 + 0 − 0 = 3，分母 → 1 − 0 = 1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">分子分母的极限都存在，用四则运算相除</p><p class="do">原式 = 3/1 = 3。</p></div></div>
+      <p class="basis"><b>用到：</b><span class="m">lim(x→∞) 1/x<sup>k</sup> = 0</span>（k 为正整数）；极限四则运算法则。口诀：分子分母次数相同，极限就是最高次项系数之比，本题 3 : 1。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>0 是“分母次数比分子高”时的结果，本题两边都是 2 次，不能得 0。</li>
+        <li><span class="key bad">B</span>1 来自只比较了分母的系数 1，没有把分子的 3 算进去。</li>
+        <li><span class="key good">C</span>同除 x<sup>2</sup> 后得 3/1 = 3，正确。</li>
+        <li><span class="key bad">D</span>∞ 是“分子次数比分母高”时的结果；本题次数相同，不会发散。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><span class="qtype">填空</span><span class="qtext"><span class="m">lim(x→0) sin 3x / x =</span> ______</span></div>
+    <div class="ans"><b>答案</b>3</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先代入 x = 0 看类型</p><p class="do">分子 sin 0 = 0，分母 0，是 0/0 型，需要变形。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">确定变形目标：凑成第一重要极限 sin u / u 的样子</p><p class="do">重要极限要求 sin 后面跟的东西，和分母完全一样。现在 sin 后面是 3x，分母却是 x，不一致。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">用换元让式子整齐：令 u = 3x</p><p class="do">当 x→0 时，u = 3x → 0；并且 x = u/3。代进去：sin 3x / x = sin u / (u/3) = 3 · sin u / u。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">套重要极限，把常数 3 留在外面</p><p class="do">lim(u→0) 3 · sin u/u = 3 × 1 = 3。</p></div></div>
+      <p class="basis"><b>用到：</b>第一重要极限 <span class="m">lim(u→0) sin u / u = 1</span>；也可用等价无穷小 <span class="m">sin 3x ~ 3x</span>，直接得 3x/x = 3。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 1，是把 sin 3x 当成了 ~ x，忘了系数 3；写 0，是把分子当成 0 直接约掉。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><span class="qtype">填空</span><span class="qtext"><span class="m">lim(x→∞) (1 + 2/x)<sup>x</sup> =</span> ______</span></div>
+    <div class="ans"><b>答案</b>e<sup>2</sup></div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看底数和指数分别往哪走</p><p class="do">x→∞ 时 2/x → 0，所以底数 1 + 2/x → 1；指数 x → ∞。这是“1 的无穷次方”型，属于第二重要极限的题型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写出要凑的目标形式</p><p class="do">公式是 lim(u→0)(1 + u)<sup>1/u</sup> = e。它的特点是：括号里加的是 u，指数恰好是 u 的倒数 1/u。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">换元，把 2/x 整体看成 u</p><p class="do">令 u = 2/x，则 x = 2/u。当 x→∞ 时 u→0。原式变成 (1 + u)<sup>2/u</sup>。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">用幂的运算法则把指数拆成“1/u 的倍数”</p><p class="do">(1 + u)<sup>2/u</sup> = [(1 + u)<sup>1/u</sup>]<sup>2</sup>，依据是 <span class="m">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></span>。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">括号内套第二重要极限，再平方</p><p class="do">中括号 → e，所以原式 = e<sup>2</sup>。</p></div></div>
+      <p class="basis"><b>用到：</b>第二重要极限 <span class="m">lim(u→0)(1 + u)<sup>1/u</sup> = e</span>；幂的运算法则。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 e，是漏掉了平方；写 e<sup>1/2</sup>，是把指数配反了（应乘 2，不是除 2）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">lim(x→0) (1 − cos x)/x<sup>2</sup></span></span></div>
+    <div class="ans"><b>答案</b>1/2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">代入看类型</p><p class="do">1 − cos 0 = 1 − 1 = 0，分母 0<sup>2</sup> = 0，是 0/0 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">想不起来等价公式时，可以用半角公式自己推</p><p class="do">由 <span class="m">1 − cos x = 2sin<sup>2</sup>(x/2)</span>，原式 = 2sin<sup>2</sup>(x/2) / x<sup>2</sup> = 2 · [sin(x/2)/(x/2)]<sup>2</sup> · (1/4)（因为 sin<sup>2</sup>(x/2) = [sin(x/2)]<sup>2</sup>，而分母 x<sup>2</sup> = 4·(x/2)<sup>2</sup>）。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">这一步直接查等价无穷小更快，说明为什么能换</p><p class="do">x→0 时 <span class="m">1 − cos x ~ x<sup>2</sup>/2</span>。因为 1 − cos x 在这里是整个分子，是一个“乘积因子”，符合等价替换的条件。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">替换后约掉 x<sup>2</sup></p><p class="do">原式 = lim (x<sup>2</sup>/2)/x<sup>2</sup> = 1/2。</p></div></div>
+      <p class="basis"><b>用到：</b>等价无穷小 <span class="m">1 − cos x ~ x<sup>2</sup>/2</span>（来自 cos x = 1 − x<sup>2</sup>/2 + o(x<sup>2</sup>)）；等价无穷小替换定理：乘除因子可以直接换，加减项不能。</p>
+      <p class="basis"><b>常见错答：</b>写 0（把 1 − cos x 当成 0）；写 1（误以为 1 − cos x ~ x<sup>2</sup>，丢了 1/2）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">6</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">lim(x→0) (√(1+x) − 1)/x</span></span></div>
+    <div class="ans"><b>答案</b>1/2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">代入看类型</p><p class="do">√(1+0) − 1 = 0，分母 0，是 0/0 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">分子是“根号减一个数”，直接算没法约分，所以先有理化</p><p class="do">把分子分母同乘分子的共轭式 √(1+x) + 1。依据是 <span class="m">(√a − 1)(√a + 1) = a − 1</span>，乘完根号就消失了。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">写出乘完的结果，分子用平方差</p><p class="do">分子 = (1 + x) − 1 = x；分母 = x(√(1+x) + 1)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">约去公因子 x（x→0 但 x ≠ 0）</p><p class="do">原式 = 1/(√(1+x) + 1)。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">分母不再是 0，代入求值</p><p class="do">= 1/(1 + 1) = 1/2。</p></div></div>
+      <p class="basis"><b>用到：</b>平方差公式；有理化技巧。也可用等价无穷小 <span class="m">(1+x)<sup>a</sup> − 1 ~ ax</span>，取 a = 1/2 得 x/2，结果相同。</p>
+      <p class="basis"><b>常见错答：</b>写 1（把 √(1+x) 直接当成 1 + x）；写 0（只看到分子趋于 0）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">7</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">lim(x→3) (x<sup>2</sup> − 9)/(x<sup>2</sup> − 5x + 6)</span></span></div>
+    <div class="ans"><b>答案</b>6</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先代入 x = 3</p><p class="do">分子 9 − 9 = 0；分母 9 − 15 + 6 = 0。0/0 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">分子用平方差分解</p><p class="do">x<sup>2</sup> − 9 = (x − 3)(x + 3)。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">分母用十字相乘分解，找一个能约掉的因子</p><p class="do">要找两个数，乘积 6、和 −5，就是 −3 和 −2，所以 x<sup>2</sup> − 5x + 6 = (x − 3)(x − 2)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">约去公共的零因子 (x − 3)</p><p class="do">原式 = (x + 3)/(x − 2)。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">代入 x = 3 求值</p><p class="do">= (3 + 3)/(3 − 2) = 6/1 = 6。</p></div></div>
+      <p class="basis"><b>用到：</b>因式分解（平方差、十字相乘）；0/0 型约去零因子法。</p>
+      <p class="basis"><b>常见错答：</b>写“不存在”，只因为分母为 0；写 0，把分子分母的 0 直接约掉。分母为 0 时要先看分子是否含同一个因子。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">8</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">lim(x→0) x·sin(1/x)</span></span></div>
+    <div class="ans"><b>答案</b>0</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先分别看两个因子在 x→0 时的情况</p><p class="do">x → 0，所以第一个因子是无穷小；sin(1/x) 里 1/x → ∞，正弦值在 −1 和 1 之间来回摆动，它本身没有极限。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">不要因为“第二个因子没极限”就判整题不存在，先看它有没有界</p><p class="do">不管 1/x 多大，正弦值永远满足 |sin(1/x)| ≤ 1，所以它是有界量。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">套“无穷小 × 有界量”的结论</p><p class="do">无穷小乘有界量仍是无穷小，所以整个乘积趋于 0。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">用不等式再确认一遍（考试写这句更稳）</p><p class="do">|x·sin(1/x) − 0| = |x|·|sin(1/x)| ≤ |x| → 0，由夹逼准则，极限为 0。</p></div></div>
+      <p class="basis"><b>用到：</b>无穷小与有界函数的乘积仍是无穷小；夹逼准则（两边夹住，两边都趋于同一个数，中间也趋于它）。</p>
+      <p class="basis"><b>常见错答：</b>写“不存在”，是被 sin(1/x) 的振荡带偏；写 1，是误以为 sin(1/x) → 1。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">9</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">lim(x→∞) (2x + 1)/(x<sup>2</sup> + 3)</span></span></div>
+    <div class="ans"><b>答案</b>0</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">判断类型：分子分母都趋于无穷</p><p class="do">x→∞ 时分子 2x + 1 → ∞，分母 x<sup>2</sup> + 3 → ∞，是 ∞/∞ 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">找出最高次幂，同除它</p><p class="do">最高次是 x<sup>2</sup>（在分母）。分子分母同除 x<sup>2</sup>：分子 = 2/x + 1/x<sup>2</sup>，分母 = 1 + 3/x<sup>2</sup>。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">让带 x 的项全部归零</p><p class="do">x→∞ 时 2/x → 0，1/x<sup>2</sup> → 0，3/x<sup>2</sup> → 0，于是分子 → 0，分母 → 1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">相除得结果</p><p class="do">原式 = 0/1 = 0。</p></div></div>
+      <p class="basis"><b>用到：</b><span class="m">lim(x→∞) 1/x<sup>k</sup> = 0</span>。结论可以直接记：分母次数高 → 极限 0；分子次数高 → 极限 ∞；次数相同 → 系数比。</p>
+      <p class="basis"><b>常见错答：</b>写 ∞（以为“无穷比无穷还是无穷”）；写 2（把 2x 的系数 2 和 x<sup>2</sup> 的系数 1 直接相比，但两者次数不同，不能这么比）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">10</span><span class="qtype">填空</span><span class="qtext"><span class="m">lim(x→1) (x<sup>3</sup> − 1)/(x − 1) =</span> ______</span></div>
+    <div class="ans"><b>答案</b>3</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">代入 x = 1</p><p class="do">分子 1 − 1 = 0，分母 0，是 0/0 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">用立方差公式分解分子，目的是造出 (x − 1)</p><p class="do">a<sup>3</sup> − b<sup>3</sup> = (a − b)(a<sup>2</sup> + ab + b<sup>2</sup>)，取 a = x、b = 1，得 x<sup>3</sup> − 1 = (x − 1)(x<sup>2</sup> + x + 1)。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">约去 (x − 1)</p><p class="do">原式 = x<sup>2</sup> + x + 1（因为 x→1 时 x ≠ 1，可以约）。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">代入求值</p><p class="do">= 1 + 1 + 1 = 3。</p></div></div>
+      <p class="basis"><b>用到：</b>立方差公式。推广一下：<span class="m">x<sup>n</sup> − 1 = (x − 1)(x<sup>n−1</sup> + x<sup>n−2</sup> + … + 1)</span>，除完那一串在 x = 1 处正好等于 n。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 0（把 x<sup>3</sup> − 1 当成 (x − 1)<sup>3</sup>）；写 1（把 x<sup>2</sup> + x + 1 在 x = 1 处算成 1）；写 ∞（只看到分母为 0）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">11</span><span class="qtype">选择</span><span class="qtext">当 x→0 时，与 x 等价的无穷小是（　）</span></div>
+    <div class="opts"><span>A. 1 − cos x</span><span>B. sin x</span><span>C. x<sup>2</sup></span><span>D. ln(1 + x<sup>2</sup>)</span></div>
+    <div class="ans"><b>答案</b>B</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先明确“等价”的判定标准</p><p class="do">若 lim(α/β) = 1，就说 α 与 β 等价，记作 α ~ β。所以判断方法就是：把选项除以 x，看极限是不是 1。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">逐项算比值</p><p class="do">A：(1 − cos x)/x = [(1 − cos x)/x<sup>2</sup>]·x → (1/2)·0 = 0；<br>B：sin x/x → 1；<br>C：x<sup>2</sup>/x = x → 0；<br>D：ln(1 + x<sup>2</sup>)/x ~ x<sup>2</sup>/x = x → 0。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">只有比值为 1 的才是等价</p><p class="do">B 的比值极限是 1，符合定义；A、C、D 的比值都趋于 0，说明它们比 x 更快趋于 0，是“高阶无穷小”。</p></div></div>
+      <p class="basis"><b>用到：</b>等价无穷小定义 <span class="m">lim α/β = 1</span>；常用等价式 <span class="m">sin x ~ x</span>、<span class="m">1 − cos x ~ x<sup>2</sup>/2</span>、<span class="m">ln(1 + u) ~ u</span>。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>1 − cos x ~ x<sup>2</sup>/2，是二阶无穷小，与 x 不等价（比值 → 0）。它常被误记成 ~ x。</li>
+        <li><span class="key good">B</span>sin x ~ x，这是最基础的一条等价式，正确。</li>
+        <li><span class="key bad">C</span>x<sup>2</sup> 与 x 同趋于 0，但阶数不同，比值 x → 0，不等价。</li>
+        <li><span class="key bad">D</span>ln(1 + x<sup>2</sup>) ~ x<sup>2</sup>，同样是二阶，不等价。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">12</span><span class="qtype">填空</span><span class="qtext">函数 <span class="m">f(x) = √(4 − x<sup>2</sup>) + 1/(x − 1)</span> 的定义域是 ______</span></div>
+    <div class="ans"><b>答案</b>[−2, 1) ∪ (1, 2]</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先找出所有“有限制”的地方</p><p class="do">这个函数有两处限制：一是根号，二是分母。两个条件必须同时满足，最后取交集。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">处理根号：偶次根号内必须非负</p><p class="do">4 − x<sup>2</sup> ≥ 0，移项得 x<sup>2</sup> ≤ 4，两边开方得 |x| ≤ 2，即 −2 ≤ x ≤ 2。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">处理分母：分母不能为 0</p><p class="do">x − 1 ≠ 0，即 x ≠ 1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">把两个条件取交集</p><p class="do">在 [−2, 2] 里挖掉 x = 1，得到 [−2, 1) ∪ (1, 2]。</p></div></div>
+      <p class="basis"><b>用到：</b>偶次根号要求被开方式 ≥ 0；分式要求分母 ≠ 0；不等式 x<sup>2</sup> ≤ a（a &gt; 0）的解是 −√a ≤ x ≤ √a。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 [−2, 2]，漏了 x ≠ 1；写 (−2, 2)，把根号允许取 0 的两个端点也挖掉了；写 [−2, 1] ∪ [1, 2]，1 处仍然有定义。端点开闭是这道题唯一的坑。</p>
+    </div>
+  </article>
+</section>
+
+<section id="s2">
+  <h2><span class="no">二</span>函数的连续性与间断点</h2>
+  <p class="sub">这一章考法很固定：判断间断点类型、求分段函数里的未知参数。</p>
+
+  <h3>必背公式与结论</h3>
+  <div class="keys">
+    <p><b>连续的三个条件：</b>在 <span class="m">x<sub>0</sub></span> 有定义；<span class="m">lim(x→x<sub>0</sub>) f(x)</span> 存在；极限值等于函数值。三句话合成一句就是 <span class="m">lim(x→x<sub>0</sub>) f(x) = f(x<sub>0</sub>)</span>。</p>
+    <p><b>左右连续：</b>左极限 = 右极限 = 函数值，三者相等才连续。</p>
+    <p><b>间断点分类：</b>左右极限都存在的叫第一类（相等是可去间断点，不等是跳跃间断点）；左右极限至少有一个不存在的叫第二类（趋于无穷是无穷间断点，来回摆动是振荡间断点）。</p>
+    <p><b>闭区间上连续函数的性质：</b>有界性、最大值最小值定理、介值定理、零点定理（两端异号，中间必有零点）。</p>
+    <p><b>初等函数</b>在其定义区间内连续，所以找间断点只看“分母为 0、对数真数为 0、分段点”这几处。</p>
+  </div>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><span class="qtype">选择</span><span class="qtext">函数 <span class="m">f(x) = (x<sup>2</sup> − 1)/(x − 1)</span> 在 x = 1 处是（　）</span></div>
+    <div class="opts"><span>A. 可去间断点</span><span>B. 跳跃间断点</span><span>C. 无穷间断点</span><span>D. 连续点</span></div>
+    <div class="ans"><b>答案</b>A</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看这个点有没有定义</p><p class="do">x = 1 时分母 1 − 1 = 0，函数没有意义，所以 x = 1 是间断点，一定不是连续点。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">再算 x→1 时的极限，判断属于哪一类</p><p class="do">分子 x<sup>2</sup> − 1 = (x − 1)(x + 1)，约去 (x − 1) 得 x + 1，所以 lim(x→1) f(x) = 2。左右两侧都是 2，极限存在且有限。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">对照分类标准下结论</p><p class="do">极限存在、但函数在该点无定义，属于“可去间断点”——只要补充定义 f(1) = 2，函数就连续了。</p></div></div>
+      <p class="basis"><b>用到：</b>连续定义；间断点分类。判断顺序永远是：先算左右极限，再看函数值。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key good">A</span>极限存在但无定义，可去，正确。</li>
+        <li><span class="key bad">B</span>跳跃要求左右极限都存在但不相等（例如分段函数在分界点两边接到不同高度），这里两侧都趋于 2。</li>
+        <li><span class="key bad">C</span>无穷间断点要求极限为 ∞，这里极限是有限的 2。</li>
+        <li><span class="key bad">D</span>连续要求有定义且函数值等于极限，x = 1 处根本没定义。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><span class="qtype">选择</span><span class="qtext">函数 <span class="m">f(x) = 1/x</span> 在 x = 0 处是（　）</span></div>
+    <div class="opts"><span>A. 可去间断点</span><span>B. 跳跃间断点</span><span>C. 无穷间断点</span><span>D. 振荡间断点</span></div>
+    <div class="ans"><b>答案</b>C</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先确认它是间断点</p><p class="do">x = 0 时分母为 0，函数无定义，是间断点。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">分别算左右极限，注意符号方向</p><p class="do">x→0<sup>+</sup> 时 x 是正的小数，1/x → +∞；x→0<sup>−</sup> 时 x 是负的小数，1/x → −∞。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">按“极限是否存在”先分大类</p><p class="do">左右极限都不是有限数，属于第二类间断点；再按“是不是趋于无穷”细分，是无穷间断点。</p></div></div>
+      <p class="basis"><b>用到：</b>第二类间断点定义（左右极限至少一个不存在）；无穷间断点的判定（极限为 ∞）。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>可去间断点要求极限是一个有限数，这里不存在有限极限。</li>
+        <li><span class="key bad">B</span>跳跃间断点要求左右极限都是有限数、只是不相等，而这里两边都发散。</li>
+        <li><span class="key good">C</span>单侧趋于无穷，无穷间断点，正确。</li>
+        <li><span class="key bad">D</span>振荡间断点的典型是 sin(1/x)：值在 −1 和 1 之间来回跳，不朝无穷跑；1/x 是一路冲向无穷。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><span class="qtype">填空</span><span class="qtext">设 <span class="m">f(x) = x + 1 (x &lt; 1)</span>，<span class="m">f(x) = a (x = 1)</span>，<span class="m">f(x) = 3 − x (x &gt; 1)</span>，若 f(x) 在 x = 1 处连续，则 a = ______</span></div>
+    <div class="ans"><b>答案</b>2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先写出连续要满足的条件</p><p class="do">在分界点连续，必须满足：左极限 = 右极限 = 函数值。三个量都要算。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">算左极限，用 x &lt; 1 那一段的表达式</p><p class="do">lim(x→1<sup>−</sup>)(x + 1) = 1 + 1 = 2。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">算右极限，用 x &gt; 1 那一段的表达式</p><p class="do">lim(x→1<sup>+</sup>)(3 − x) = 3 − 1 = 2。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">左右相等，极限存在，再让它等于函数值</p><p class="do">极限是 2，而 f(1) = a，所以要 a = 2。</p></div></div>
+      <p class="basis"><b>用到：</b>分段函数在分界点连续的条件 <span class="m">lim(x→x<sub>0</sub><sup>−</sup>) f(x) = lim(x→x<sub>0</sub><sup>+</sup>) f(x) = f(x<sub>0</sub>)</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>a = 0（把 a 当成“补差”）；a = 3（只用了右侧表达式又代错）；a = 1（把 x = 1 代进了 x + 1 却算成 1）。按顺序算三个量就不会错。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">f(x) = (x<sup>2</sup> − 3x + 2)/(x<sup>2</sup> − 1)</span> 的间断点，并说明类型。</span></div>
+    <div class="ans"><b>答案</b>x = 1 是可去间断点；x = −1 是无穷间断点</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先找哪些点让函数没意义</p><p class="do">分母 x<sup>2</sup> − 1 = 0，得 x = 1 或 x = −1，这两个都是间断点。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">把分子分母都分解，方便看能不能约</p><p class="do">分子：乘积 2、和 −3，是 −1 和 −2，得 (x − 1)(x − 2)；分母：平方差，得 (x − 1)(x + 1)。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">先看 x = 1：约掉公因子后再求极限</p><p class="do">原式 = (x − 2)/(x + 1)，代入 x = 1 得 (−1)/2 = −1/2，极限存在且有限，所以是可去间断点。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">再看 x = −1：约分后分母仍然为 0</p><p class="do">分子在 x = −1 处是 −3 ≠ 0，分母为 0，所以函数值趋于无穷，是无穷间断点（第二类）。</p></div></div>
+      <p class="basis"><b>用到：</b>因式分解；0/0 型约去零因子；间断点分类标准（极限是有限数 → 第一类；趋于无穷 → 第二类）。</p>
+      <p class="basis"><b>常见错答：</b>把两个点都写成可去；或者只说“x = ±1 是间断点”而不分类。题目问“类型”，就必须逐个点给出结论。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><span class="qtype">判断</span><span class="qtext">若 f(x) 在 [0,2] 上连续，且 f(0) = −1，f(2) = 3，则存在 ξ ∈ (0,2)，使 f(ξ) = 0。（　）</span></div>
+    <div class="ans"><b>答案</b>正确</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先核对定理的三个条件，缺一不可</p><p class="do">① 闭区间 [0,2] 上连续——题目给了；② 端点函数值异号——f(0) = −1 &lt; 0，f(2) = 3 &gt; 0，一负一正，满足；③ 0 介于两者之间——0 确实在 −1 和 3 之间。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写出所用定理的内容</p><p class="do">零点定理：若 f 在 [a,b] 上连续，且 f(a)·f(b) &lt; 0，则至少存在一点 ξ ∈ (a,b)，使 f(ξ) = 0。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">对照条件得结论</p><p class="do">三个条件都满足，所以至少存在一个 ξ，使 f(ξ) = 0。命题正确。</p></div></div>
+      <p class="basis"><b>用到：</b>零点定理（介值定理的推论）。注意定理只保证“存在”，不保证只有一个，也不要求函数单调。</p>
+      <p class="basis"><b>常见错判：</b>认为“必须单调递增才有零点”，因此判错。定理里没有单调这个条件。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">6</span><span class="qtype">选择</span><span class="qtext">“f(x) 在 <span class="m">x<sub>0</sub></span> 处连续”是“f(x) 在 <span class="m">x<sub>0</sub></span> 处有极限”的（　）</span></div>
+    <div class="opts"><span>A. 必要条件</span><span>B. 充分非必要条件</span><span>C. 充要条件</span><span>D. 无关条件</span></div>
+    <div class="ans"><b>答案</b>B</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先把两个定义写出来，比对谁包含谁</p><p class="do">连续 = 有定义 + 极限存在 + 极限等于函数值；有极限 = lim(x→x<sub>0</sub>) f(x) 存在。可见“连续”比“有极限”要求更多。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">从强推弱：连续能不能推出有极限</p><p class="do">能。连续的定义里本身就包含了“极限存在”这一条，所以连续 ⇒ 有极限，是充分的。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">从弱推强：有极限能不能推出连续</p><p class="do">不能。反例就是第 1 题：(x<sup>2</sup> − 1)/(x − 1) 在 x = 1 处极限是 2，但没有定义。所以不必要。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">合起来下结论</p><p class="do">充分但不必要，选 B。</p></div></div>
+      <p class="basis"><b>用到：</b>连续定义；充分/必要条件的判断方法（“A 是 B 的什么条件”就看 A ⇒ B 与 B ⇒ A 哪个成立）。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>说反了方向。必要条件是“有极限 ⇒ 连续”，但这是错的（上面有反例）。</li>
+        <li><span class="key good">B</span>连续 ⇒ 有极限成立，反过来不成立，正确。</li>
+        <li><span class="key bad">C</span>充要要求两个方向都成立，反例已经否掉了反方向。</li>
+        <li><span class="key bad">D</span>两者明显有推导关系（连续的定义里就含极限），不是无关。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">7</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">f(x) = (e<sup>x</sup> − 1)/x (x ≠ 0)</span>，<span class="m">f(0) = a</span>，要使 f(x) 在 x = 0 处连续，求 a。</span></div>
+    <div class="ans"><b>答案</b>a = 1</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先求 x→0 时的极限</p><p class="do">代入 x = 0：分子 e<sup>0</sup> − 1 = 1 − 1 = 0，分母 0，是 0/0 型。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">用等价无穷小把 e<sup>x</sup> − 1 换掉</p><p class="do">x→0 时 <span class="m">e<sup>x</sup> − 1 ~ x</span>，且它是整个分子（乘除因子），可以直接替换，得 x/x = 1。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">套连续的条件，令极限等于函数值</p><p class="do">连续要求 lim(x→0) f(x) = f(0)，即 1 = a，所以 a = 1。</p></div></div>
+      <p class="basis"><b>用到：</b>等价无穷小 <span class="m">e<sup>x</sup> − 1 ~ x</span>；连续定义。这类“补定义使连续”的题，答案永远是那个极限值。</p>
+      <p class="basis"><b>常见错答：</b>a = 0（只算分子 e<sup>0</sup> − 1 = 0，忘记分母也趋于 0）；a = e（把 e<sup>x</sup> 在 0 处的值当答案）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">8</span><span class="qtype">判断</span><span class="qtext">若 f(x) 在 <span class="m">x<sub>0</sub></span> 处连续，则 |f(x)| 在 <span class="m">x<sub>0</sub></span> 处也连续。（　）</span></div>
+    <div class="ans"><b>答案</b>正确</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">把 |f(x)| 看成一个复合函数</p><p class="do">外层是 g(u) = |u|，内层是 u = f(x)。|u| 本身就是连续函数（它的图像是一条折线，没有断口）。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">用“连续函数的复合仍连续”这条结论</p><p class="do">内层 f 在 x<sub>0</sub> 连续，外层 |u| 在对应点连续，所以复合函数 |f(x)| 在 x<sub>0</sub> 连续。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">再用不等式验证一遍，考场写这个更保险</p><p class="do">对任意实数都有 ||a| − |b|| ≤ |a − b|。取 a = f(x)、b = f(x<sub>0</sub>)，得 ||f(x)| − |f(x<sub>0</sub>)|| ≤ |f(x) − f(x<sub>0</sub>)|。右边因 f 连续而趋于 0，所以左边也趋于 0，即 |f| 连续。</p></div></div>
+      <p class="basis"><b>用到：</b>复合函数连续性；绝对值不等式 <span class="m">||a| − |b|| ≤ |a − b|</span>。</p>
+      <p class="basis"><b>常见错判：</b>认为反过来也成立（|f| 连续 ⇒ f 连续）。这是错的，例如 f 在有理点取 1、无理点取 −1，|f| 恒等于 1 连续，f 本身却处处不连续。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">9</span><span class="qtype">填空</span><span class="qtext"><span class="m">f(x) = sin(1/x)</span> 在 x = 0 处属于第 ______ 类间断点中的 ______ 间断点。</span></div>
+    <div class="ans"><b>答案</b>二；振荡</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看 x→0 时 1/x 往哪走</p><p class="do">x 越来越接近 0，1/x 就越来越大，趋于无穷。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">正弦函数遇到无穷大会怎样</p><p class="do">sin 的自变量每增加 2π 就重复一次，所以 1/x 越大，函数值就在 −1 和 1 之间来回无限次摆动，不会停在任何数附近。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">用两个子列说明极限不存在（这是严格写法）</p><p class="do">取 x<sub>n</sub> = 1/(nπ)，则 sin(1/x<sub>n</sub>) = sin(nπ) = 0；取 x<sub>n</sub> = 1/(π/2 + 2nπ)，则 sin = 1。两个子列趋于不同的值，所以整体极限不存在。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">按分类填结论</p><p class="do">极限不存在 → 第二类；不趋于无穷而是来回摆 → 振荡间断点。</p></div></div>
+      <p class="basis"><b>用到：</b>第二类间断点定义；极限不存在的判定（两个子列极限不同）。</p>
+      <p class="basis"><b>填空题常见错答：</b>填“无穷”——它是摆动的，不是冲向无穷；填“第一类”——第一类要求左右极限都是有限数。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">10</span><span class="qtype">填空</span><span class="qtext">函数 <span class="m">f(x) = ln(x − 1)</span> 的连续区间是 ______</span></div>
+    <div class="ans"><b>答案</b>(1, +∞)</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先求定义域，连续区间一定在定义域里</p><p class="do">对数要求真数大于 0：x − 1 &gt; 0，移项得 x &gt; 1。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">确认它是初等函数，直接用结论</p><p class="do">ln(x − 1) 由对数函数和一次函数复合而成，属于初等函数，而初等函数在其定义区间内连续。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">写出连续区间，注意端点开闭</p><p class="do">x = 1 处真数为 0，函数无定义，所以端点要开，写成 (1, +∞)。</p></div></div>
+      <p class="basis"><b>用到：</b>初等函数连续性定理（初等函数在其定义区间内连续）；对数函数定义域 x &gt; 0。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 [1, +∞)（把端点也算进去）；写 (0, +∞)（忘记真数是 x − 1 而不是 x）。</p>
+    </div>
+  </article>
+</section>
+
+<section id="s3">
+  <h2><span class="no">三</span>导数与微分</h2>
+  <p class="sub">分值最重，但套路最少：背熟导数表，练熟链式法则，计算题基本稳了。</p>
+
+  <h3>必背公式与结论</h3>
+  <div class="keys">
+    <p><b>导数定义：</b><span class="m">f′(x<sub>0</sub>) = lim(Δx→0) [f(x<sub>0</sub>+Δx) − f(x<sub>0</sub>)]/Δx = lim(x→x<sub>0</sub>) [f(x) − f(x<sub>0</sub>)]/(x − x<sub>0</sub>)</span>。</p>
+    <p><b>基本导数表：</b><span class="m">(x<sup>a</sup>)′ = ax<sup>a−1</sup></span>，<span class="m">(sin x)′ = cos x</span>，<span class="m">(cos x)′ = −sin x</span>，<span class="m">(tan x)′ = sec<sup>2</sup>x</span>，<span class="m">(e<sup>x</sup>)′ = e<sup>x</sup></span>，<span class="m">(a<sup>x</sup>)′ = a<sup>x</sup>ln a</span>，<span class="m">(ln x)′ = 1/x</span>，<span class="m">(arctan x)′ = 1/(1+x<sup>2</sup>)</span>，<span class="m">(arcsin x)′ = 1/√(1−x<sup>2</sup>)</span>。</p>
+    <p><b>乘除法则：</b><span class="m">(uv)′ = u′v + uv′</span>；<span class="m">(u/v)′ = (u′v − uv′)/v<sup>2</sup></span>。</p>
+    <p><b>链式法则：</b><span class="m">y = f(u)，u = g(x)</span>，则 <span class="m">dy/dx = f′(u)·g′(x)</span>。由外往里剥，一层一层乘。</p>
+    <p><b>隐函数：</b>两边对 x 求导，把 y 看成 x 的函数，遇到 y 就多乘一个 y′，再解出 y′。</p>
+    <p><b>参数方程：</b><span class="m">x = φ(t)，y = ψ(t)</span>，则 <span class="m">dy/dx = ψ′(t)/φ′(t)</span>。</p>
+    <p><b>微分：</b><span class="m">dy = f′(x)dx</span>；切线方程 <span class="m">y − f(x<sub>0</sub>) = f′(x<sub>0</sub>)(x − x<sub>0</sub>)</span>。</p>
+    <p><b>关系：</b>可导一定连续，连续不一定可导（<span class="m">|x|</span> 在 0 处）。</p>
+  </div>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">y = x<sup>3</sup> + 2sin x − ln x</span>，求 y′。</span></div>
+    <div class="ans"><b>答案</b>y′ = 3x<sup>2</sup> + 2cos x − 1/x</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看清楚结构：这是三项相加减</p><p class="do">和差的导数等于导数之和差，所以可以一项一项单独求，再拼起来，不需要用乘法或链式法则。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">第一项 x<sup>3</sup> 用幂函数公式</p><p class="do">(x<sup>a</sup>)′ = a·x<sup>a−1</sup>，取 a = 3，得 3x<sup>2</sup>。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">第二项 2sin x：常数系数照抄，只对 sin x 求导</p><p class="do">(sin x)′ = cos x，所以 (2sin x)′ = 2cos x。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">第三项 ln x 用对数公式</p><p class="do">(ln x)′ = 1/x（注意这一项要求 x &gt; 0）。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">把三项拼回去</p><p class="do">y′ = 3x<sup>2</sup> + 2cos x − 1/x。</p></div></div>
+      <p class="basis"><b>用到：</b>导数的线性性质 <span class="m">(u ± v)′ = u′ ± v′</span>、<span class="m">(Cu)′ = Cu′</span>；幂函数与对数函数导数公式。</p>
+      <p class="basis"><b>常见错答：</b>把 ln x 的导数写成 1/x<sup>2</sup>；把 2sin x 的导数写成 2cos x·2（多乘了一个内层导数，但 sin x 的内层就是 x，导数为 1）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">y = (x<sup>2</sup> + 1)e<sup>x</sup></span>，求 y′。</span></div>
+    <div class="ans"><b>答案</b>y′ = (x + 1)<sup>2</sup>e<sup>x</sup></div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">认清结构：这是两个函数相乘，必须用乘法法则</p><p class="do">设 u = x<sup>2</sup> + 1，v = e<sup>x</sup>。公式 (uv)′ = u′v + uv′，两项都不能少。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">分别求 u′ 和 v′</p><p class="do">u′ = 2x（幂函数公式）；v′ = e<sup>x</sup>（指数函数公式，e<sup>x</sup> 的导数还是它自己）。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">代入乘法法则</p><p class="do">y′ = 2x·e<sup>x</sup> + (x<sup>2</sup> + 1)·e<sup>x</sup>。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">提公因子 e<sup>x</sup>，把括号里合并</p><p class="do">= e<sup>x</sup>(2x + x<sup>2</sup> + 1) = e<sup>x</sup>(x<sup>2</sup> + 2x + 1)。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">用完全平方公式写成最简形式</p><p class="do">x<sup>2</sup> + 2x + 1 = (x + 1)<sup>2</sup>，所以 y′ = (x + 1)<sup>2</sup>e<sup>x</sup>。后面求极值时这个平方形式很好用。</p></div></div>
+      <p class="basis"><b>用到：</b>乘法法则 <span class="m">(uv)′ = u′v + uv′</span>；完全平方公式 <span class="m">a<sup>2</sup> + 2ab + b<sup>2</sup> = (a + b)<sup>2</sup></span>。</p>
+      <p class="basis"><b>常见错答：</b>只写 2x·e<sup>x</sup>（漏掉第二项）；写成 u′v′ = 2x·e<sup>x</sup>（把乘法法则当成了分别求导再相乘）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">y = ln(1 + x<sup>2</sup>)</span>，求 y′。</span></div>
+    <div class="ans"><b>答案</b>y′ = 2x/(1 + x<sup>2</sup>)</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先把函数拆成内外两层</p><p class="do">外层是 ln u，内层是 u = 1 + x<sup>2</sup>。这不是简单的 ln x，所以必须用链式法则。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写链式法则的公式</p><p class="do">dy/dx = (dy/du)·(du/dx) = f′(u)·u′。直观理解：先对外层求导，再乘内层的导数。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">对外层求导：ln u 的导数是 1/u</p><p class="do">1/u = 1/(1 + x<sup>2</sup>)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">对内层求导：1 + x<sup>2</sup> 的导数是 2x</p><p class="do">常数 1 的导数为 0，x<sup>2</sup> 的导数为 2x。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">两层相乘</p><p class="do">y′ = [1/(1 + x<sup>2</sup>)]·2x = 2x/(1 + x<sup>2</sup>)。</p></div></div>
+      <p class="basis"><b>用到：</b>链式法则；<span class="m">(ln u)′ = 1/u</span>；<span class="m">(x<sup>2</sup>)′ = 2x</span>。</p>
+      <p class="basis"><b>常见错答：</b>只写 1/(1 + x<sup>2</sup>)，漏乘内层导数 2x，这是复合函数求导最常见的错误。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">y = sin<sup>2</sup>x</span>，求 y′。</span></div>
+    <div class="ans"><b>答案</b>y′ = sin 2x</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先认清 sin<sup>2</sup>x 到底是什么意思</p><p class="do">它是 (sin x)<sup>2</sup>，也就是“先算 sin x，再平方”。平方在外面，sin 在里面。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">按复合函数拆层：外层是 u<sup>2</sup>，内层是 u = sin x</p><p class="do">外层导数 2u，内层导数 cos x。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">链式法则相乘</p><p class="do">y′ = 2u·u′ = 2sin x·cos x。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">用二倍角公式化到最简</p><p class="do">sin 2x = 2sin x cos x，所以 y′ = sin 2x。</p></div></div>
+      <p class="basis"><b>用到：</b>链式法则；<span class="m">(sin x)′ = cos x</span>；二倍角公式 <span class="m">sin 2x = 2sin x cos x</span>。</p>
+      <p class="basis"><b>常见错答：</b>与 sin(x<sup>2</sup>) 混淆，后者的导数是 cos(x<sup>2</sup>)·2x。看清平方号在 sin 里面还是外面。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><span class="qtype">填空</span><span class="qtext">曲线 <span class="m">y = x<sup>2</sup></span> 在点 (1, 1) 处的切线方程是 ______</span></div>
+    <div class="ans"><b>答案</b>y = 2x − 1</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先回忆“导数就是切线斜率”</p><p class="do">曲线在 x<sub>0</sub> 处切线的斜率 k 等于 f′(x<sub>0</sub>)。所以第一步一定是求导。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">求导并代入切点的横坐标</p><p class="do">y′ = 2x，把 x = 1 代入得 k = 2×1 = 2。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">写出点斜式方程</p><p class="do">点斜式：y − y<sub>0</sub> = k(x − x<sub>0</sub>)，代入点 (1,1)、k = 2，得 y − 1 = 2(x − 1)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">整理成 y = kx + b 的形式</p><p class="do">y = 2x − 2 + 1 = 2x − 1。</p></div></div>
+      <p class="basis"><b>用到：</b>导数的几何意义；点斜式 <span class="m">y − y<sub>0</sub> = k(x − x<sub>0</sub>)</span>；<span class="m">(x<sup>2</sup>)′ = 2x</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 y = 2x（忘记过点 (1,1)）；写 y = x（把 x = 1 代进原函数而不是导数）；写 y − 1 = 2x（点斜式漏了括号）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">6</span><span class="qtype">填空</span><span class="qtext">设 f′(1) = 2，则 <span class="m">lim(h→0) [f(1 + 2h) − f(1)]/h =</span> ______</span></div>
+    <div class="ans"><b>答案</b>4</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先写出导数的定义式，作为对照标准</p><p class="do">f′(1) = lim(h→0) [f(1 + h) − f(1)]/h。注意它的特征：分子里加的是 h，分母也是 h，两者完全一样。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">对比题目，找出不一致的地方</p><p class="do">题目分子里加的是 2h，分母却是 h。增量“不配平”，不能直接说是 f′(1)。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把分母也凑成 2h：乘 2 再除 2，值不变</p><p class="do">[f(1 + 2h) − f(1)]/h = 2 · [f(1 + 2h) − f(1)]/(2h)。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">换元，让括号里恢复成定义式的样子</p><p class="do">令 t = 2h，当 h→0 时 t→0，中括号就是 lim(t→0)[f(1 + t) − f(1)]/t = f′(1) = 2。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">把外面的系数 2 乘回去</p><p class="do">原式 = 2 × 2 = 4。</p></div></div>
+      <p class="basis"><b>用到：</b>导数定义 <span class="m">f′(x<sub>0</sub>) = lim(h→0)[f(x<sub>0</sub>+h) − f(x<sub>0</sub>)]/h</span>。口诀：分子增量是几倍，答案就乘几倍。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 2（直接当成 f′(1)）；写 1（把 2h 的 2 除反了）；写 0（以为 h→0 所以整体为 0）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">7</span><span class="qtype">选择</span><span class="qtext">函数 <span class="m">f(x) = |x|</span> 在 x = 0 处（　）</span></div>
+    <div class="opts"><span>A. 连续且可导</span><span>B. 不连续</span><span>C. 连续但不可导</span><span>D. 可导但不连续</span></div>
+    <div class="ans"><b>答案</b>C</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先判断连续：算极限，和函数值比</p><p class="do">|0| = 0，且 x→0 时 |x| → 0，极限等于函数值，所以连续。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">再判断可导：在 0 处必须用定义算左右导数</p><p class="do">因为 |x| 在 0 的两侧表达式不同（左边是 −x，右边是 x），不能直接求导。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">算左导数：x &lt; 0 时 |x| = −x</p><p class="do">lim(x→0<sup>−</sup>)[|x| − 0]/(x − 0) = lim (−x)/x = −1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">算右导数：x &gt; 0 时 |x| = x</p><p class="do">lim(x→0<sup>+</sup>) x/x = 1。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">左右导数不相等，所以不可导</p><p class="do">−1 ≠ 1，导数不存在。几何上原点是一个尖点，画不出唯一的切线。</p></div></div>
+      <p class="basis"><b>用到：</b>连续定义；左右导数定义 <span class="m">f′<sub>−</sub>(x<sub>0</sub>) = lim(x→x<sub>0</sub><sup>−</sup>)[f(x) − f(x<sub>0</sub>)]/(x − x<sub>0</sub>)</span>；可导的充要条件是左右导数存在且相等。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>图像“连在一起”只说明连续，尖点处没有切线，不可导。</li>
+        <li><span class="key bad">B</span>|x| 在 0 处有定义、极限为 0、等于函数值，是连续的。</li>
+        <li><span class="key good">C</span>连续已证，左右导数 −1 与 1 不等故不可导，正确。</li>
+        <li><span class="key bad">D</span>可导必连续，所以“可导但不连续”这种函数根本不存在，可以无条件排除。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">8</span><span class="qtype">计算</span><span class="qtext">由方程 <span class="m">x<sup>2</sup> + y<sup>2</sup> = 4</span> 确定 y 是 x 的函数，求 y′。</span></div>
+    <div class="ans"><b>答案</b>y′ = −x/y</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先认清这是隐函数：y 没有单独解出来，但它仍然是 x 的函数</p><p class="do">意思是 y = y(x)。所以对含 y 的项求导时，要把它当成复合函数。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">方程两边同时对 x 求导</p><p class="do">左边逐项求：(x<sup>2</sup>)′ + (y<sup>2</sup>)′；右边 4 是常数，导数为 0。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">关键是 (y<sup>2</sup>)′：用链式法则，y 是内层</p><p class="do">(y<sup>2</sup>)′ = 2y·y′，那个 y′ 就是“内层导数”，绝对不能漏。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">写出求导后的方程</p><p class="do">2x + 2y·y′ = 0。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">把 y′ 当未知数解出来</p><p class="do">移项得 2y·y′ = −2x，两边除以 2y（y ≠ 0），得 y′ = −x/y。</p></div></div>
+      <p class="basis"><b>用到：</b>隐函数求导法；链式法则；<span class="m">(x<sup>2</sup>)′ = 2x</span>。答案里允许出现 y，不必化成只含 x 的式子。</p>
+      <p class="basis"><b>常见错答：</b>把 (y<sup>2</sup>)′ 写成 2y，丢掉 y′；把右边 4 的导数写成 4；解方程时两边同除 2y 却忘记 y ≠ 0 的条件。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">9</span><span class="qtype">计算</span><span class="qtext">设参数方程 <span class="m">x = t<sup>2</sup>，y = t<sup>3</sup></span>，求 dy/dx。</span></div>
+    <div class="ans"><b>答案</b>dy/dx = 3t/2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先认清：x 和 y 都由 t 决定，所以不能对 x 直接求导</p><p class="do">它们之间没有写成 y = f(x) 的形式，中间隔着一个 t。要借助 t 作为“桥”。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写出参数方程求导公式</p><p class="do">dy/dx = (dy/dt)/(dx/dt)，也就是 y 对 t 的导数除以 x 对 t 的导数（相当于把 dy 和 dx 都乘上 dt）。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">分别对 t 求导</p><p class="do">dx/dt = 2t；dy/dt = 3t<sup>2</sup>。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">相除并约分</p><p class="do">dy/dx = 3t<sup>2</sup>/(2t) = 3t/2（t ≠ 0，此时 dx/dt ≠ 0）。</p></div></div>
+      <p class="basis"><b>用到：</b>参数方程求导公式 <span class="m">dy/dx = (dy/dt)/(dx/dt)</span>；幂函数求导公式。</p>
+      <p class="basis"><b>常见错答：</b>写 2t/3t<sup>2</sup>（上下颠倒）；写 3t<sup>2</sup>/2t 不约分；把 t 直接消掉写成 3/2（t 不能被消掉）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">10</span><span class="qtype">填空</span><span class="qtext">d(cos 2x) = ______ dx</span></div>
+    <div class="ans"><b>答案</b>−2sin 2x</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先把微分的定义写出来</p><p class="do">dy = f′(x)dx。所以题目要的其实就是“先求导，把结果填在 dx 前面”。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">认清 cos 2x 是复合函数：外层 cos，内层 2x</p><p class="do">不能直接用 (cos x)′ = −sin x，要乘内层导数。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">外层求导</p><p class="do">(cos u)′ = −sin u，这里 u = 2x，得 −sin 2x。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">乘内层导数</p><p class="do">(2x)′ = 2，所以 (cos 2x)′ = −2sin 2x。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">补上 dx，写成微分形式</p><p class="do">d(cos 2x) = −2sin 2x dx，空格处填 −2sin 2x。</p></div></div>
+      <p class="basis"><b>用到：</b>微分定义 <span class="m">dy = f′(x)dx</span>；链式法则；<span class="m">(cos u)′ = −sin u</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 −sin 2x（漏乘内层导数 2）；写 −2sin 2x dx（空格后面已经有 dx，重复了）；写 2sin 2x（符号错，cos 的导数是负的）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">11</span><span class="qtype">计算</span><span class="qtext">设 <span class="m">y = (1 + x)<sup>10</sup></span>，求 y′，并求 y′(0)。</span></div>
+    <div class="ans"><b>答案</b>y′ = 10(1+x)<sup>9</sup>，y′(0) = 10</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">认清结构：外层是 10 次方，内层是 1 + x</p><p class="do">属于复合函数，用链式法则：外层导数 × 内层导数。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">外层求导：把 u<sup>10</sup> 当成幂函数</p><p class="do">(u<sup>10</sup>)′ = 10u<sup>9</sup>，即 10(1 + x)<sup>9</sup>。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">内层求导：(1 + x)′ = 1</p><p class="do">常数 1 的导数为 0，x 的导数为 1，合起来是 1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">相乘，乘 1 不改变结果</p><p class="do">y′ = 10(1 + x)<sup>9</sup> × 1 = 10(1 + x)<sup>9</sup>。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">第二个问：把 x = 0 代进导函数</p><p class="do">y′(0) = 10(1 + 0)<sup>9</sup> = 10 × 1 = 10。</p></div></div>
+      <p class="basis"><b>用到：</b>链式法则；幂函数公式 <span class="m">(u<sup>n</sup>)′ = n·u<sup>n−1</sup>·u′</span>；<span class="m">1<sup>9</sup> = 1</span>。</p>
+      <p class="basis"><b>常见错答：</b>写 10(1 + x)<sup>9</sup> 后又说 y′(0) = 0（把 x = 0 代进了原来那个“加 1”的括号却算成 0）；写 9(1 + x)<sup>8</sup>（指数减错）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">12</span><span class="qtype">填空</span><span class="qtext">设 <span class="m">y = x<sup>2</sup></span>，则 <span class="m">dy|<sub>x=1</sub></span> = ______</span></div>
+    <div class="ans"><b>答案</b>2dx</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先求导函数</p><p class="do">y′ = (x<sup>2</sup>)′ = 2x。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">套微分公式，写出一般的 dy</p><p class="do">dy = y′dx = 2x dx。注意 dx 是“自变量的微小增量”，必须带着。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把 x = 1 代入，得到该点处的微分</p><p class="do">dy|<sub>x=1</sub> = 2×1·dx = 2dx。</p></div></div>
+      <p class="basis"><b>用到：</b>微分定义 <span class="m">dy = f′(x)dx</span>；<span class="m">(x<sup>2</sup>)′ = 2x</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 2（漏了 dx，微分是一个带 dx 的量，不是一个数）；写 2x（没有代入 x = 1）；写 1（把 x = 1 代进了原函数 y = 1）。</p>
+    </div>
+  </article>
+</section>
+
+<section id="s4">
+  <h2><span class="no">四</span>微分中值定理与导数应用</h2>
+  <p class="sub">单调性、极值、最值，是整张卷子里最好拿分的大题，流程固定。</p>
+
+  <h3>必背公式与结论</h3>
+  <div class="keys">
+    <p><b>罗尔定理：</b>[a,b] 连续、(a,b) 可导、f(a) = f(b)，则存在 ξ ∈ (a,b)，使 <span class="m">f′(ξ) = 0</span>。</p>
+    <p><b>拉格朗日中值定理：</b>前两个条件同上，则存在 ξ ∈ (a,b)，使 <span class="m">f(b) − f(a) = f′(ξ)(b − a)</span>。</p>
+    <p><b>单调性：</b>区间内 <span class="m">f′(x) &gt; 0</span> 则单调递增，<span class="m">f′(x) &lt; 0</span> 则单调递减。个别点导数为 0 不影响整个区间的单调性。</p>
+    <p><b>极值必要条件：</b>若 f 在 <span class="m">x<sub>0</sub></span> 可导且取极值，则 <span class="m">f′(x<sub>0</sub>) = 0</span>（<span class="m">x<sub>0</sub></span> 是驻点）。</p>
+    <p><b>第一充分条件：</b>f′ 在 <span class="m">x<sub>0</sub></span> 两侧变号。左正右负 → 极大值；左负右正 → 极小值；不变号 → 不是极值。</p>
+    <p><b>第二充分条件：</b><span class="m">f′(x<sub>0</sub>) = 0</span> 且 <span class="m">f″(x<sub>0</sub>) ≠ 0</span>：<span class="m">f″ &lt; 0</span> 取极大值，<span class="m">f″ &gt; 0</span> 取极小值。</p>
+    <p><b>求最值：</b>把所有驻点、导数不存在的点、区间端点都算出来，比大小。</p>
+  </div>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><span class="qtype">计算</span><span class="qtext">验证 <span class="m">f(x) = x<sup>2</sup></span> 在 [0,2] 上满足拉格朗日中值定理，并求出定理中的 ξ。</span></div>
+    <div class="ans"><b>答案</b>ξ = 1</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先验证定理的两个条件，这是“验证”类题目的必答内容</p><p class="do">f(x) = x<sup>2</sup> 是多项式，多项式在整条数轴上连续、可导，所以它在闭区间 [0,2] 上连续，在开区间 (0,2) 内可导。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写出定理的等式</p><p class="do">f(b) − f(a) = f′(ξ)(b − a)，其中 a = 0，b = 2。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把已知量一个个代进去</p><p class="do">f(2) = 2<sup>2</sup> = 4，f(0) = 0，b − a = 2 − 0 = 2，所以左边 4 − 0 = 4，右边 = f′(ξ)·2。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">先求导函数，再解方程</p><p class="do">f′(x) = 2x，所以 f′(ξ) = 2ξ。方程 4 = 2ξ·2 = 4ξ，解得 ξ = 1。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">检查 ξ 是否落在开区间内，这一步是验证而不是多余</p><p class="do">1 ∈ (0,2)，符合要求。</p></div></div>
+      <p class="basis"><b>用到：</b>拉格朗日中值定理 <span class="m">f(b) − f(a) = f′(ξ)(b − a)</span>；多项式处处连续可导。</p>
+      <p class="basis"><b>常见错答：</b>只写 ξ = 1，不验证条件；解出 ξ 后不检查是否在 (0,2) 内；把 b − a 写成 a − b。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><span class="qtype">填空</span><span class="qtext">函数 <span class="m">f(x) = x<sup>2</sup> − 4x + 3</span> 的单调递减区间是 ______</span></div>
+    <div class="ans"><b>答案</b>(−∞, 2)</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">单调性看导数的正负，所以先求导</p><p class="do">f′(x) = 2x − 4（逐项求导，常数 3 的导数为 0）。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">令导数小于 0，解不等式</p><p class="do">2x − 4 &lt; 0，移项得 2x &lt; 4，两边除以 2 得 x &lt; 2。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">写成区间，注意是开区间</p><p class="do">单调递减区间是 (−∞, 2)。若反过来解 f′ &gt; 0，得 2x − 4 &gt; 0 即 x &gt; 2，所以递增区间是 (2, +∞)，两个结果可以互相验算。</p></div></div>
+      <p class="basis"><b>用到：</b>导数符号与单调性的关系（f′ &lt; 0 ⇒ 递减）；解一元一次不等式。</p>
+      <p class="basis"><b>填空题常见错答：</b>写 (2, +∞)（把增减搞反，开口向上的抛物线对称轴左边才是递减）；写成闭区间 [−∞, 2]（单调区间一般写开区间）；写 x &lt; 2（题目要的是区间，不是不等式）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">f(x) = x<sup>3</sup> − 3x</span> 的单调区间与极值。</span></div>
+    <div class="ans"><b>答案</b>增区间 (−∞,−1) 和 (1,+∞)，减区间 (−1,1)；极大值 f(−1) = 2，极小值 f(1) = −2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">定义域先写清楚，再求导</p><p class="do">多项式定义域是全体实数。f′(x) = 3x<sup>2</sup> − 3。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">提公因式并因式分解，方便找零点</p><p class="do">3x<sup>2</sup> − 3 = 3(x<sup>2</sup> − 1) = 3(x − 1)(x + 1)。令 f′ = 0，得 x = 1 或 x = −1，这两个是驻点。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">驻点把数轴分成三段，各取一个测试点判断导数符号</p><p class="do">取 x = −2：f′ = 3(4) − 3 = 9 &gt; 0；<br>取 x = 0：f′ = 0 − 3 = −3 &lt; 0；<br>取 x = 2：f′ = 12 − 3 = 9 &gt; 0。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">按导数符号写单调区间</p><p class="do">(−∞,−1) 上 f′ &gt; 0，递增；(−1,1) 上 f′ &lt; 0，递减；(1,+∞) 上 f′ &gt; 0，递增。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">用第一充分条件判断极值：看导数在驻点两侧是否变号</p><p class="do">x = −1：左正右负 → 极大值，f(−1) = (−1)<sup>3</sup> − 3(−1) = −1 + 3 = 2。<br>x = 1：左负右正 → 极小值，f(1) = 1 − 3 = −2。</p></div></div>
+      <p class="basis"><b>用到：</b>第一充分条件；因式分解；<span class="m">(x<sup>3</sup>)′ = 3x<sup>2</sup></span>。答题格式：求导 → 求驻点 → 列表判号 → 写结论。</p>
+      <p class="basis"><b>常见错答：</b>单调区间写成 (−∞,−1) ∪ (1,+∞)（不能用并集，要用“和”或逗号）；只写“x = −1 是极大值点”而不写极大值 2；把极大极小判反。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">f(x) = x<sup>3</sup> − 3x</span> 在 [0,2] 上的最大值和最小值。</span></div>
+    <div class="ans"><b>答案</b>最大值 2（在 x = 2 处），最小值 −2（在 x = 1 处）</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先明确最值只可能在三类点上出现</p><p class="do">驻点、导数不存在的点、区间端点。三类都要算，缺一不可。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">找闭区间内的驻点（上一题已经求过）</p><p class="do">f′(x) = 3(x − 1)(x + 1)，驻点是 x = 1 和 x = −1。其中 −1 不在 [0,2] 里，舍去，只留 x = 1。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">算驻点的函数值</p><p class="do">f(1) = 1<sup>3</sup> − 3×1 = 1 − 3 = −2。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">算两个端点的函数值</p><p class="do">f(0) = 0 − 0 = 0；f(2) = 8 − 6 = 2。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">确认没有导数不存在的点，然后比大小</p><p class="do">多项式处处可导，无此类点。比较 −2、0、2：最大是 2（在 x = 2 处取到），最小是 −2（在 x = 1 处取到）。</p></div></div>
+      <p class="basis"><b>用到：</b>闭区间上连续函数的最值定理；比较法。极值是局部的，最值是整个区间上最大的那个。</p>
+      <p class="basis"><b>常见错答：</b>只算驻点，答最大值 0（漏掉端点 x = 2）；把 x = −1 也算进去（不在区间内）；只写数值不写在哪一点取到。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><span class="qtype">填空</span><span class="qtext"><span class="m">f(x) = x<sup>3</sup></span> 的驻点是 x = ______，但 f 在定义域内单调 ______，所以该点 ______（填“是”或“不是”）极值点。</span></div>
+    <div class="ans"><b>答案</b>0；递增；不是</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先按定义找驻点：解 f′(x) = 0</p><p class="do">f′(x) = 3x<sup>2</sup>，令 3x<sup>2</sup> = 0，得 x = 0。所以驻点是 0。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">看导数的整体符号，不只盯着等于 0 的那一点</p><p class="do">对任何 x ≠ 0，都有 x<sup>2</sup> &gt; 0，所以 3x<sup>2</sup> &gt; 0。导数只在 x = 0 处等于 0，其余处处为正。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">按“f′ &gt; 0 则递增”下结论</p><p class="do">函数在 (−∞,+∞) 上单调递增，0 的左边和右边都在上升。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">用第一充分条件判断：导数没有变号，就不是极值点</p><p class="do">0 的两侧导数都是正的，没有“左正右负”或“左负右正”，所以 0 不是极值点。</p></div></div>
+      <p class="basis"><b>用到：</b>驻点定义（f′ = 0 的点）；第一充分条件（必须变号才是极值）。</p>
+      <p class="basis"><b>填空题常见错答：</b>最后一空填“是”，看到 f′(0) = 0 就当成极值点；第二空填“递减”，把 x<sup>2</sup> 的符号搞错。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">6</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">y = ln x − x</span> 的极值。</span></div>
+    <div class="ans"><b>答案</b>极大值 y(1) = −1</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">第一件事是写定义域，因为有对数</p><p class="do">ln x 要求 x &gt; 0，所以定义域是 (0, +∞)，后面所有讨论都只在这个范围内。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">求导，并通分方便看符号</p><p class="do">y′ = 1/x − 1 = (1 − x)/x（把 1 写成 x/x 再相减）。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">令导数为 0 找驻点</p><p class="do">(1 − x)/x = 0 ⇒ 分子 1 − x = 0 ⇒ x = 1（分母 x &gt; 0 不为 0）。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">判断两侧导数符号：分母恒正，只需看分子</p><p class="do">0 &lt; x &lt; 1 时 1 − x &gt; 0，y′ &gt; 0，递增；x &gt; 1 时 1 − x &lt; 0，y′ &lt; 0，递减。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">左正右负 → 极大值，算出函数值</p><p class="do">y(1) = ln 1 − 1 = 0 − 1 = −1，所以极大值是 −1（在 x = 1 处取到）。</p></div></div>
+      <p class="basis"><b>用到：</b>第一充分条件；也可用第二充分条件：<span class="m">y″ = −1/x<sup>2</sup> &lt; 0</span>，直接判定为极大值；<span class="m">(ln x)′ = 1/x</span>。</p>
+      <p class="basis"><b>常见错答：</b>不写定义域就讨论；把极大写成极小；答案只写 x = 1（题目问的是极值，要写函数值）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">7</span><span class="qtype">选择</span><span class="qtext">设 f 在 <span class="m">x<sub>0</sub></span> 处可导，则 f 在 <span class="m">x<sub>0</sub></span> 处取得极值的必要条件是（　）</span></div>
+    <div class="opts"><span>A. f′(x<sub>0</sub>) = 0</span><span>B. f″(x<sub>0</sub>) = 0</span><span>C. f′(x<sub>0</sub>) &gt; 0</span><span>D. f 在 <span class="m">x<sub>0</sub></span> 连续</span></div>
+    <div class="ans"><b>答案</b>A</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先明确“必要条件”的含义</p><p class="do">“P 是 Q 的必要条件”意思是：Q 成立时 P 一定成立（Q ⇒ P）。所以这里要找一个“只要取极值就必然成立”的结论。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">调出费马引理</p><p class="do">若 f 在 x<sub>0</sub> 可导且取极值，则 f′(x<sub>0</sub>) = 0。题目正好给了“可导”这个前提，条件完全对得上。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">说明它只是必要、不是充分</p><p class="do">反过来不成立：x<sup>3</sup> 在 0 处 f′(0) = 0，却不取极值。所以“f′ = 0”不能拿来判定极值，只能作为必要条件。</p></div></div>
+      <p class="basis"><b>用到：</b>费马引理；充分与必要条件的区别。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key good">A</span>费马引理给出的正是这一条，正确。</li>
+        <li><span class="key bad">B</span>二阶导数为 0 与极值没有必然联系。反例：x<sup>4</sup> 在 0 处 f″(0) = 0，却取极小值；x<sup>3</sup> 在 0 处 f″(0) = 0，却不取极值。</li>
+        <li><span class="key bad">C</span>f′ &gt; 0 说明函数正在上升，恰恰排除了极值（极值点两侧必须一升一降或反过来）。</li>
+        <li><span class="key bad">D</span>这一条其实不成立：极值不要求连续。例如 f(0) = 1、其余点 f(x) = 0，则 0 处取极大值 1，但函数在 0 处不连续。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">8</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">y = x + 1/x</span>（x &gt; 0）的最小值。</span></div>
+    <div class="ans"><b>答案</b>最小值 2（x = 1 时）</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先看清定义域，题目已经限定 x &gt; 0</p><p class="do">所以只在这个范围内讨论，不用管 x &lt; 0 的部分。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">求导，通分</p><p class="do">y′ = 1 − 1/x<sup>2</sup> = (x<sup>2</sup> − 1)/x<sup>2</sup>。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">令导数为 0，解出驻点</p><p class="do">x<sup>2</sup> − 1 = 0 ⇒ x = 1 或 x = −1；因为 x &gt; 0，只保留 x = 1。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">判断单调性：分母恒正，看分子符号</p><p class="do">0 &lt; x &lt; 1 时 x<sup>2</sup> − 1 &lt; 0，y′ &lt; 0，递减；x &gt; 1 时 y′ &gt; 0，递增。先减后增，x = 1 处取极小值。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">说明这个极小值就是最小值，再算数值</p><p class="do">区间内只有一个极值点，且两端（x→0<sup>+</sup>、x→+∞）函数值都趋于 +∞，所以极小值就是最小值：y(1) = 1 + 1 = 2。</p></div></div>
+      <p class="basis"><b>用到：</b>第一充分条件；也可用均值不等式 <span class="m">a + b ≥ 2√(ab)</span>（a,b &gt; 0）：x + 1/x ≥ 2√(x·1/x) = 2，等号在 x = 1 时成立，可用来验算。</p>
+      <p class="basis"><b>常见错答：</b>把 x = −1 也算进去（不在定义域）；只写“极小值 2”而不说明它是最小值；忘记回答“x = 1 时取到”。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">9</span><span class="qtype">计算</span><span class="qtext">用长为 20 米的篱笆围一个矩形菜园，问长和宽各为多少时面积最大，最大面积是多少？</span></div>
+    <div class="ans"><b>答案</b>长 5 米、宽 5 米（正方形），最大面积 25 平方米</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">设未知数，先把“另一个边”用 x 表示出来</p><p class="do">设长为 x 米。矩形周长 = 2(长 + 宽) = 20，所以 长 + 宽 = 10，宽 = 10 − x。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">写定义域：边长必须为正</p><p class="do">x &gt; 0 且 10 − x &gt; 0，所以 0 &lt; x &lt; 10。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把“要求最值的量”写成函数</p><p class="do">面积 S = 长 × 宽 = x(10 − x) = 10x − x<sup>2</sup>，这就是目标函数。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">求导，令导数为 0</p><p class="do">S′ = 10 − 2x，令 10 − 2x = 0，得 x = 5。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">用第二充分条件确认是最大值</p><p class="do">S″ = −2 &lt; 0，所以 x = 5 处取极大值；区间内只有这一个极值点，因此也是最大值。</p></div></div>
+      <div class="step"><span class="sn">6</span><div class="sb"><p class="what">算出数值，并回答题目问的每一问</p><p class="do">宽 = 10 − 5 = 5，面积 S(5) = 5 × 5 = 25。所以长宽都是 5 米（正方形），最大面积 25 平方米。</p></div></div>
+      <p class="basis"><b>用到：</b>第二充分条件（f″ &lt; 0 ⇒ 极大值）；矩形周长与面积公式。应用题三步：设变量写定义域、列目标函数、求最值。</p>
+      <p class="basis"><b>常见错答：</b>把宽也设成 x，列成 S = x(20 − x)（周长当成了半周长）；只写 25 不写长宽；忘记写单位。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">10</span><span class="qtype">填空</span><span class="qtext"><span class="m">f(x) = x<sup>2</sup></span> 在 [−1, 2] 上的最大值是 ______，最小值是 ______。</span></div>
+    <div class="ans"><b>答案</b>4；0</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先找区间内的驻点</p><p class="do">f′(x) = 2x，令 2x = 0 得 x = 0，它在 [−1,2] 内，保留。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">算驻点的函数值</p><p class="do">f(0) = 0。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">算两个端点的函数值，左右端点都要算</p><p class="do">f(−1) = (−1)<sup>2</sup> = 1；f(2) = 2<sup>2</sup> = 4。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">三个数比大小</p><p class="do">0、1、4 中最大是 4，最小是 0。所以最大值 4（在 x = 2 处），最小值 0（在 x = 0 处）。</p></div></div>
+      <p class="basis"><b>用到：</b>闭区间最值的比较法；<span class="m">(x<sup>2</sup>)′ = 2x</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>最大值写 1（只算了 x = −1 一端）；最小值写成 −1（把横坐标当函数值）；认为最大值一定在驻点取到（本题最大在端点）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">11</span><span class="qtype">判断</span><span class="qtext">若 f′(x<sub>0</sub>) = 0，则 <span class="m">x<sub>0</sub></span> 一定是 f 的极值点。（　）</span></div>
+    <div class="ans"><b>答案</b>错误</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">判断一个全称命题为假，只需举一个反例</p><p class="do">要找“f′(x<sub>0</sub>) = 0 但不是极值点”的函数。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">取最简单的立方函数试一下</p><p class="do">f(x) = x<sup>3</sup>，f′(x) = 3x<sup>2</sup>，f′(0) = 0，满足前提。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">检查它是否取极值</p><p class="do">对任意 x ≠ 0 都有 x<sup>3</sup> 与 x 同号：x &lt; 0 时 f(x) &lt; 0 = f(0)，x &gt; 0 时 f(x) &gt; 0 = f(0)。0 的左边比它小、右边比它大，函数一路递增，0 不是极值点。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">反例成立，命题为假</p><p class="do">所以“f′ = 0 ⇒ 极值点”是错的，正确说法是“可导的极值点一定是驻点”，箭头方向相反。</p></div></div>
+      <p class="basis"><b>用到：</b>极值第一充分条件（需变号）；反例法。另一个方向的反例是 |x|：极值点但不是驻点。</p>
+      <p class="basis"><b>常见错判：</b>判“正确”，只记住“极值点导数为 0”，忘了反过来不成立。</p>
+    </div>
+  </article>
+</section>
+
+<section id="s5">
+  <h2><span class="no">五</span>函数极值基础 <span class="tag">按进度选做</span></h2>
+  <p class="sub">如果老师刚讲到“函数的极值”这一节，只做这 5 题就够；前面四个板块已经覆盖到考试主干。这 5 题同样按零基础标准写。</p>
+
+  <h3>必背公式与结论</h3>
+  <div class="keys">
+    <p><b>极值点</b>是横坐标 x，<b>极值</b>是对应的函数值 y。答题要写“在 x = … 处取极大值 …”。</p>
+    <p><b>判定流程：</b>求定义域 → 求 f′ → 解 f′ = 0 找驻点 → 看 f′ 在驻点两侧是否变号 → 左正右负极大，左负右正极小。</p>
+    <p><b>第二充分条件：</b>f′(x<sub>0</sub>) = 0 时，f″(x<sub>0</sub>) &lt; 0 取极大值，f″(x<sub>0</sub>) &gt; 0 取极小值。</p>
+    <p><b>两个“不一定”：</b>驻点不一定是极值点；极值点也可能出现在导数不存在的地方。</p>
+  </div>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><span class="qtype">填空</span><span class="qtext"><span class="m">f(x) = 2x<sup>3</sup> − 3x<sup>2</sup></span> 的极大值点是 x = ______，极大值是 ______。</span></div>
+    <div class="ans"><b>答案</b>0；0</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">逐项求导</p><p class="do">(2x<sup>3</sup>)′ = 6x<sup>2</sup>，(3x<sup>2</sup>)′ = 6x，所以 f′(x) = 6x<sup>2</sup> − 6x。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">提公因式并解方程找驻点</p><p class="do">6x<sup>2</sup> − 6x = 6x(x − 1) = 0，得 x = 0 或 x = 1。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">分三段取测试点，判断导数符号</p><p class="do">取 x = −1：6(−1)(−2) = 12 &gt; 0，递增；<br>取 x = 0.5：6(0.5)(−0.5) = −1.5 &lt; 0，递减；<br>取 x = 2：6(2)(1) = 12 &gt; 0，递增。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">看谁满足“左正右负”</p><p class="do">x = 0 左边增、右边减，是极大值点；x = 1 左边减、右边增，是极小值点。题目问极大，只答 0。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">把极大值点代回原函数求极大值</p><p class="do">f(0) = 2×0 − 3×0 = 0，所以极大值是 0。</p></div></div>
+      <p class="basis"><b>用到：</b>第一充分条件；<span class="m">(x<sup>n</sup>)′ = nx<sup>n−1</sup></span>。注意“极大值点”填 x，“极大值”填 y。</p>
+      <p class="basis"><b>填空题常见错答：</b>第一空填 1（把极小值点当极大）；第二空填 −1（那是极小值 f(1) = 2 − 3 = −1）；两空都填 0 却把顺序弄反。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><span class="qtype">填空</span><span class="qtext"><span class="m">f(x) = x<sup>2</sup> − 2x + 3</span> 的极小值是 ______</span></div>
+    <div class="ans"><b>答案</b>2</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">求一阶导，找驻点</p><p class="do">f′(x) = 2x − 2，令 2x − 2 = 0 得 x = 1。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">用第二充分条件判断是极大还是极小</p><p class="do">f″(x) = 2 &gt; 0，恒为正，所以 x = 1 处取极小值。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">把 x = 1 代回原函数算极小值</p><p class="do">f(1) = 1 − 2 + 3 = 2。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">换一种方法验算（配方法）</p><p class="do">x<sup>2</sup> − 2x + 3 = (x − 1)<sup>2</sup> + 2。平方项最小为 0，所以最小值是 2，在 x = 1 时取到，与上面一致。</p></div></div>
+      <p class="basis"><b>用到：</b>第二充分条件；配方法 <span class="m">x<sup>2</sup> + bx + c = (x + b/2)<sup>2</sup> + c − b<sup>2</sup>/4</span>。</p>
+      <p class="basis"><b>填空题常见错答：</b>填 1（那是极小值点，不是极小值）；填 −1（配方符号错）；填 3（直接把常数项当答案）。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><span class="qtype">判断</span><span class="qtext"><span class="m">f(x) = |x|</span> 在 x = 0 处取得极小值，但 f 在 x = 0 处不可导。（　）</span></div>
+    <div class="ans"><b>答案</b>正确</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先用定义验证“极小值”：比较 0 附近所有点的函数值</p><p class="do">f(0) = |0| = 0。对任何 x ≠ 0，都有 |x| &gt; 0 = f(0)，也就是 0 附近的所有点函数值都不小于它，符合极小值的定义。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">再用左右导数验证“不可导”</p><p class="do">左导数：x→0<sup>−</sup> 时 |x| = −x，比值为 (−x)/x = −1；右导数：x→0<sup>+</sup> 时 |x| = x，比值为 x/x = 1。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">左右导数不等，所以不可导</p><p class="do">−1 ≠ 1，导数不存在。两句话都成立，命题正确。</p></div></div>
+      <p class="basis"><b>用到：</b>极值定义（邻域内比较大小）；左右导数与可导的充要条件。</p>
+      <p class="basis"><b>常见错判：</b>判“错误”，理由是“不可导就不可能有极值”。这正是这道题要打破的误解：极值只看大小关系，不看导数存不存在。</p>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><span class="qtype">选择</span><span class="qtext">关于函数的极值点，下列说法正确的是（　）</span></div>
+    <div class="opts"><span>A. 一定是驻点</span><span>B. 驻点一定是极值点</span><span>C. 可能是驻点，也可能是导数不存在的点</span><span>D. 一定在区间端点上</span></div>
+    <div class="ans"><b>答案</b>C</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">先把“驻点”和“极值点”这两个概念分开</p><p class="do">驻点 = 导数为 0 的点（一个方程的解）；极值点 = 函数在它附近取到局部最大或最小的横坐标（一个大小关系）。两者定义完全不同。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">用反例检验 A：“极值点一定是驻点”</p><p class="do">f(x) = |x| 在 0 处是极小值点，但 0 处不可导，不是驻点。A 错。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">用反例检验 B：“驻点一定是极值点”</p><p class="do">f(x) = x<sup>3</sup> 在 0 处 f′(0) = 0，是驻点，但函数一路递增，不是极值点。B 错。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">检验 D，并确认 C</p><p class="do">极值是在某点的“双侧邻域”内比较大小，端点只有一侧，所以端点不叫极值点，D 错。把 A、B 的反例合起来看：极值点要么是驻点（如 x<sup>2</sup> 在 0），要么是不可导点（如 |x| 在 0），C 正确。</p></div></div>
+      <p class="basis"><b>用到：</b>驻点定义；极值定义；两个标准反例 <span class="m">|x|</span>（破 A）与 <span class="m">x<sup>3</sup></span>（破 B）。</p>
+      <div class="optbox"><p class="opt-title">错项排查</p><ul class="optwhy">
+        <li><span class="key bad">A</span>反例 |x|：极值点但不可导，不是驻点。</li>
+        <li><span class="key bad">B</span>反例 x<sup>3</sup>：驻点但不是极值点。</li>
+        <li><span class="key good">C</span>把两类情况都包含进去，与两个反例都不冲突，正确。</li>
+        <li><span class="key bad">D</span>端点只有单侧邻域，按定义不算极值点；端点上的大小只在求最值时考虑。</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><span class="qtype">计算</span><span class="qtext">求 <span class="m">f(x) = x<sup>4</sup> − 2x<sup>2</sup></span> 的极值。</span></div>
+    <div class="ans"><b>答案</b>极大值 f(0) = 0；极小值 f(−1) = f(1) = −1</div>
+    <div class="sol">
+      <p class="solhead">解析 · 一步一步来</p>
+      <div class="step"><span class="sn">1</span><div class="sb"><p class="what">求导</p><p class="do">f′(x) = 4x<sup>3</sup> − 4x。</p></div></div>
+      <div class="step"><span class="sn">2</span><div class="sb"><p class="what">提公因式，再分解成三个一次因式</p><p class="do">4x<sup>3</sup> − 4x = 4x(x<sup>2</sup> − 1) = 4x(x − 1)(x + 1)。令其等于 0，得 x = −1、0、1 三个驻点。</p></div></div>
+      <div class="step"><span class="sn">3</span><div class="sb"><p class="what">三个驻点把数轴分成四段，逐段取测试点判号</p><p class="do">取 x = −2：4(−2)(−3)(−1) = −24 &lt; 0；<br>取 x = −0.5：4(−0.5)(−1.5)(0.5) = 1.5 &gt; 0；<br>取 x = 0.5：4(0.5)(−0.5)(1.5) = −1.5 &lt; 0；<br>取 x = 2：4(2)(1)(3) = 24 &gt; 0。</p></div></div>
+      <div class="step"><span class="sn">4</span><div class="sb"><p class="what">按“左负右正极小、左正右负极大”逐个判定</p><p class="do">x = −1：左负右正 → 极小值；<br>x = 0：左正右负 → 极大值；<br>x = 1：左负右正 → 极小值。</p></div></div>
+      <div class="step"><span class="sn">5</span><div class="sb"><p class="what">把三个点分别代回原函数算函数值</p><p class="do">f(−1) = 1 − 2 = −1；f(1) = 1 − 2 = −1；f(0) = 0 − 0 = 0。所以极大值 0（在 x = 0 处），两个极小值都是 −1（在 x = ±1 处）。</p></div></div>
+      <p class="basis"><b>用到：</b>第一充分条件；因式分解；偶函数性质（f(−x) = f(x)），所以 x = ±1 处的极值必然相等。</p>
+      <p class="basis"><b>常见错答：</b>漏掉 x = 0（提公因式后只解了 x<sup>2</sup> − 1 = 0）；只答一个极小值；把极大值 0 当成“没有极值”。</p>
+    </div>
+  </article>
+</section>
+
+<section id="s6">
+  <h2><span class="no">六</span>高频易错点，考前必须过一遍</h2>
+  <p class="sub">这些不是难题，是每年都在扣分的地方。看的时候对着自己的做法比一比。</p>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">1</span><div class="sb"><strong>极限存在 ≠ 函数有定义 ≠ 连续。</strong></div></div>
+    <p class="do">(x<sup>2</sup>−1)/(x−1) 在 x = 1 处极限是 2，但函数没定义，所以不连续。三件事要分开说：极限只看“靠近时的趋势”，连续还要求“函数值接得上”。<span class="what">为什么容易错：题目问“极限”时顺手写了“连续”，两问的答案本来就不一样。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">2</span><div class="sb"><strong>可导一定连续，连续不一定可导。</strong></div></div>
+    <p class="do">方向别写反：<span class="m">|x|</span> 在 0 处连续但不可导，是标准反例。<span class="what">判断技巧：遇到“连续是否可导”，先想尖点；遇到“可导是否连续”，直接用定理，不用举例。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">3</span><div class="sb"><strong>导数定义式的分子分母必须“配平”。</strong></div></div>
+    <p class="do"><span class="m">lim(h→0)[f(x<sub>0</sub>+2h) − f(x<sub>0</sub>)]/h = 2f′(x<sub>0</sub>)</span>，不是 f′(x<sub>0</sub>)。分子增量是 2h，分母就得是 2h，多出来的系数提到外面。<span class="what">这是选择题最爱设的坑：看到增量不是 h，先配平再算。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">4</span><div class="sb"><strong>分段函数在分界点求导，必须用定义。</strong></div></div>
+    <p class="do">分别算左导数 <span class="m">lim(x→x<sub>0</sub><sup>−</sup>)[f(x)−f(x<sub>0</sub>)]/(x−x<sub>0</sub>)</span> 和右导数，两者相等才可导。<span class="what">直接求导只保证分界点两侧的表达式可导，不保证在分界点接得上。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">5</span><div class="sb"><strong>极值点是 x，极值是 y。</strong></div></div>
+    <p class="do">规范写法：“在 x = −1 处取极大值 2”。只写“极大值为 −1”是把横坐标当成了极值，直接判错。<span class="what">填空、大题都按这个格式写，能避免一半的表述扣分。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">6</span><div class="sb"><strong>驻点不一定是极值点，极值点也不一定是驻点。</strong></div></div>
+    <p class="do"><span class="m">x<sup>3</sup></span> 在 0 处导数为 0 但不是极值；<span class="m">|x|</span> 在 0 处是极值但不可导。两句话要成对记，只记半句就会在判断题翻车。</p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">7</span><div class="sb"><strong>求最值别漏端点和不可导点。</strong></div></div>
+    <p class="do">最值候选只有三类：驻点、导数不存在的点、区间端点。只算驻点是本题型第一大失分原因，尤其是端点恰好取到最大值的时候。</p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">8</span><div class="sb"><strong>单调区间不能写成并集。</strong></div></div>
+    <p class="do">正确写法：单调递增区间是 (−∞,−1) 和 (1,+∞)，或者用逗号隔开；写成 <span class="m">(−∞,−1) ∪ (1,+∞)</span> 是错的，因为函数在这两段之间不保持同一单调性。<span class="what">这是格式分，记住用“和”。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">9</span><div class="sb"><strong>等价无穷小只能替换乘积因子。</strong></div></div>
+    <p class="do"><span class="m">lim(x→0)(tan x − sin x)/x<sup>3</sup></span> 里把 tan x、sin x 各自换成 x 会得到 0，是错的；正确做法是先提公因子：tan x − sin x = tan x(1 − cos x) ~ x·(x<sup>2</sup>/2) = x<sup>3</sup>/2，所以极限是 1/2。<span class="what">原因：加减法里替换会改变高阶项的抵消关系，只有乘除才能直接换。</span></p>
+  </article>
+
+  <article class="q">
+    <div class="qhead"><span class="qno">10</span><div class="sb"><strong>隐函数求导别丢 y′。</strong></div></div>
+    <p class="do">对 <span class="m">y<sup>2</sup></span> 求导得 <span class="m">2y·y′</span>，对 <span class="m">sin y</span> 求导得 <span class="m">cos y·y′</span>。只要式子里有 y，求导后就必须挂一个 y′，最后再解出来。</p>
+  </article>
+</section>
+
+<section id="s7">
+  <h2><span class="no">七</span>考前一晚复习顺序清单</h2>
+  <p class="sub">按这个顺序走，大约 2 小时 40 分钟，最后留半小时睡觉缓冲。不要从第一页书开始翻。</p>
+
+  <table class="mini">
+    <thead><tr><th>时间</th><th>做什么</th><th>只记这几件事</th></tr></thead>
+    <tbody>
+      <tr><td>20:00–20:30</td><td>默写公式</td><td>导数表、等价无穷小、两个重要极限。默不出来再看，写三遍。</td></tr>
+      <tr><td>20:30–21:10</td><td>极限 8 题</td><td>0/0 约因子、∞ 抓大头、重要极限凑形式、无穷小乘有界。</td></tr>
+      <tr><td>21:10–21:35</td><td>连续与间断点</td><td>三条件、两类间断点、分段点求参数的“左极限 = 右极限 = 函数值”。</td></tr>
+      <tr><td>21:35–22:10</td><td>求导 8 题</td><td>链式法则由外往里、乘法两项相加、隐函数补 y′、参数方程上下相除。</td></tr>
+      <tr><td>22:10–22:40</td><td>单调与极值</td><td>求导 → 找驻点 → 判号 → 写结论；最值再加端点和不可导点。</td></tr>
+      <tr><td>22:40–23:05</td><td>本卷易错点</td><td>只看第六节十条，逐条问自己“我会不会也这么错”。</td></tr>
+      <tr><td>23:05–23:15</td><td>错题回看</td><td>只看画圈的题，遮住答案重做一遍关键步骤。</td></tr>
+      <tr><td>考前 10 分钟</td><td>进场前</td><td>扫一眼导数表和等价无穷小，别再看新题。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>考场上的四条策略</h3>
+  <ol class="clean">
+    <li><b>先做选择填空。</b>30 分钟内解决，卡住超过 2 分钟的直接跳过，先把会做的分拿到手。</li>
+    <li><b>计算题写步骤。</b>求极限写“原式 =”、求导写“由链式法则”、求极值写“令 f′(x)=0 得”，每一步都可能给分。</li>
+    <li><b>极限题先代值。</b>代进去不是 0/0 或 ∞/∞，答案基本就出来了，别一上来就变形。</li>
+    <li><b>最后 10 分钟检查符号。</b>重点看负号、分母、区间开闭、极大还是极小，这几处错得最多。</li>
+  </ol>
+
+  <div class="note">目标 60 分的话，选择题、填空题和前三道计算题就是分数基本盘。难题空着不心疼，基础题一分都别丢。</div>
+</section>
+
+<footer>高等数学（同济版上册）· 期末保过练习卷 · 零基础逐题详解版 · 共 50 题</footer>
+</div>
+</body>
+</html>
