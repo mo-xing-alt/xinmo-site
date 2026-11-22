@@ -112,7 +112,7 @@
     <h2><span class="n">1</span>朋友手动安装步骤（不用 AI 也能装）</h2>
     <ol class="mc-steps">
       <li>点下方「分卷下载」，把 <code class="mc-inline">part01</code> 到最后一个分卷以及 <code class="mc-inline">parts-manifest.json</code>、<code class="mc-inline">合并脚本</code> 全部下载到<strong>同一个文件夹</strong>。</li>
-      <li>双击 <code class="mc-inline">合并脚本.bat</code>（Windows 会自动用 Python 或 PowerShell）。看到 <code class="mc-inline">MERGE OK</code> 就合并成功了。</li>
+      <li>双击 <code class="mc-inline">merge.bat</code>（Windows 会自动用 Python 或 PowerShell）。看到 <code class="mc-inline">MERGE OK</code> 就合并成功了。</li>
       <li>把合并出来的 <code class="mc-inline">Derivative-Main-v4-一键安装包.zip</code> <strong>解压整个文件夹</strong>。</li>
       <li>确认 PCL 里已装原版 <strong>Minecraft 26.1.1</strong>；然后把 <code class="mc-inline">.minecraft</code> 文件夹拖到 <code class="mc-inline">Install.bat</code> 上（或直接双击）。</li>
       <li>PCL 版本列表里<strong>展开折叠卡片</strong>，选 <code class="mc-inline">fabric-loader-0.20.1-26.1.1</code> 启动。光影已预启用。</li>
@@ -130,8 +130,8 @@
     <div class="mc-download" id="mcDownload">
       <!-- 由脚本读取 parts-manifest.json 动态生成全部分卷链接 -->
       <a href="parts/parts-manifest.json" download>parts-manifest.json</a>
-      <a href="合并脚本.py" download>合并脚本.py</a>
-      <a href="合并脚本.bat" download>合并脚本.bat</a>
+      <a href="merge.py" download>merge.py</a>
+      <a href="merge.bat" download>merge.bat</a>
     </div>
     <div class="mc-ok">
       ✅ 合并脚本会逐个校验每个分卷的 SHA-256，再校验合并结果的 SHA-256（<code class="mc-inline">de19aaed…ecbe</code>）。任何一个分卷下载损坏都会被明确指出，重新下载那一个即可。
@@ -168,8 +168,8 @@
 const AI_INSTRUCTION = `你是 AI 助手。用户想装 Minecraft Java 26.1.1 的 Derivative 光影环境，已给你本站下载的分卷文件。请按下面步骤完成，每一步都报告结果。
 
 【第 0 步：合并分卷】
-用户会提供这些文件（放在同一文件夹）：Derivative-Main-v4.zip.part01 ~ partNN（见 parts-manifest.json）、parts-manifest.json、合并脚本.py / 合并脚本.bat / 合并脚本.ps1。
-  - 优先双击运行 "合并脚本.bat"，或在命令行执行：python 合并脚本.py
+用户会提供这些文件（放在同一文件夹）：Derivative-Main-v4.zip.part01 ~ partNN（见 parts-manifest.json）、parts-manifest.json、merge.py / merge.bat / merge.ps1。
+  - 优先双击运行 "merge.bat"，或在命令行执行：python merge.py
   - 脚本会自动校验每个分卷 SHA-256、按序合并、并校验最终 ZIP 的 SHA-256。
   - 看到 "MERGE OK" 即成功，得到 "Derivative-Main-v4-一键安装包.zip"。
   - 若报某个分卷损坏，让用户只重新下载那个分卷，再重跑脚本。
