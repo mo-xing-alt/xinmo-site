@@ -12,8 +12,8 @@
 ```
 
 ## 第 0 步：合并分卷（若拿到的是分卷）
-- 文件：`Derivative-Main-v4.zip.part01` ~ `part21`（以 parts-manifest.json 为准）、`parts-manifest.json`、`合并脚本.py/.bat/.ps1`，同一文件夹。
-- 执行：`python 合并脚本.py`（或双击 `合并脚本.bat`）。
+- 文件：`Derivative-Main-v4.zip.part01` ~ `part21`（以 parts-manifest.json 为准）、`parts-manifest.json`、`merge.py/.bat/.ps1`，同一文件夹。
+- 执行：`python merge.py`（或双击 `merge.bat`）。
 - 脚本行为：校验每个分卷 SHA-256 → 按序合并 → 校验最终 ZIP 的 SHA-256 = `de19aaed9d41048cf7a97000765258ed9a4812ad296ee1d8cb3fc16973a9ecbe`。
 - 成功标志：输出 `MERGE OK`，得到 `Derivative-Main-v4-一键安装包.zip`。
 - 失败处理：报哪个分卷损坏，就让用户只重下那个分卷，再跑脚本。不要手动拼接二进制。
