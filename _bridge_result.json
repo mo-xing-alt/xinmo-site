@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-173707-89bcea",
+ "ts": 1795340234,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== tool ===\nindex_http=200\n=== manifest ===\nmanifest_http=200 size=3836\n=== parts on disk ===\n21\n401M\t/var/www/xinmo-site/tools/mc-derivative-pack/\n"
+}
