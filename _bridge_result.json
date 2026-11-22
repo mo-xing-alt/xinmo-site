@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-220624-e50b18",
+ "ts": 1795356393,
+ "exit_code": 0,
+ "ok": true,
+ "output": "已更新: tools/etb-vanilla/index.html (19135 字节)\n已更新: tools/etb-vanilla/ETB_原版还原包.zip (15842 字节)\n已更新: tools/etb-vanilla/AI_RESTORE_GUIDE.md (7349 字节)\n已更新: tools/etb-vanilla/安装说明_给朋友.txt (1108 字节)\n已更新: tools/etb-vanilla/README_先读我.txt (4367 字节)\n已更新: tools/etbn-mod/index.html (18493 字节)\n已更新: assets/js/resources.js (14281 字节)\n---- 线上自检 ----\ntools/etb-vanilla/index.html -> 200 19135\ntools/etb-vanilla/ETB_原版还原包.zip -> 200 15842\ntools/etb-vanilla/AI_RESTORE_GUIDE.md -> 200 7349\nassets/js/resources.js -> 200 14281\n模组页标题 -> <title>逃离后室 · “噩梦”模组 · xinmo.work</title>\n"
+}
