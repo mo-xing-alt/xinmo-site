@@ -221,8 +221,27 @@
 .xm-ai-input:disabled { cursor: not-allowed; opacity: .7; }
 
 @media (max-width: 480px) {
-  .xm-ai-fab { right: 14px; bottom: 14px; }
-  .xm-ai-panel { right: 14px; bottom: 14px; width: calc(100vw - 28px); height: calc(100vh - 28px); }
+  /* 悬浮按钮：缩小一点并上移，避免压住正文最后几行；半透明降低遮挡感 */
+  .xm-ai-fab {
+    right: 12px;
+    bottom: 76px;               /* 让开手机浏览器底部工具栏与页面底部内容 */
+    width: 48px; height: 48px;
+    opacity: .92;
+  }
+  .xm-ai-fab svg { width: 23px; height: 23px; }
+  /* 面板：用 dvh 扣掉浏览器地址栏/工具栏高度，避免顶部标题被挤出可视区 */
+  .xm-ai-panel {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    top: auto;
+    width: auto;
+    height: min(560px, calc(100vh - 20px));   /* 兜底：旧浏览器 */
+    height: min(560px, calc(100dvh - 20px));  /* 现代浏览器：扣掉浏览器工具栏 */
+    max-height: calc(100dvh - 20px);
+  }
+  /* 标题栏适配刘海/状态栏安全区，防止标题被裁切 */
+  .xm-ai-head { padding-top: calc(13px + env(safe-area-inset-top, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .xm-ai-panel { animation: none; }

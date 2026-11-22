@@ -157,6 +157,10 @@
       writeSessionPass(pass);
       showApp();
       render();
+      // 初始化三维记忆图谱（图谱视图默认隐藏，点「图谱」按钮进入）
+      try {
+        if (global.MemoryGraphView) { global.MemoryGraphView.init(state.data); }
+      } catch (e) {}
       if (!silent) {
         if (dom.passInput) {
           dom.passInput.value = '';
@@ -179,6 +183,8 @@
 
   /** 一键锁定：清除会话与内存态。 */
   function lock() {
+    // 锁定时退出图谱视图并停止 3D 渲染，避免后台占用
+    try { if (global.MemoryGraphView) { global.MemoryGraphView.hide(); } } catch (e) {}
     clearSessionPass();
     state.key = null;
     state.data = null;

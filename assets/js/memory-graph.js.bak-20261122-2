@@ -1,0 +1,498 @@
+/* ============================================================
+ * 私人记忆档案 · 三维网状记忆图谱
+ * ------------------------------------------------------------
+ * 节点 = 一条记忆（section / prompt），按内容关联连线。
+ * 支持旋转、缩放、点击节点查看完整内容；节点可挂本地文件。
+ * 依赖：本地 three.min.js（离线可用）。数据来自解密后的 state.data。
+ * ============================================================ */
+(function (global) {
+  "use strict";
+
+  var THREE = global.THREE;
+  var CATEGORY_LABELS = {
+    USER: "用户", MEMORY: "记忆索引", PROJECTS: "项目",
+    TOPIC: "主题", PROMPT: "提示词", GUIDE: "指南"
+  };
+  /* 未来感霓虹配色：以站点红为基因，辅以青/紫/金，深空背景下发光更醒目 */
+  var CATEGORY_COLORS = {
+    USER: 0xff3d5a,      // 霓虹红（站点主色）
+    MEMORY: 0x00e5ff,    // 冰青
+    PROJECTS: 0x00ffc8,  // 青绿
+    TOPIC: 0xb388ff,     // 星云紫
+    PROMPT: 0xffc247,    // 流光金
+    GUIDE: 0xff2d78      // 品红
+  };
+  var BG_COLOR = 0x05070f;
+  var LINE_COLOR = 0x2a7d9e;
+
+  var state = {
+    container: null, nodes: [], edges: [],
+    scene: null, camera: null, renderer: null,
+    nodeMeshes: [], edgeLines: [],
+    selected: null, onSelect: null,
+    raf: null, drag: false, lastX: 0, lastY: 0,
+    rotX: 0.3, rotY: 0.5, zoom: 520,
+    running: false, alpha: 0.97
+  };
+
+  /* ---------- 关联度计算 ---------- */
+  function tokens(text) {
+    var s = String(text || "").toLowerCase();
+    // 中文按 2-gram，英文/数字按单词
+    var out = {};
+    var words = s.match(/[a-z0-9_]{2,}/g) || [];
+    words.forEach(function (w) { out[w] = (out[w] || 0) + 1; });
+    var zh = s.replace(/[^一-龥]/g, "");
+    for (var i = 0; i < zh.length - 1; i++) {
+      var g = zh.slice(i, i + 2);
+      out[g] = (out[g] || 0) + 1;
+    }
+    return out;
+  }
+
+  function similarity(a, b) {
+    var ta = tokens(a), tb = tokens(b);
+    var common = 0, na = 0, nb = 0, k;
+    for (k in ta) { na += ta[k]; if (tb[k]) common += Math.min(ta[k], tb[k]); }
+    for (k in tb) { nb += tb[k]; }
+    if (!na || !nb) return 0;
+    return (2 * common) / (na + nb);
+  }
+
+  function buildGraph(data) {
+    var nodes = [];
+    (data.sections || []).forEach(function (s) {
+      var cat = s.category || "TOPIC";
+      // 指南类单独着色
+      if (/指南|guide/i.test(s.id + " " + s.title)) cat = "GUIDE";
+      nodes.push({
+        id: s.id, title: s.title || "未命名", category: cat,
+        content: s.markdown || "", source: s.source || "",
+        kind: "section", size: 10 + Math.min(18, (s.markdown || "").length / 180)
+      });
+    });
+    (data.prompts || []).forEach(function (p, i) {
+      nodes.push({
+        id: p.id || ("prompt-" + i), title: p.title || ("提示词" + (i + 1)),
+        category: "PROMPT", content: p.text || p.copyText || "",
+        source: p.source || "", kind: "prompt", size: 9
+      });
+    });
+
+    // 计算边：内容相似度 + 分类内聚 + 明确 source 引用
+    var edges = [];
+    for (var i = 0; i < nodes.length; i++) {
+      for (var j = i + 1; j < nodes.length; j++) {
+        var a = nodes[i], b = nodes[j];
+        var sim = similarity(a.title + " " + a.content, b.title + " " + b.content);
+        var sameCat = a.category === b.category ? 0.06 : 0;
+        var ref = 0;
+        if (a.source && b.title && a.source.indexOf(b.title) >= 0) ref = 0.12;
+        if (b.source && a.title && b.source.indexOf(a.title) >= 0) ref = 0.12;
+        var w = sim + sameCat + ref;
+        if (w >= 0.12) {
+          edges.push({ a: a, b: b, w: w });
+          a.degree = (a.degree || 0) + 1;
+          b.degree = (b.degree || 0) + 1;
+        }
+      }
+    }
+    // 若某节点孤立，连到同分类最近的节点，保证网状连通
+    nodes.forEach(function (n) {
+      if (n.degree) return;
+      var cand = null, best = -1;
+      nodes.forEach(function (m) {
+        if (m === n) return;
+        var s = (m.category === n.category ? 0.1 : 0) + similarity(n.content, m.content);
+        if (s > best) { best = s; cand = m; }
+      });
+      if (cand) {
+        edges.push({ a: n, b: cand, w: 0.1 });
+        n.degree = 1; cand.degree = (cand.degree || 0) + 1;
+      }
+    });
+
+    // 初始 3D 位置（球壳分布）
+    var N = Math.max(nodes.length, 1);
+    nodes.forEach(function (n, idx) {
+      var phi = Math.acos(1 - 2 * (idx + 0.5) / N);
+      var theta = Math.PI * (1 + Math.sqrt(5)) * idx;
+      var r = 140;
+      n.x = r * Math.sin(phi) * Math.cos(theta);
+      n.y = r * Math.cos(phi);
+      n.z = r * Math.sin(phi) * Math.sin(theta);
+      n.vx = n.vy = n.vz = 0;
+      n.size = n.size + (n.degree || 0) * 1.2;
+    });
+    return { nodes: nodes, edges: edges };
+  }
+
+  /* ---------- 力导向迭代 ---------- */
+  function step() {
+    var nodes = state.nodes, edges = state.edges;
+    var repel = 5200;
+    for (var i = 0; i < nodes.length; i++) {
+      for (var j = i + 1; j < nodes.length; j++) {
+        var a = nodes[i], b = nodes[j];
+        var dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+        var d2 = dx * dx + dy * dy + dz * dz + 1;
+        var f = repel / d2;
+        var d = Math.sqrt(d2);
+        var fx = f * dx / d, fy = f * dy / d, fz = f * dz / d;
+        a.vx += fx; a.vy += fy; a.vz += fz;
+        b.vx -= fx; b.vy -= fy; b.vz -= fz;
+      }
+    }
+    edges.forEach(function (e) {
+      var a = e.a, b = e.b;
+      var dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+      var d = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.001;
+      var target = 95 - Math.min(40, e.w * 120);
+      var f = (d - target) * 0.012;
+      var fx = f * dx / d, fy = f * dy / d, fz = f * dz / d;
+      a.vx += fx; a.vy += fy; a.vz += fz;
+      b.vx -= fx; b.vy -= fy; b.vz -= fz;
+    });
+    nodes.forEach(function (n) {
+      n.vx -= n.x * 0.0025; n.vy -= n.y * 0.0025; n.vz -= n.z * 0.0025;
+      n.vx *= 0.82; n.vy *= 0.82; n.vz *= 0.82;
+      n.x += Math.max(-8, Math.min(8, n.vx));
+      n.y += Math.max(-8, Math.min(8, n.vy));
+      n.z += Math.max(-8, Math.min(8, n.vz));
+    });
+  }
+
+  /* ---------- 渲染 ---------- */
+  function initScene() {
+    var c = state.container;
+    state.scene = new THREE.Scene();
+    state.scene.background = new THREE.Color(BG_COLOR);
+    state.scene.fog = new THREE.FogExp2(BG_COLOR, 0.0011);
+    state.camera = new THREE.PerspectiveCamera(55, c.clientWidth / c.clientHeight, 1, 6000);
+    state.camera.position.set(0, 0, state.zoom);
+    state.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    state.renderer.setSize(c.clientWidth, c.clientHeight);
+    state.renderer.setPixelRatio(Math.min(global.devicePixelRatio || 1, 2));
+    c.appendChild(state.renderer.domElement);
+
+    state.scene.add(new THREE.AmbientLight(0x8fb6ff, 0.55));
+    var key = new THREE.PointLight(0x00e5ff, 0.9);
+    key.position.set(180, 220, 320);
+    state.scene.add(key);
+    var fill = new THREE.PointLight(0xff2d78, 0.5);
+    fill.position.set(-220, -140, 180);
+    state.scene.add(fill);
+
+    // 星点背景（深空尘埃）
+    addStarfield();
+    // 科技感网格地面
+    addGrid();
+
+    state.root = new THREE.Group();
+    state.scene.add(state.root);
+
+    // 发光节点：核心球 + 光晕精灵 + 赤道环
+    state.nodes.forEach(function (n) {
+      var color = CATEGORY_COLORS[n.category] || 0xffffff;
+      var group = new THREE.Group();
+      group.userData.node = n;
+
+      var geo = new THREE.IcosahedronGeometry(n.size, 1); // 低多边形几何，更科技
+      var mat = new THREE.MeshPhongMaterial({
+        color: color,
+        emissive: new THREE.Color(color),
+        emissiveIntensity: 0.55,
+        shininess: 110,
+        flatShading: true,
+        transparent: true,
+        opacity: 0.92
+      });
+      var core = new THREE.Mesh(geo, mat);
+      group.add(core);
+
+      // 外层光晕
+      var halo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTexture(), color: color, transparent: true,
+        opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false
+      }));
+      halo.scale.set(n.size * 5, n.size * 5, 1);
+      group.add(halo);
+
+      // 赤道发光环
+      var ring = new THREE.Mesh(
+        new THREE.TorusGeometry(n.size * 1.7, 0.35, 6, 40),
+        new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.38 })
+      );
+      ring.rotation.x = Math.PI / 2.3;
+      group.add(ring);
+
+      state.root.add(group);
+      n.mesh = core;      // 射线拾取仍用核心球
+      n.group = group;
+      n.halo = halo;
+      n.ring = ring;
+
+      n.label = makeLabel(n.title, color);
+      state.root.add(n.label);
+    });
+
+    // 连线：细线 + 沿线流动的数据粒子
+    state.edges.forEach(function (e) {
+      var g = new THREE.BufferGeometry();
+      var pos = new Float32Array(6);
+      g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      var m = new THREE.LineBasicMaterial({
+        color: LINE_COLOR, transparent: true, opacity: Math.min(0.5, 0.12 + e.w * 0.7)
+      });
+      var line = new THREE.Line(g, m);
+      state.root.add(line);
+      e.line = line;
+
+      // 流动粒子
+      var dot = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTexture(), color: 0x9ff6ff, transparent: true,
+        opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false
+      }));
+      dot.scale.set(4.5, 4.5, 1);
+      state.root.add(dot);
+      e.dot = dot;
+      e.t = Math.random();
+    });
+  }
+
+  function addStarfield() {
+    var count = 700;
+    var pos = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      var r = 900 + Math.random() * 1400;
+      var th = Math.random() * Math.PI * 2;
+      var ph = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      pos[i * 3 + 1] = r * Math.cos(ph);
+      pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    var pts = new THREE.Points(g, new THREE.PointsMaterial({
+      color: 0x6f8fc4, size: 2, transparent: true, opacity: 0.55,
+      sizeAttenuation: true, depthWrite: false
+    }));
+    state.scene.add(pts);
+  }
+
+  function addGrid() {
+    var grid = new THREE.GridHelper(1200, 30, 0x1b4b63, 0x123246);
+    grid.position.y = -230;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.32;
+    state.scene.add(grid);
+  }
+
+  var _glowTex = null;
+  function glowTexture() {
+    if (_glowTex) return _glowTex;
+    var canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    var ctx = canvas.getContext("2d");
+    var g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.25, "rgba(255,255,255,.55)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+    _glowTex = new THREE.CanvasTexture(canvas);
+    return _glowTex;
+  }
+
+  function makeLabel(text, colorHex) {
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    var font = 26;
+    var fontStr = "500 " + font + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.font = fontStr;
+    var shown = text.length > 15 ? text.slice(0, 14) + "…" : text;
+    var tw = ctx.measureText(shown).width;
+    var w = Math.min(480, Math.max(96, tw + 54));
+    canvas.width = w; canvas.height = 46;
+    // 半透明玻璃底 + 细描边
+    ctx.fillStyle = "rgba(6,10,20,.72)";
+    roundRect(ctx, 1, 1, w - 2, 44, 6); ctx.fill();
+    var hex = "#" + ("000000" + (colorHex || 0x00e5ff).toString(16)).slice(-6);
+    ctx.strokeStyle = hex; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.5;
+    roundRect(ctx, 1, 1, w - 2, 44, 6); ctx.stroke();
+    ctx.globalAlpha = 1;
+    // 左侧色条
+    ctx.fillStyle = hex;
+    ctx.fillRect(0, 8, 3, 30);
+    // 文字
+    ctx.font = fontStr;
+    ctx.fillStyle = "#eaf4ff";
+    ctx.fillText(shown, 16, 30);
+    var tex = new THREE.CanvasTexture(canvas);
+    var sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sprite.scale.set(w / 3.4, 15, 1);
+    return sprite;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+  }
+
+  function animate() {
+    if (!state.running) return;
+    state.raf = requestAnimationFrame(animate);
+    var t = Date.now() * 0.001;
+    if (state.alpha > 0.02) { step(); state.alpha *= 0.999; }
+    // 更新节点位置 + 自转/呼吸/环转
+    state.nodes.forEach(function (n, i) {
+      if (n.group) n.group.position.set(n.x, n.y, n.z);
+      if (n.mesh) {
+        n.mesh.rotation.y += 0.006;
+        n.mesh.rotation.x += 0.002;
+      }
+      if (n.ring) n.ring.rotation.z += 0.01;
+      if (n.halo) {
+        var pulse = 4.7 + Math.sin(t * 1.6 + i) * 0.45;
+        n.halo.scale.set(n.size * pulse, n.size * pulse, 1);
+      }
+      if (n.label) n.label.position.set(n.x, n.y + n.size + 20, n.z);
+    });
+    // 更新连线 + 流动粒子
+    state.edges.forEach(function (e) {
+      var p = e.line.geometry.attributes.position;
+      p.setXYZ(0, e.a.x, e.a.y, e.a.z);
+      p.setXYZ(1, e.b.x, e.b.y, e.b.z);
+      p.needsUpdate = true;
+      if (e.dot) {
+        e.t = (e.t + 0.0035) % 1;
+        e.dot.position.set(
+          e.a.x + (e.b.x - e.a.x) * e.t,
+          e.a.y + (e.b.y - e.a.y) * e.t,
+          e.a.z + (e.b.z - e.a.z) * e.t
+        );
+      }
+    });
+    state.root.rotation.x = state.rotX;
+    state.root.rotation.y = state.rotY;
+    state.renderer.render(state.scene, state.camera);
+  }
+
+  function bindControls() {
+    var el = state.renderer.domElement;
+    el.style.touchAction = "none";
+    el.addEventListener("pointerdown", function (e) {
+      state.drag = true; state.lastX = e.clientX; state.lastY = e.clientY;
+      state.moved = false; el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener("pointermove", function (e) {
+      if (!state.drag) return;
+      var dx = e.clientX - state.lastX, dy = e.clientY - state.lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) state.moved = true;
+      state.rotY += dx * 0.006;
+      state.rotX += dy * 0.006;
+      state.rotX = Math.max(-1.4, Math.min(1.4, state.rotX));
+      state.lastX = e.clientX; state.lastY = e.clientY;
+    });
+    el.addEventListener("pointerup", function (e) {
+      state.drag = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+      if (!state.moved) pick(e);
+    });
+    el.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      state.zoom *= e.deltaY > 0 ? 1.1 : 0.9;
+      state.zoom = Math.max(160, Math.min(1400, state.zoom));
+      state.camera.position.z = state.zoom;
+    }, { passive: false });
+  }
+
+  function pick(e) {
+    var rect = state.renderer.domElement.getBoundingClientRect();
+    var mx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    var my = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    var ray = new THREE.Raycaster();
+    ray.params.Points.threshold = 8;
+    ray.setFromCamera({ x: mx, y: my }, state.camera);
+    var meshes = state.nodes.map(function (n) { return n.mesh; });
+    var hits = ray.intersectObjects(meshes, false);
+    if (hits.length) {
+      var node = hits[0].object.userData.node;
+      select(node);
+    } else {
+      select(null);
+    }
+  }
+
+  function select(node) {
+    state.selected = node;
+    // 高亮：选中节点放大、增亮；其它节点降为柔和态，突出焦点
+    state.nodes.forEach(function (n) {
+      var on = (n === node);
+      var s = on ? 1.55 : 1;
+      if (n.group) n.group.scale.set(s, s, s);
+      if (n.mesh) n.mesh.material.emissiveIntensity = on ? 1.0 : (node ? 0.28 : 0.55);
+      if (n.halo) n.halo.material.opacity = on ? 0.85 : (node ? 0.2 : 0.42);
+      if (n.ring) n.ring.material.opacity = on ? 0.9 : (node ? 0.15 : 0.38);
+      if (n.label) n.label.material.opacity = node && !on ? 0.45 : 1;
+    });
+    state.edges.forEach(function (e) {
+      var linked = node && (e.a === node || e.b === node);
+      if (e.line) e.line.material.opacity = node ? (linked ? 0.8 : 0.06) : Math.min(0.5, 0.12 + e.w * 0.7);
+      if (e.dot) e.dot.material.opacity = node ? (linked ? 1 : 0) : 0.85;
+    });
+    if (state.onSelect) state.onSelect(node);
+  }
+
+  function resize() {
+    if (!state.renderer || !state.container) return;
+    var w = state.container.clientWidth, h = state.container.clientHeight;
+    state.camera.aspect = w / h;
+    state.camera.updateProjectionMatrix();
+    state.renderer.setSize(w, h);
+  }
+
+  /* ---------- 公开 API ---------- */
+  function render(container, data, onSelect) {
+    destroy();
+    if (!THREE) { container.innerHTML = '<p style="color:#fff;padding:20px">3D 库未加载，无法显示图谱。</p>'; return; }
+    state.container = container;
+    state.onSelect = onSelect || function () {};
+    var g = buildGraph(data);
+    state.nodes = g.nodes;
+    state.edges = g.edges;
+    state.alpha = 0.97;
+    state.rotX = 0.3; state.rotY = 0.5; state.zoom = 520;
+    initScene();
+    bindControls();
+    state.running = true;
+    animate();
+    global.addEventListener("resize", resize);
+    return { nodes: state.nodes.length, edges: state.edges.length };
+  }
+
+  function destroy() {
+    state.running = false;
+    if (state.raf) cancelAnimationFrame(state.raf);
+    global.removeEventListener("resize", resize);
+    if (state.renderer) {
+      try { state.renderer.dispose(); } catch (e) {}
+      if (state.renderer.domElement && state.renderer.domElement.parentNode) {
+        state.renderer.domElement.parentNode.removeChild(state.renderer.domElement);
+      }
+    }
+    state.renderer = state.scene = state.camera = null;
+    state.nodeMeshes = []; state.edgeLines = [];
+  }
+
+  function resetView() {
+    state.rotX = 0.3; state.rotY = 0.5; state.zoom = 520;
+    state.camera.position.z = state.zoom;
+    state.alpha = 0.5;
+  }
+
+  global.MemoryGraph = { render: render, destroy: destroy, resetView: resetView };
+})(window);

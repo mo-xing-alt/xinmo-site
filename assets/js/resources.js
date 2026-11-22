@@ -21,7 +21,7 @@
  *   soon        true 时渲染为「筹备中」占位卡，不需要 url
  * ============================================================ */
 window.RESOURCE_CATALOG = {
-  updated: "2026-11-20",
+  updated: "2026-11-22",
   categories: [
     { id: "study", label: "学习练习" },
     { id: "cert", label: "证书备考" },
@@ -181,6 +181,20 @@ window.RESOURCE_CATALOG = {
       meta: "纯前端 · 单文件 · 离线可用",
       status: "可用",
       updated: "2026-11-20"
+    },
+    {
+      id: "etbn-mod",
+      title: "逃离后室 · 噩梦模组",
+      subtitle: "随机手枪 · 无限体力 · 三倍速 · 圣诞皮肤",
+      description: "给 Steam 版《Escape the Backrooms》写的一套 UE4SS Lua 模组：每关随机刷新信号枪当武器，准星对准按 G 可击杀实体（含细菌、蜘蛛、触手怪）；全队无限体力，F6 普通无限体力奔跑、F7 噩梦三倍速；F8 循环圣诞皮肤（派对客等实体换新外观，场景点缀拐杖糖 / 星星 / 彩球）。纯本地文件，不联网、不改存档。本页附一键复制包、人类简版说明，以及一份专给 AI 助手读的结构化安装指南——把指南发给你的大模型，它能一步步帮你定位目录、复制文件、验证与排错。",
+      category: "tool",
+      icon: "code",
+      accent: "amber",
+      url: "./tools/etbn-mod/index.html",
+      tags: ["Escape the Backrooms", "UE4SS", "模组", "随机手枪", "无限体力", "三倍速", "圣诞皮肤", "AI 安装指南", "Steam"],
+      meta: "Windows · Steam 版 · 含 AI 安装指南",
+      status: "可用",
+      updated: "2026-11-22"
     },
     {
       id: "coming-soon",
