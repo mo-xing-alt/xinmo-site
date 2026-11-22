@@ -1,1 +1,0 @@
-{"id": "20261122-155752-3df5bc", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "base64 -d /tmp/mg3.b64 > /tmp/mg3.js && wc -c /tmp/mg3.js && sha256sum /tmp/mg3.js && sudo cp /tmp/mg3.js /var/www/xinmo-site/assets/js/memory-graph.js && wc -c /var/www/xinmo-site/assets/js/memory-graph.js && sha256sum /var/www/xinmo-site/assets/js/memory-graph.js", "ts": 1795334272}
