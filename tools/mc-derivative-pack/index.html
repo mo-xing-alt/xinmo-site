@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Minecraft 26.1.1 Derivative 光影一键安装包：完整版分卷下载、自动合并、让大模型帮你装好光影/材质/休闲内容。" />
+<title>MC 光影一键安装包 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232f6fed'/%3E%3Cpath d='M20 20h24v24H20z' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M32 12v8M32 44v8M12 32h8M44 32h8' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../../assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<!-- 访问控制守卫 -->
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+<style>
+  :root { --mc: #2f6fed; --mc-soft: #eaf1ff; }
+  :root[data-theme="dark"] { --mc: #7aa5ff; --mc-soft: #1b2a44; }
+  .mc-wrap { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 80px; }
+  .mc-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .mc-brand { display: flex; align-items: center; gap: 10px; }
+  .mc-mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #2f6fed, #6a9bff); font-weight: 800; }
+  .mc-brand strong { display: block; font-size: 15px; color: var(--heading); line-height: 1.2; }
+  .mc-brand small { display: block; font-size: 11px; letter-spacing: 1.5px; color: var(--muted); }
+  .mc-back { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); padding: 7px 12px; border-radius: 999px; text-decoration: none; }
+  .mc-back:hover { color: var(--mc); border-color: var(--mc); }
+
+  .mc-hero { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px 28px; }
+  .mc-hero .tag { display: inline-block; margin-bottom: 12px; padding: 4px 10px; border-radius: 999px; background: var(--mc-soft); color: var(--mc); font-size: 11px; font-weight: 700; }
+  .mc-hero h1 { margin: 0 0 10px; font-size: 26px; color: var(--heading); letter-spacing: -.5px; }
+  .mc-hero p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.9; }
+  .mc-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .mc-badges span { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 5px 11px; border-radius: 8px; }
+
+  .mc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 26px; margin-top: 18px; }
+  .mc-card h2 { margin: 0 0 16px; font-size: 18px; color: var(--heading); display: flex; align-items: center; gap: 10px; }
+  .mc-card h2 .n { width: 26px; height: 26px; border-radius: 8px; background: var(--mc); color: #fff; font-size: 13px; display: grid; place-items: center; flex: none; }
+
+  /* 给大模型的突出区 */
+  .mc-ai { background: linear-gradient(135deg, var(--mc-soft), var(--surface)); border: 1px solid var(--accent); }
+  .mc-ai h2 .n { background: linear-gradient(135deg, #1a8f5a, #35b57a); }
+  .mc-ai-lead { color: var(--text); font-size: 14px; line-height: 1.85; margin: 0 0 14px; }
+  .mc-ai-lead b { color: var(--heading); }
+  .mc-btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  .mc-btn { border: 0; border-radius: 10px; padding: 11px 18px; font-weight: 700; font-size: 14px; cursor: pointer; color: #fff; background: linear-gradient(135deg, #1a8f5a, #2fb37a); }
+  .mc-btn:hover { filter: brightness(1.06); }
+  .mc-btn.ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+  .mc-btn.copied { background: #14734a !important; }
+  pre.mc-code { background: #1f2733; color: #e8edf5; border-radius: 10px; padding: 16px; overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; line-height: 1.6; max-height: 340px; }
+
+  .mc-steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  .mc-steps li { position: relative; padding: 10px 0 10px 40px; color: var(--text); font-size: 14px; line-height: 1.75; border-bottom: 1px solid var(--border); }
+  .mc-steps li:last-child { border-bottom: 0; }
+  .mc-steps li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 11px; width: 26px; height: 26px; border-radius: 8px; background: var(--mc-soft); color: var(--mc); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+  code.mc-inline { background: var(--surface-2); border: 1px solid var(--border); padding: 1px 6px; border-radius: 5px; font-family: Consolas, monospace; font-size: 12px; color: var(--text); }
+
+  .mc-download { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 6px; }
+  .mc-download a { display: block; text-align: center; padding: 10px 6px; border: 1px solid var(--border); border-radius: 9px; color: var(--mc); text-decoration: none; font-size: 12.5px; font-family: Consolas, monospace; background: var(--surface-2); }
+  .mc-download a:hover { border-color: var(--mc); background: var(--mc-soft); }
+
+  .mc-note { background: var(--amber-soft); border-left: 4px solid #c9820a; padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13.5px; color: #8a5a00; margin: 14px 0; }
+  :root[data-theme="dark"] .mc-note { color: #ffce7a; }
+  .mc-ok { background: var(--teal-soft); border-left: 4px solid var(--teal); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13.5px; margin: 14px 0; }
+  details.mc-faq { border: 1px solid var(--border); border-radius: 9px; padding: 10px 14px; margin: 9px 0; }
+  details.mc-faq summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--heading); }
+  details.mc-faq p { color: var(--muted); font-size: 13.5px; margin: 10px 0 2px; line-height: 1.8; }
+  .mc-foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+<div class="mc-wrap">
+
+  <div class="mc-top">
+    <div class="mc-brand">
+      <div class="mc-mark">MC</div>
+      <div><strong>Derivative 光影一键安装包</strong><small>xinmo.work · 工具库</small></div>
+    </div>
+    <a class="mc-back" href="../../library.html">← 返回资源库</a>
+  </div>
+
+  <div class="mc-hero">
+    <span class="tag">Minecraft Java 26.1.1 · Fabric 0.20.1</span>
+    <h1>下载 → 合并 → 让大模型帮你装好</h1>
+    <p>这是给朋友用的完整分发包：Derivative 光影（雨闪光/玻璃透明已修复）+ Continuity 无缝玻璃 + Patrix 32x 与 Stay True 材质包 + SnuggleCraft 休闲内容（家具、更多生物、地图、动态光……共 34 个 mod）。<br>包比较大（约 400 MB），已拆成 21 个分卷，页面提供一键合并脚本；把说明发给大模型，它会自动完成下载合并与安装。</p>
+    <div class="mc-badges">
+      <span>✅ 34 个 mod</span><span>✅ 4 个光影包</span><span>✅ 2 个材质包</span>
+      <span>✅ 自动合并校验</span><span>✅ 给大模型的一键指令</span>
+    </div>
+  </div>
+
+  <!-- AI 区：最突出 -->
+  <div class="mc-card mc-ai">
+    <h2><span class="n">AI</span>给大模型的安装指令（一键复制）</h2>
+    <p class="mc-ai-lead">
+      把下面这段<b>全文复制</b>发给任意大模型（WorkBuddy / Claude / ChatGPT 等），
+      并把本站下载的分卷文件交给它。指令里已经包含了
+      <b>下载分卷 → 校验合并 → 解压 → 安装到 PCL</b> 的完整步骤，模型照着做即可，无需你额外解释。
+    </p>
+    <div class="mc-btnrow">
+      <button class="mc-btn" id="copyBtn" onclick="copyAI()">📋 复制完整指令</button>
+      <a class="mc-btn ghost" href="AI-GUIDE.md" target="_blank">查看 Markdown 版说明</a>
+    </div>
+    <pre class="mc-code" id="aiText"></pre>
+  </div>
+
+  <!-- 朋友手动步骤 -->
+  <div class="mc-card">
+    <h2><span class="n">1</span>朋友手动安装步骤（不用 AI 也能装）</h2>
+    <ol class="mc-steps">
+      <li>点下方「分卷下载」，把 <code class="mc-inline">part01</code> 到最后一个分卷以及 <code class="mc-inline">parts-manifest.json</code>、<code class="mc-inline">合并脚本</code> 全部下载到<strong>同一个文件夹</strong>。</li>
+      <li>双击 <code class="mc-inline">合并脚本.bat</code>（Windows 会自动用 Python 或 PowerShell）。看到 <code class="mc-inline">MERGE OK</code> 就合并成功了。</li>
+      <li>把合并出来的 <code class="mc-inline">Derivative-Main-v4-一键安装包.zip</code> <strong>解压整个文件夹</strong>。</li>
+      <li>确认 PCL 里已装原版 <strong>Minecraft 26.1.1</strong>；然后把 <code class="mc-inline">.minecraft</code> 文件夹拖到 <code class="mc-inline">Install.bat</code> 上（或直接双击）。</li>
+      <li>PCL 版本列表里<strong>展开折叠卡片</strong>，选 <code class="mc-inline">fabric-loader-0.20.1-26.1.1</code> 启动。光影已预启用。</li>
+      <li>进游戏后：选项 → 资源包，启用 <strong>Patrix 32x</strong> 和 Continuity 内置的两个包（无缝玻璃/连接纹理）。</li>
+    </ol>
+    <div class="mc-note">
+      ⚠️ 不要在 MC 26.3 上启用这个光影，会花屏。本包专为 26.1.1 准备。PCL 会把 26.1.1 和 26.3 折到同一张卡片，要展开才看得到。
+    </div>
+  </div>
+
+  <!-- 分卷下载 -->
+  <div class="mc-card">
+    <h2><span class="n">2</span>分卷下载（全部都要下）</h2>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:0">共 21 个分卷 + 清单 + 合并脚本，请全部下载到同一个文件夹。每个约 20 MB。</p>
+    <div class="mc-download" id="mcDownload">
+      <!-- 由脚本读取 parts-manifest.json 动态生成全部分卷链接 -->
+      <a href="parts/parts-manifest.json" download>parts-manifest.json</a>
+      <a href="合并脚本.py" download>合并脚本.py</a>
+      <a href="合并脚本.bat" download>合并脚本.bat</a>
+    </div>
+    <div class="mc-ok">
+      ✅ 合并脚本会逐个校验每个分卷的 SHA-256，再校验合并结果的 SHA-256（<code class="mc-inline">de19aaed…ecbe</code>）。任何一个分卷下载损坏都会被明确指出，重新下载那一个即可。
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="mc-card">
+    <h2><span class="n">3</span>常见问题</h2>
+    <details class="mc-faq"><summary>合并时提示某个分卷损坏？</summary><p>那个分卷下载不完整，单独重新下载它再运行合并脚本即可。其余分卷不用重下。</p></details>
+    <details class="mc-faq"><summary>启动崩溃 / mod 冲突？</summary><p>把 <code class="mc-inline">logs/latest.log</code> 发给大模型或站主。34 个 mod 已做静态依赖核对，运行期交互需实机确认；可删掉后加的内容 mod 回退到 4 核心。</p></details>
+    <details class="mc-faq"><summary>材质包提示"为旧版本制作"？</summary><p>Stay True 是 1.21.5 的包，点"是"强制加载即可；Patrix 32x 是 26.1.x 专用，不会有此提示。</p></details>
+    <details class="mc-faq"><summary>玻璃没连起来 / 树叶不蓬松？</summary><p>Continuity 装了不等于生效，必须在资源包菜单启用它内置的两个包，且 Patrix 要排在它们上面。</p></details>
+  </div>
+
+  <div class="mc-foot">xinmo.work · 静态页面，无外部依赖 · Derivative 光影分发包</div>
+</div>
+
+<script>
+// 读 parts-manifest.json 动态生成全部分卷下载链接（分卷数变化无需改页面）
+(function(){
+  const box = document.getElementById('mcDownload');
+  if(!box) return;
+  fetch('parts/parts-manifest.json').then(r=>r.json()).then(man=>{
+    const links = man.parts.map(p=>{
+      const a=document.createElement('a');
+      a.href='parts/'+p.name; a.download=p.name;
+      a.textContent=p.name.replace('Derivative-Main-v4.zip.','');
+      box.insertBefore(a, box.firstChild);
+    });
+  }).catch(()=>{});
+})();
+// 给大模型的完整指令（内嵌，一键复制）
+const AI_INSTRUCTION = `你是 AI 助手。用户想装 Minecraft Java 26.1.1 的 Derivative 光影环境，已给你本站下载的分卷文件。请按下面步骤完成，每一步都报告结果。
+
+【第 0 步：合并分卷】
+用户会提供这些文件（放在同一文件夹）：Derivative-Main-v4.zip.part01 ~ partNN（见 parts-manifest.json）、parts-manifest.json、合并脚本.py / 合并脚本.bat / 合并脚本.ps1。
+  - 优先双击运行 "合并脚本.bat"，或在命令行执行：python 合并脚本.py
+  - 脚本会自动校验每个分卷 SHA-256、按序合并、并校验最终 ZIP 的 SHA-256。
+  - 看到 "MERGE OK" 即成功，得到 "Derivative-Main-v4-一键安装包.zip"。
+  - 若报某个分卷损坏，让用户只重新下载那个分卷，再重跑脚本。
+  - 不要自己手动拼接二进制，用脚本即可，脚本已处理顺序和校验。
+
+【目标】
+把这个安装包装进用户的 PCL2 启动器，为 MC 26.1.1 的 Fabric 实例安装：
+  - Fabric Loader 0.20.1（若尚未安装）
+  - 34 个 mod：4 核心（fabric-api / iris / sodium / continuity）+ 30 个 SnuggleCraft 休闲内容 mod（家具、更多生物、Xaero 地图、动态光、粒子雨、音效物理、ETF/EMF）
+  - 光影：Derivative [25.1.0] Iris-Fix-Patch（预启用，已修雨闪光/玻璃透明）
+  - 材质包：Patrix 32x、Stay True
+注意：本包刻意排除了整合包的旧版核心 mod / 12 个光影 / 16 个材质包，以保留用户自己的选择。不要改动这一点。
+
+【第 1 步：定位 .minecraft】
+按优先级找到第一个含 versions 子目录的目录：
+  1) 用户直接给你的 .minecraft 路径 —— 优先
+  2) 搜索 D:\\pcl 下的 .minecraft（PCL 便携版常见位置，通常与 Plain Craft Launcher 2.exe 同级）
+  3) %APPDATA%\\.minecraft
+  4) 解压目录同级的 .minecraft
+Windows 示例：dir /s /b "D:\\pcl\\.minecraft" 2>nul
+注意 PCL 便携版真实目录不是 %APPDATA%\\.minecraft，务必确认。
+
+【第 2 步：确认 MC 26.1.1】
+检查 <.minecraft>\\versions\\26.1.1\\26.1.1.jar 是否存在。不存在就让用户先在 PCL 装原版 26.1.1，不要继续。
+
+【第 3 步：确认/安装 Fabric】
+目标实例：<.minecraft>\\versions\\fabric-loader-0.20.1-26.1.1
+若没有 fabric-loader-0.20.1-26.1.1.json，用包内安装器（需 Java 25）：
+  "<JAVA>" -jar "<解压目录>\\payload\\fabric-installer.jar" client -dir "<.minecraft>" -mcversion 26.1.1 -loader 0.20.1
+<JAVA> 优先 %APPDATA%\\.minecraft\\runtime\\java-runtime-epsilon\\bin\\java.exe，否则用系统 PATH 的 java。
+
+【第 4 步：复制文件】
+设 VER = <.minecraft>\\versions\\fabric-loader-0.20.1-26.1.1（不存在就建 mods / shaderpacks / resourcepacks / config）
+  复制 payload\\mods\\*.jar            -> VER\\mods\\
+  复制 payload\\shaderpacks\\*.zip     -> VER\\shaderpacks\\
+  复制 payload\\resourcepacks\\*.zip   -> VER\\resourcepacks\\
+  若 VER\\config\\iris.properties 已存在，先备份为 .bak
+  复制 payload\\config\\iris.properties -> VER\\config\\iris.properties
+关键：光影只放进实例目录，绝对不要复制到全局 <.minecraft>\\shaderpacks，否则 26.3 可能误加载花屏。材质包可放全局。
+
+【第 5 步：确认结果】
+列出 VER\\mods、VER\\shaderpacks、VER\\resourcepacks 的文件，确认 VER\\config\\iris.properties 中：
+  enableShaders=true
+  shaderPack=Derivative [25.1.0] Iris-Fix-Patch.zip
+不符就报告。
+
+【第 6 步：告诉用户收尾】
+  - PCL 版本列表展开折叠卡片，选 fabric-loader-0.20.1-26.1.1 启动（26.3 和 26.1.1 被折在同一张卡，必须展开）
+  - 选项 → 资源包：启用 Patrix 32x，并启用 Continuity 内置两个包（default connected textures / glass pane culling fix）以获得无缝玻璃和连接纹理；Patrix 排上面
+  - Stay True 提示"为旧版本制作"时点"是"
+
+【重要约束】
+  - 26.3 上不要启用 Derivative 光影，会花屏；本包专为 26.1.1
+  - 不要删除用户已有文件；iris.properties 覆盖前留 .bak
+  - 脚本 stdout 有报错就停下，把原文报告用户，不要猜测成功
+  - 不要再额外导入其它整合包`;
+
+document.getElementById('aiText').textContent = AI_INSTRUCTION;
+function copyAI(){
+  const text = document.getElementById('aiText').textContent;
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='✅ 已复制，发给大模型即可'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 复制完整指令';btn.classList.remove('copied')},2500); };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done));
+  } else { fb(text,done); }
+}
+function fb(text,done){
+  const ta=document.createElement('textarea'); ta.value=text;
+  ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+  ta.select(); try{document.execCommand('copy');done();}catch(e){alert('复制失败，请手动选中复制');}
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>
