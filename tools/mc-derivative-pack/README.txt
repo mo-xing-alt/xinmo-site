@@ -9,7 +9,7 @@ Minecraft 26.1.1 · Derivative 光影一键安装包
 不用 AI 也能装：解压 ZIP → 把 .minecraft 拖到 Install.bat → PCL 选 26.1.1 启动。
 
 包含什么：Derivative 光影（已修雨闪光/玻璃透明）、Continuity 无缝玻璃、
-Patrix 32x + Stay True 材质包、SnuggleCraft 休闲内容（家具/生物/地图/动态光等 33 mod）。
+Patrix 32x + Stay True 材质包、SnuggleCraft 休闲内容（家具/生物/地图/动态光等 32 mod）。
 
 注意：只在 MC 26.1.1 用，26.3 上会花屏。
 完整步骤和大模型指令见：
