@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-173426-d8aee2",
- "ts": 1795340072,
- "exit_code": 0,
- "ok": true,
- "output": "/dev/vda3        30G  4.1G   24G  15% /\n---\ndrwxr-xr-x 11 www-data www-data 4096 Nov 22 16:52 /var/www/xinmo-site/tools/\n---\nTOOL NOT YET\n---\nsite_http=200\n"
-}
