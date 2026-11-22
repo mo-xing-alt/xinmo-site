@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-171307-5fa7f2",
+ "ts": 1795338794,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== 磁盘空间(df -h) ===\nFilesystem      Size  Used Avail Use% Mounted on\ntmpfs            90M  1.1M   89M   2% /run\nefivarfs        256K  7.4K  244K   3% /sys/firmware/efi/efivars\n/dev/vda3        30G  4.1G   24G  15% /\ntmpfs           448M     0  448M   0% /dev/shm\ntmpfs           5.0M     0  5.0M   0% /run/lock\n/dev/vda2       197M  6.2M  191M   4% /boot/efi\n=== 内存(free -h) ===\n               total        used        free      shared  buff/cache   available\nMem:           894Mi       465Mi       190Mi       2.5Mi       387Mi       429Mi\nSwap:          1.0Gi          0B       1.0Gi\n=== 网站目录占用 ===\n18M\t/var/www/xinmo-site\n"
+}
