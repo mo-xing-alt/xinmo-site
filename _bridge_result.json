@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-170501-a3384a",
+ "ts": 1795338313,
+ "exit_code": 0,
+ "ok": true,
+ "output": "下载字节: 72182 (期望 72182)\n\"generatedAt\": \"2026-11-22T16:59:48+08:00\"\n-rw-r--r-- 1 root root 72182 Nov 22 17:05 /var/www/xinmo-site/vault-data.js\n---- 站点自检 ----\nwindow.PMV_VAULT = {\n  \"format\": \"pmv\",\n  \"version\": 1,\n  \"generatedAt\": \"2026-11-22T16:59:48+08:00\",\n  \"kdf\": {\n    \"alcurl: (23) Failure writing output to destination\n\n"
+}
