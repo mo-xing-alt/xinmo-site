@@ -4,7 +4,7 @@
 > 目标：为 Minecraft Java 26.1.1 装好 Derivative 光影 + Patrix 材质 + 休闲内容 mod。
 
 ## 输入
-用户会提供本站下载的 21 个分卷 + parts-manifest.json + 合并脚本，或直接给出已解压的安装包目录。
+用户会提供本站下载的 20 个分卷 + parts-manifest.json + 合并脚本，或直接给出已解压的安装包目录。
 
 ## 流程总览
 ```
@@ -14,7 +14,7 @@
 ## 第 0 步：合并分卷（若拿到的是分卷）
 - 文件：`Derivative-Main-v4.zip.part01` ~ `part21`（以 parts-manifest.json 为准）、`parts-manifest.json`、`merge.py/.bat/.ps1`，同一文件夹。
 - 执行：`python merge.py`（或双击 `merge.bat`）。
-- 脚本行为：校验每个分卷 SHA-256 → 按序合并 → 校验最终 ZIP 的 SHA-256 = `de19aaed9d41048cf7a97000765258ed9a4812ad296ee1d8cb3fc16973a9ecbe`。
+- 脚本行为：校验每个分卷 SHA-256 → 按序合并 → 校验最终 ZIP 的 SHA-256 = `7fb3f4cc64d18de83d9fdebd38ca550a7fcc259718e0e787563bfa89a65a0232`。
 - 成功标志：输出 `MERGE OK`，得到 `Derivative-Main-v4-一键安装包.zip`。
 - 失败处理：报哪个分卷损坏，就让用户只重下那个分卷，再跑脚本。不要手动拼接二进制。
 
@@ -60,7 +60,7 @@
 - Stay True 提示"为旧版本制作"时点"是"。
 
 ## 包内容（供核对）
-- 34 mod：4 核心（fabric-api 0.155.2 / iris 1.11.2 / sodium 0.9.1 / continuity 3.0.1）+ 30 个 SnuggleCraft 休闲内容 mod。
+- 33 mod：4 核心（fabric-api 0.155.2 / iris 1.11.2 / sodium 0.9.1 / continuity 3.0.1）+ 29 个 SnuggleCraft 休闲内容 mod。
 - 4 光影：Derivative 25.1.0 的 Iris-Fix-Patch（默认）/ Iris-Fix / 原版 + 25.0.1。
 - 2 材质包：Patrix 26.1 32x（pack_format 84）、Stay True 1.21.5（pack_format 55）。
 - 整合包的旧核心 mod / 12 光影 / 16 材质包已刻意排除，以保留用户自己的选择 —— **不要改动**。
