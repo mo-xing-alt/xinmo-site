@@ -1,1 +1,0 @@
-{"id": "20261122-204251-2c7720", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "curl -fsSL 'https://raw.githubusercontent.com/mo-xing-alt/xinmo-site/main/vault-data.js?u=etffix' -o /var/www/xinmo-site/vault-data.js && sudo chown www-data:www-data /var/www/xinmo-site/vault-data.js && echo bytes=$(wc -c < /var/www/xinmo-site/vault-data.js)", "ts": 1795351371}
