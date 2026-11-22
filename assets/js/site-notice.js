@@ -8,8 +8,11 @@
 (function () {
   "use strict";
 
-  var ALWAYS_SHOW = true;               // true = 每次进入都弹；false = 每人只弹一次
+  var ALWAYS_SHOW = false;              // true = 每次加载页面都弹；false = 每次进入网站弹一次（见 STORE）
   var SEEN_KEY = "xinmo_site_notice_seen";
+  // 存储位置：sessionStorage = 每次打开网站弹一次（同一访问内刷新/跳转不重复）；
+  //           localStorage   = 每人永久只弹一次。
+  var STORE = (typeof sessionStorage !== "undefined") ? sessionStorage : localStorage;
   var MARK_ID = "xm-notice-mask";
   var CSS_HREF_SUFFIX = "assets/css/site-notice.css";
 
@@ -30,10 +33,10 @@
   }
 
   function seen() {
-    try { return localStorage.getItem(SEEN_KEY) === "1"; } catch (e) { return false; }
+    try { return STORE.getItem(SEEN_KEY) === "1"; } catch (e) { return false; }
   }
   function markSeen() {
-    try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) {}
+    try { STORE.setItem(SEEN_KEY, "1"); } catch (e) {}
   }
 
   function close() {
@@ -93,7 +96,7 @@
 
         '<div class="xm-notice-foot">' +
           '<button type="button" class="xm-notice-ok" id="xm-notice-ok">知道了，开始使用</button>' +
-          '<p class="xm-notice-tip">' + (ALWAYS_SHOW ? '点一下即可关闭，进入本站' : '点一下就好，下次不再打扰') + '</p>' +
+          '<p class="xm-notice-tip">' + (ALWAYS_SHOW ? '点一下即可关闭，进入本站' : '点一下就好，本次访问不再提示') + '</p>' +
         '</div>' +
       '</div>';
 
