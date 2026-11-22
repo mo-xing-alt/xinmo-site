@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-164305-ed80dc",
- "ts": 1795336997,
- "exit_code": 0,
- "ok": true,
- "output": "vault已更新\n60526 /var/www/xinmo-site/vault-data.js\n"
-}
