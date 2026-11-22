@@ -85,9 +85,9 @@
   <div class="mc-hero">
     <span class="tag">Minecraft Java 26.1.1 · Fabric 0.20.1</span>
     <h1>下载 → 合并 → 让大模型帮你装好</h1>
-    <p>这是给朋友用的完整分发包：Derivative 光影（雨闪光/玻璃透明已修复）+ Continuity 无缝玻璃 + Patrix 32x 与 Stay True 材质包 + SnuggleCraft 休闲内容（家具、更多生物、地图、动态光……共 34 个 mod）。<br>包比较大（约 400 MB），已拆成 21 个分卷，页面提供一键合并脚本；把说明发给大模型，它会自动完成下载合并与安装。</p>
+    <p>这是给朋友用的完整分发包：Derivative 光影（雨闪光/玻璃透明已修复）+ Continuity 无缝玻璃 + Patrix 32x 与 Stay True 材质包 + SnuggleCraft 休闲内容（家具、更多生物、地图、动态光……共 33 个 mod）。<br>包比较大（约 400 MB），已拆成 20 个分卷，页面提供一键合并脚本；把说明发给大模型，它会自动完成下载合并与安装。</p>
     <div class="mc-badges">
-      <span>✅ 34 个 mod</span><span>✅ 4 个光影包</span><span>✅ 2 个材质包</span>
+      <span>✅ 33 个 mod</span><span>✅ 4 个光影包</span><span>✅ 2 个材质包</span>
       <span>✅ 自动合并校验</span><span>✅ 给大模型的一键指令</span>
     </div>
   </div>
@@ -126,7 +126,7 @@
   <!-- 分卷下载 -->
   <div class="mc-card">
     <h2><span class="n">2</span>分卷下载（全部都要下）</h2>
-    <p style="color:var(--muted);font-size:13.5px;margin-top:0">共 21 个分卷 + 清单 + 合并脚本，请全部下载到同一个文件夹。每个约 20 MB。</p>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:0">共 20 个分卷 + 清单 + 合并脚本，请全部下载到同一个文件夹。每个约 20 MB。</p>
     <div class="mc-download" id="mcDownload">
       <!-- 由脚本读取 parts-manifest.json 动态生成全部分卷链接 -->
       <a href="parts/parts-manifest.json" download>parts-manifest.json</a>
@@ -134,7 +134,7 @@
       <a href="merge.bat" download>merge.bat</a>
     </div>
     <div class="mc-ok">
-      ✅ 合并脚本会逐个校验每个分卷的 SHA-256，再校验合并结果的 SHA-256（<code class="mc-inline">de19aaed…ecbe</code>）。任何一个分卷下载损坏都会被明确指出，重新下载那一个即可。
+      ✅ 合并脚本会逐个校验每个分卷的 SHA-256，再校验合并结果的 SHA-256（<code class="mc-inline">7fb3f4cc…a0232</code>）。任何一个分卷下载损坏都会被明确指出，重新下载那一个即可。
     </div>
   </div>
 
@@ -142,7 +142,7 @@
   <div class="mc-card">
     <h2><span class="n">3</span>常见问题</h2>
     <details class="mc-faq"><summary>合并时提示某个分卷损坏？</summary><p>那个分卷下载不完整，单独重新下载它再运行合并脚本即可。其余分卷不用重下。</p></details>
-    <details class="mc-faq"><summary>启动崩溃 / mod 冲突？</summary><p>把 <code class="mc-inline">logs/latest.log</code> 发给大模型或站主。34 个 mod 已做静态依赖核对，运行期交互需实机确认；可删掉后加的内容 mod 回退到 4 核心。</p></details>
+    <details class="mc-faq"><summary>启动崩溃 / mod 冲突？</summary><p>把 <code class="mc-inline">logs/latest.log</code> 发给大模型或站主。33 个 mod 已做静态依赖核对，运行期交互需实机确认；可删掉后加的内容 mod 回退到 4 核心。</p></details>
     <details class="mc-faq"><summary>材质包提示"为旧版本制作"？</summary><p>Stay True 是 1.21.5 的包，点"是"强制加载即可；Patrix 32x 是 26.1.x 专用，不会有此提示。</p></details>
     <details class="mc-faq"><summary>玻璃没连起来 / 树叶不蓬松？</summary><p>Continuity 装了不等于生效，必须在资源包菜单启用它内置的两个包，且 Patrix 要排在它们上面。</p></details>
   </div>
@@ -178,7 +178,7 @@ const AI_INSTRUCTION = `你是 AI 助手。用户想装 Minecraft Java 26.1.1 �
 【目标】
 把这个安装包装进用户的 PCL2 启动器，为 MC 26.1.1 的 Fabric 实例安装：
   - Fabric Loader 0.20.1（若尚未安装）
-  - 34 个 mod：4 核心（fabric-api / iris / sodium / continuity）+ 30 个 SnuggleCraft 休闲内容 mod（家具、更多生物、Xaero 地图、动态光、粒子雨、音效物理、ETF/EMF）
+  - 33 个 mod：4 核心（fabric-api / iris / sodium / continuity）+ 29 个 SnuggleCraft 休闲内容 mod（家具、更多生物、Xaero 地图、动态光、粒子雨、音效物理、ETF/EMF）
   - 光影：Derivative [25.1.0] Iris-Fix-Patch（预启用，已修雨闪光/玻璃透明）
   - 材质包：Patrix 32x、Stay True
 注意：本包刻意排除了整合包的旧版核心 mod / 12 个光影 / 16 个材质包，以保留用户自己的选择。不要改动这一点。
