@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-175009-be78bc",
- "ts": 1795341021,
- "exit_code": 0,
- "ok": true,
- "output": "vault_bytes=81930\nvault_http=200\n"
-}
