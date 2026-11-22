@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-204521-a5c770",
+ "ts": 1795351528,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== 记忆 vault ===\n110314 /var/www/xinmo-site/vault-data.js\n=== 工具台 manifest ===\n3665 /var/www/xinmo-site/tools/mc-derivative-pack/parts/parts-manifest.json\nparts 20 sha 13aa3cbf48707fa9\n=== 工具台首页 ===\nindex_http=200\n"
+}
