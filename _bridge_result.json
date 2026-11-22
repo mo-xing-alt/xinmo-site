@@ -1,7 +1,0 @@
-{
- "job_id": "20261123-003303-342ab6",
- "ts": 1795365194,
- "exit_code": 0,
- "ok": true,
- "output": "0d1fbee5421cd24f3715be45a7c082cd84a54e509ce6a199e1c792d5d607e074  /var/www/xinmo-site/vault-data.js\n4b5a0a322b6452acb0467229a3c087fd602bb9be5384578acb2442091afdc108  /var/www/xinmo-site/memory.html\nvault=200/113046 3\n"
-}
