@@ -1,1 +1,0 @@
-{"id": "20261122-173442-593b4e", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "curl -sSL \"https://api.github.com/repos/mo-xing-alt/xinmo-site/contents/_site_update.sh\" | python3 -c 'import sys,json,base64;print(base64.b64decode(json.load(sys.stdin)[\"content\"]).decode(),end=\"\")' | sudo bash 2>&1 | tail -30", "ts": 1795340082}
