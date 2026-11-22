@@ -1,0 +1,1 @@
+{"id": "20261122-193638-ad8c44", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "echo '=== headers ==='\ncurl -sI https://xinmo.work/memory.html | sed -n '1,15p'\necho '=== has mg-mode? ==='\ncurl -s https://xinmo.work/memory.html | grep -c 'mg-mode'\necho '=== caddyfile ==='\nsudo cat /etc/caddy/Caddyfile", "ts": 1795347398}
