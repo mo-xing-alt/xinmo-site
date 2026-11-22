@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-173526-1f8968",
- "ts": 1795340138,
- "exit_code": 0,
- "ok": true,
- "output": "downloaded=6371059\n#!/usr/bin/env bash\n# 只更新 /var/www/xinmo-site 的静态文件，不影响服务配置。\nset -euo pipefail\n20\n"
-}
