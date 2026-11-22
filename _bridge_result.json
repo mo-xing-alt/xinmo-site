@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-165245-7b750a",
+ "ts": 1795337577,
+ "exit_code": 0,
+ "ok": true,
+ "output": "OK   tools/etbn-mod/index.html\nOK   tools/etbn-mod/ETBNightmareMod_FullCopy.zip\nOK   tools/etbn-mod/AI_INSTALL_GUIDE.md\nOK   tools/etbn-mod/INSTALL_README.txt\nOK   assets/js/resources.js\n--- 结果 OK=5 FAIL=0 ---\ntotal 7032\n-rw-r--r-- 1 www-data www-data    8585 Nov 22 16:52 AI_INSTALL_GUIDE.md\n-rw-r--r-- 1 www-data www-data 7162625 Nov 22 16:52 ETBNightmareMod_FullCopy.zip\n-rw-r--r-- 1 www-data www-data   18332 Nov 22 16:52 index.html\n-rw-r--r-- 1 www-data www-data    2471 Nov 22 16:52 INSTALL_README.txt\nresources.js 含 etbn-mod 行数:\n2\n"
+}
