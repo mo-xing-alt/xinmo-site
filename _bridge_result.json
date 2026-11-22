@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-215604-8692fb",
+ "ts": 1795355774,
+ "exit_code": 0,
+ "ok": true,
+ "output": "-rw-r--r-- 1 www-data www-data 30052 Nov 22 21:56 /var/www/xinmo-site/assets/js/memory-graph-3d.js\ndae6afe035b95381f87719d187db8fb292d67ea4b9c466034ada9026f9c30e13  /var/www/xinmo-site/assets/js/memory-graph-3d.js\nlive=200/30052\n3\n"
+}
