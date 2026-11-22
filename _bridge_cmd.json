@@ -1,0 +1,1 @@
+{"id": "20261122-173526-1f8968", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "cd /tmp && curl -fsSL 'https://raw.githubusercontent.com/mo-xing-alt/xinmo-site/main/_site_update.sh' -o upd.sh && echo downloaded=$(wc -c < upd.sh) && head -3 upd.sh && grep -c 'mc-derivative-pack/parts' upd.sh", "ts": 1795340126}
