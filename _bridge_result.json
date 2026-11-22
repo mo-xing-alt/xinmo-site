@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-165837-1bc218",
- "ts": 1795337928,
- "exit_code": 0,
- "ok": true,
- "output": "== 解包全站公告 ==\n== 覆盖到站点 ==\n== 校验 ==\n1\n-rw-r--r-- 1 root root 4700 Nov 22 16:58 /var/www/xinmo-site/assets/css/site-notice.css\n-rw-r--r-- 1 root root 5257 Nov 22 16:58 /var/www/xinmo-site/assets/js/site-notice.js\n== DONE ==\n"
-}
