@@ -1,1 +1,0 @@
-{"id": "20261122-173549-f13e88", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "sudo bash /tmp/upd.sh > /tmp/upd-run.log 2>&1; echo RC=$?; tail -25 /tmp/upd-run.log", "ts": 1795340149}
