@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-220604-b45e22",
+ "ts": 1795356373,
+ "exit_code": 0,
+ "ok": true,
+ "output": "install: cannot create regular file '/var/www/xinmo-site/tools/etb-vanilla/index.html': No such file or directory\ninstall: cannot create regular file '/var/www/xinmo-site/tools/etb-vanilla/ETB_原版还原包.zip': No such file or directory\ninstall: cannot create regular file '/var/www/xinmo-site/tools/etb-vanilla/AI_RESTORE_GUIDE.md': No such file or directory\ninstall: cannot create regular file '/var/www/xinmo-site/tools/etb-vanilla/安装说明_给朋友.txt': No such file or directory\ninstall: cannot create regular file '/var/www/xinmo-site/tools/etb-vanilla/README_先读我.txt': No such file or directory\n已更新: tools/etbn-mod/index.html (18493 字节)\n已更新: assets/js/resources.js (14281 字节)\n---- 线上自检 ----\ntools/etb-vanilla/index.html -> 404 0\ntools/etb-vanilla/ETB_原版还原包.zip -> 404 0\ntools/etb-vanilla/AI_RESTORE_GUIDE.md -> 404 0\nassets/js/resources.js -> 200 14281\n模组页标题 -> <title>逃离后室 · “噩梦”模组 · xinmo.work</title>\n"
+}
