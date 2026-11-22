@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-173549-f13e88",
+ "ts": 1795340192,
+ "exit_code": 0,
+ "ok": true,
+ "output": "RC=0\n== 解包站点 ==\n== 覆盖静态站（保留可能的上传文件）==\n== 校验关键文件 ==\n-rw-r--r-- 1 www-data www-data 5024 Nov 22 17:35 /var/www/xinmo-site/assets/js/dynamic.js\n-rw-r--r-- 1 www-data www-data 8064 Nov 22 17:35 /var/www/xinmo-site/profile.html\n-rw-r--r-- 1 www-data www-data 6222 Nov 22 17:35 /var/www/xinmo-site/search.html\n1\n== 同步大文件（GitHub raw，绕过脚本体积限制）==\n== DONE ==\n"
+}
