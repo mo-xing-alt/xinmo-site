@@ -211,6 +211,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-22"
     },
     {
+      id: "etb-vanilla",
+      title: "逃离后室 · 原版还原包",
+      subtitle: "一键卸掉“噩梦”模组 · 只移动不删除 · 可撤销",
+      description: "装过「“噩梦”模组」想玩回 Steam 原版？这个包会自动定位游戏目录，把 dwmapi.dll 和 ue4ss 文件夹移进带时间戳的备份目录，游戏立刻回到无任何 Mod 的原版状态。只移动、不删除，不动存档，后悔了运行 --undo 就能装回去。也提供「只禁用模组，保留加载器」模式。页面附人类简版说明，以及一份专给 AI 助手读的结构化还原指南——发给大模型，它会先预演、再执行、最后逐条验证。",
+      category: "tool",
+      icon: "tool",
+      accent: "teal",
+      url: "./tools/etb-vanilla/index.html",
+      tags: ["Escape the Backrooms", "原版还原", "卸载模组", "UE4SS", "只移动不删除", "可撤销", "AI 还原指南", "Steam"],
+      meta: "Windows · Steam 版 · 含 AI 还原指南",
+      status: "可用",
+      updated: "2026-11-22"
+    },
+    {
       id: "coming-soon",
       soon: true,
       title: "下一个资源正在路上",
