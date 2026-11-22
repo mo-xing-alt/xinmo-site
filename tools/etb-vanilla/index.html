@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Escape the Backrooms 原版还原包：一键移走“噩梦”模组与 UE4SS 加载器，只移动不删除、带备份可撤销。含人话说明与 AI 还原指南。" />
+<title>逃离后室 · 原版还原包 · xinmo.work</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f9c7c'/%3E%3Cpath d='M20 32l9 9 16-18' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../../assets/css/site.css" />
+<script>
+  try {
+    var saved = localStorage.getItem('xinmo-theme');
+    document.documentElement.setAttribute('data-theme', saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) {}
+</script>
+<script src="../../assets/js/auth-config.js"></script>
+<script src="../../assets/js/guard.js"></script>
+<style>
+  .ev-wrap { width: min(1000px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 72px; }
+  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .ev-brand { display: flex; align-items: center; gap: 10px; }
+  .ev-mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #0f9c7c, #0a6e58); box-shadow: 0 8px 20px rgba(15,156,124,.25); }
+  .ev-brand strong { display: block; font-size: 15px; color: var(--heading); line-height: 1.2; }
+  .ev-brand small { display: block; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+  .ev-back { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); padding: 7px 12px; border-radius: 999px; text-decoration: none; }
+  .ev-back:hover { color: var(--accent); border-color: var(--accent); }
+
+  .ev-hero { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 34px 32px; }
+  .ev-hero::before { content: ""; position: absolute; width: 240px; height: 240px; right: -80px; top: -100px; border-radius: 50%; background: radial-gradient(circle, rgba(15,156,124,.15), transparent 70%); pointer-events: none; }
+  .ev-hero::after { content: ""; position: absolute; width: 180px; height: 180px; right: 80px; bottom: -110px; border-radius: 50%; background: radial-gradient(circle, rgba(198,43,61,.10), transparent 70%); pointer-events: none; }
+  .ev-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: #0f9c7c; background: var(--teal-soft); border: 1px solid rgba(15,156,124,.24); padding: 5px 11px; border-radius: 999px; margin-bottom: 16px; }
+  .ev-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #0f9c7c; }
+  .ev-hero h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; color: var(--heading); letter-spacing: -.01em; }
+  .ev-hero h1 small { display: block; font-size: 14.5px; font-weight: 500; color: var(--muted); margin-top: 8px; letter-spacing: 0; }
+  .ev-lead { color: var(--muted); font-size: 14.5px; margin: 0 0 22px; max-width: 660px; line-height: 1.7; }
+  .ev-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .ev-btn { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 12px 20px; border-radius: 12px; border: 1px solid transparent; cursor: pointer; transition: transform .12s, filter .12s, background .12s; }
+  .ev-btn:active { transform: translateY(1px); }
+  .ev-btn-primary { background: linear-gradient(135deg, #0f9c7c, #0a6e58); color: #fff; box-shadow: 0 10px 24px rgba(15,156,124,.26); }
+  .ev-btn-primary:hover { filter: brightness(1.06); }
+  .ev-btn-ghost { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+  .ev-btn-ghost:hover { border-color: var(--border-strong); }
+  .ev-btn svg { width: 18px; height: 18px; }
+  .ev-meta { margin-top: 15px; font-size: 12.5px; color: var(--muted); }
+
+  .ev-sec { margin-top: 26px; }
+  .ev-h2 { font-size: 18px; font-weight: 700; margin: 0 0 4px; color: var(--heading); letter-spacing: -.01em; }
+  .ev-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+  .ev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ev-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+  .ev-card .ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--teal-soft); color: #0f9c7c; margin-bottom: 12px; }
+  .ev-card .ico.r { background: rgba(198,43,61,.10); color: #c62b3d; }
+  .ev-card h3 { margin: 0 0 6px; font-size: 14.5px; color: var(--heading); }
+  .ev-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .ev-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ev-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+  .ev-step .n { width: 28px; height: 28px; border-radius: 8px; background: var(--heading); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+  .ev-step h3 { margin: 0 0 6px; font-size: 14px; color: var(--heading); }
+  .ev-step p { margin: 0; font-size: 12.8px; color: var(--muted); line-height: 1.65; }
+  code.ev-code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 1.5px 6px; color: var(--text); word-break: break-all; }
+
+  .ev-keys { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ev-key { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .ev-kbd { flex: none; min-width: 44px; text-align: center; font-weight: 700; font-size: 12px; background: var(--heading); color: var(--surface); border-radius: 8px; padding: 6px 10px; }
+  .ev-key span { font-size: 13px; color: var(--muted); }
+
+  .ev-ai { background: linear-gradient(135deg, var(--teal-soft), var(--surface)); border: 1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+  .ev-ai h3 { margin: 0 0 8px; font-size: 15.5px; color: var(--heading); }
+  .ev-ai p { margin: 0 0 14px; font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .ev-ai .ev-actions { gap: 10px; }
+  .ev-copied { color: #0f9c7c; font-size: 12.5px; margin-left: 6px; opacity: 0; transition: opacity .2s; }
+  .ev-copied.show { opacity: 1; }
+
+  .ev-note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #0f9c7c; border-radius: 12px; padding: 14px 18px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  details.ev-faq { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; box-shadow: var(--shadow); }
+  details.ev-faq summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--heading); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  details.ev-faq summary::-webkit-details-marker { display: none; }
+  details.ev-faq summary::after { content: "+"; color: var(--muted); font-weight: 400; font-size: 18px; line-height: 1; }
+  details.ev-faq[open] summary::after { content: "\2013"; }
+  details.ev-faq p { margin: 10px 0 2px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  .ev-foot { margin-top: 38px; text-align: center; font-size: 12.5px; color: var(--muted); }
+  .ev-foot a { color: var(--muted); }
+  @media (max-width: 720px) {
+    .ev-grid, .ev-steps, .ev-keys { grid-template-columns: 1fr; }
+    .ev-hero { padding: 26px 22px; }
+    .ev-hero h1 { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+<div class="ev-wrap">
+
+  <div class="ev-top">
+    <div class="ev-brand">
+      <div class="ev-mark">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div>
+        <strong>逃离后室 · 原版还原包</strong>
+        <small>VANILLA RESTORE</small>
+      </div>
+    </div>
+    <a class="ev-back" href="../../library.html">← 返回资源库</a>
+  </div>
+
+  <!-- HERO -->
+  <div class="ev-hero">
+    <div class="ev-badge"><span class="dot"></span>Steam 版 · 无任何 Mod</div>
+    <h1>Escape the Backrooms 原版还原包
+      <small>一键移走“噩梦”模组与加载器 · 只移动不删除 · 随时可撤销</small>
+    </h1>
+    <p class="ev-lead">
+      装过「“噩梦”模组」后想玩回原版？这个包会自动找到游戏目录，把
+      <code class="ev-code">dwmapi.dll</code> 和 <code class="ev-code">ue4ss</code> 文件夹移进带时间戳的备份目录，
+      游戏立刻回到 Steam 原版。<strong>不会删除任何文件，也不会动存档</strong>，后悔了运行一次撤销就能装回去。
+    </p>
+    <div class="ev-actions">
+      <a class="ev-btn ev-btn-primary" href="ETB_%E5%8E%9F%E7%89%88%E8%BF%98%E5%8E%9F%E5%8C%85.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载原版还原包
+      </a>
+      <a class="ev-btn ev-btn-ghost" href="安装说明_给朋友.txt" download>说明（简版）</a>
+      <a class="ev-btn ev-btn-ghost" href="AI_RESTORE_GUIDE.md" download>AI 还原指南（.md）</a>
+    </div>
+    <div class="ev-meta">约 16 KB · 解压后双击「一键还原.bat」或用 Python 运行 · 不需要重装游戏</div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="ev-sec">
+    <h2 class="ev-h2">三种模式，想要哪种都行</h2>
+    <p class="ev-sub">默认推荐「完全原版」；不想动加载器就选「只禁用模组」。</p>
+    <div class="ev-grid">
+      <div class="ev-card">
+        <div class="ico"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3>完全原版（推荐）</h3>
+        <p>移走 dwmapi.dll 和整个 ue4ss 文件夹。没有加载器、没有模组，和刚从 Steam 装完一样。</p>
+      </div>
+      <div class="ev-card">
+        <div class="ico r"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <h3>只禁用模组</h3>
+        <p>保留 UE4SS 加载器，只移走 Mods\ETBNightmareMod，并换成「全部为 0」的干净 mods.txt。</p>
+      </div>
+      <div class="ev-card">
+        <div class="ico"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div>
+        <h3>备份 + 撤销</h3>
+        <p>被移走的东西放进 _ETB_mod_backup_时间戳 文件夹；运行 --undo 就能原样搬回去。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="ev-sec">
+    <h2 class="ev-h2">还原 · 三步</h2>
+    <p class="ev-sub">全程不删文件，先看预演再执行更安心。</p>
+    <div class="ev-steps">
+      <div class="ev-step">
+        <div class="n">1</div>
+        <h3>彻底退出游戏</h3>
+        <p>Steam 里确认已停止，任务管理器里不能有 Backrooms-Win64-Shipping.exe。</p>
+      </div>
+      <div class="ev-step">
+        <div class="n">2</div>
+        <h3>解压并运行</h3>
+        <p>双击 <code class="ev-code">一键还原.bat</code>，输入 <code class="ev-code">full</code> 回车。它会自己找游戏目录；也可以先用 <code class="ev-code">--dry-run</code> 预演。</p>
+      </div>
+      <div class="ev-step">
+        <div class="n">3</div>
+        <h3>启动游戏验证</h3>
+        <p>再跑一次 <code class="ev-code">--check</code>，看到 dwmapi.dll 和 ue4ss 都是「不存在」就成功了。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="ev-sec">
+    <h2 class="ev-h2">还原后会变成什么样</h2>
+    <p class="ev-sub">游戏本体、存档、Steam 设置都不受影响。</p>
+    <div class="ev-keys">
+      <div class="ev-key"><span class="ev-kbd">武器</span><span>不再有随机刷新的信号枪</span></div>
+      <div class="ev-key"><span class="ev-kbd">体力</span><span>恢复原版，跑久了会耗尽</span></div>
+      <div class="ev-key"><span class="ev-kbd">F6/F7/F8</span><span>全部失效，不再有加速与皮肤</span></div>
+      <div class="ev-key"><span class="ev-kbd">外观</span><span>实体与场景回到游戏本来的样子</span></div>
+    </div>
+  </section>
+
+  <!-- AI -->
+  <section class="ev-sec">
+    <div class="ev-ai">
+      <h3>让 AI 帮你还原（推荐给不太会折腾的朋友）</h3>
+      <p>下载下面的「AI 还原指南」发给你的 AI 助手，再点「复制给 AI 的指令」把指令贴给它。它会自己定位游戏目录、先预演、再执行、最后逐条验证，全程只移动不删除。</p>
+      <div class="ev-actions">
+        <a class="ev-btn ev-btn-ghost" href="AI_RESTORE_GUIDE.md" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          下载 AI 还原指南
+        </a>
+        <button class="ev-btn ev-btn-ghost" id="evCopyBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          复制给 AI 的指令
+        </button>
+        <span class="ev-copied" id="evCopied">已复制</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ev-sec">
+    <div class="ev-note">
+      <strong>安全边界：</strong>只处理 Win64 里的 <code class="ev-code">dwmapi.dll</code>、<code class="ev-code">ue4ss\</code> 和 <code class="ev-code">*.etbn-backup</code>；
+      不会删除游戏本体、不会删除存档、不会碰 Steam 目录。找不到带游戏主程序的正确目录时，工具会直接拒绝执行。
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="ev-sec">
+    <h2 class="ev-h2">常见问题</h2>
+    <p class="ev-sub">点开看处理办法。</p>
+    <details class="ev-faq">
+      <summary>会不会把文件删掉 / 把存档弄没？</summary>
+      <p>不会。工具只有「移动」，没有删除操作；Mod 文件全部进入带时间戳的备份目录。存档、成就、Steam 设置本来就没被模组改过。</p>
+    </details>
+    <details class="ev-faq">
+      <summary>还原后还是无限体力、还能三倍速？</summary>
+      <p>多半是游戏进程没退干净，文件被占用。任务管理器结束 Backrooms-Win64-Shipping.exe 后重新运行一次 <code class="ev-code">--mode full</code>。</p>
+    </details>
+    <details class="ev-faq">
+      <summary>我想以后再玩模组怎么办？</summary>
+      <p>运行 <code class="ev-code">--undo</code> 把备份搬回来；或者重新下载「“噩梦”模组」的 FullCopy 包，按它的安装说明复制进去。</p>
+    </details>
+    <details class="ev-faq">
+      <summary>电脑上没有 Python 怎么办？</summary>
+      <p>可以先装 Python 3（安装时勾选 Add to PATH），或者把这个包连同 AI 还原指南发给大模型，让它用命令行替你操作。Steam 版游戏的原版文件本身不需要 Python。</p>
+    </details>
+    <details class="ev-faq">
+      <summary>Steam 的「验证游戏完整性」能还原吗？</summary>
+      <p>它只修复游戏自带文件，通常不会删除 Win64 里多出来的 dwmapi.dll 和 ue4ss 文件夹。所以还是要先用这个包把它们移走。</p>
+    </details>
+    <details class="ev-faq">
+      <summary>和「“噩梦”模组」页面是什么关系？</summary>
+      <p>那个页面是装模组，这个页面是把模组卸干净。两个包互不依赖，可以随时来回切换。<a href="../etbn-mod/index.html">前往模组页 →</a></p>
+    </details>
+  </section>
+
+  <div class="ev-foot">
+    仅供朋友间娱乐 · 操作前请确认游戏已完全退出 · <a href="../../library.html">返回资源库</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('evCopyBtn');
+  var tip = document.getElementById('evCopied');
+  if (!btn) return;
+  var PROMPT = [
+    '我要把 Escape the Backrooms 还原成 Steam 原版（卸载“噩梦”模组和 UE4SS 加载器）。',
+    '我已把 AI_RESTORE_GUIDE.md 发给你，请严格按里面的结构化步骤操作：',
+    '1) 先确认游戏已完全退出，进程里不能有 Backrooms-Win64-Shipping.exe；',
+    '2) 按指南第 3 节定位 ...\\EscapeTheBackrooms\\EscapeTheBackrooms\\Binaries\\Win64（注意有两层同名文件夹）；',
+    '3) 先跑 --check 和 --mode full --dry-run 给我看结果；',
+    '4) 用 --mode full 执行：只把 dwmapi.dll 和 ue4ss 移到备份目录，不要删除任何文件，不要动存档和游戏本体；',
+    '5) 再跑一次 --check 验证三项都是「不存在」，并告诉我备份文件夹路径和 --undo 撤销方法。',
+    '每一步请明确告诉我具体在哪个目录做什么。'
+  ].join('\n');
+  function done() { tip.classList.add('show'); setTimeout(function () { tip.classList.remove('show'); }, 1800); }
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(PROMPT).then(done, function () { fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = PROMPT; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+<!-- 全站弹入式公告（由 deploy/inject_site_notice.py 注入） -->
+<script defer src="../../assets/js/site-notice.js"></script>
+</body>
+</html>
