@@ -1,0 +1,1 @@
+{"id": "20261122-171307-5fa7f2", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "echo \"=== 磁盘空间(df -h) ===\"; df -h; echo \"=== 内存(free -h) ===\"; free -h; echo \"=== 网站目录占用 ===\"; du -sh /var/www/xinmo-site 2>/dev/null", "ts": 1795338787}
