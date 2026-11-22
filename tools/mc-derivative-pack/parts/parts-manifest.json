@@ -1,7 +1,7 @@
 {
   "source_file": "Derivative-Main-v4-一键安装包.zip",
-  "source_size": 419675194,
-  "source_sha256": "de19aaed9d41048cf7a97000765258ed9a4812ad296ee1d8cb3fc16973a9ecbe",
+  "source_size": 407152680,
+  "source_sha256": "7fb3f4cc64d18de83d9fdebd38ca550a7fcc259718e0e787563bfa89a65a0232",
   "chunk_size": 20971520,
   "parts": [
     {
@@ -62,52 +62,47 @@
     {
       "name": "Derivative-Main-v4.zip.part12",
       "size": 20971520,
-      "sha256": "debf776eb3af099287c18133892d580b4adda211daef1c00486b0e63f950f1ee"
+      "sha256": "e716f7c6eb7a8c89608efd5b90bd25ce07250573c3e3188038927a651abd2317"
     },
     {
       "name": "Derivative-Main-v4.zip.part13",
       "size": 20971520,
-      "sha256": "1b0ceb168e4b09aa2bb9d50b6dfbed004ece571a42bea56266d8cc602a61a24a"
+      "sha256": "7439dc9794a43b3e870dc10678d9360a0c42eca0d166e856ba8c8ac139ab1f22"
     },
     {
       "name": "Derivative-Main-v4.zip.part14",
       "size": 20971520,
-      "sha256": "6c72fe74c4c1c9101e272c67862face22b6d5563cff9a323d0f2b094dbd30d80"
+      "sha256": "b0ae843f5cf352b6210a329934fa3cfead59eabb3496a6559c37f8e33b0d4ceb"
     },
     {
       "name": "Derivative-Main-v4.zip.part15",
       "size": 20971520,
-      "sha256": "a56014df47c5383b8ae4d4b2364ded896e81e9dbae73d1c02bbe3d2fb14f8586"
+      "sha256": "707ab5854334d0f88b901ec4874ae6d2c164c3c2606f662feddf6410db0538b5"
     },
     {
       "name": "Derivative-Main-v4.zip.part16",
       "size": 20971520,
-      "sha256": "8a176276f85d519fbec9f726f05669a5a9e11a05fbfe501d19b29de8996efebe"
+      "sha256": "ffe2fa86aa18ddcf4d0daa97284941026a08af09f81cb262c90da79d339d1552"
     },
     {
       "name": "Derivative-Main-v4.zip.part17",
       "size": 20971520,
-      "sha256": "e202b7a6f65159acc209495afa9e89c06e8bfce384abc215abc2f95d34b6446c"
+      "sha256": "141786d33db2356e3b9c3409eb485a0a406293b144274e7dbbba4d49b4288103"
     },
     {
       "name": "Derivative-Main-v4.zip.part18",
       "size": 20971520,
-      "sha256": "16d3942f6c133e1b33b402091978aec39db7905b266d22e017d98ceaca4fd45d"
+      "sha256": "94ac6b0c065134dd39d096a2969f8ed8fade53d4f081117b45e72e0cbb249b3b"
     },
     {
       "name": "Derivative-Main-v4.zip.part19",
       "size": 20971520,
-      "sha256": "cde2a684a9f145583a6aa1dc5b2499c2ba2a0180c8ddb4e198050baf07bd63a4"
+      "sha256": "99d42e579a2a950b1ce1d211970a54c8cb55e9f89a032999d8eb45ba827cd9dc"
     },
     {
       "name": "Derivative-Main-v4.zip.part20",
-      "size": 20971520,
-      "sha256": "159c5ec1df765e2bf3c5622d7b021c839bc08d334f6351560e38ef9708607835"
-    },
-    {
-      "name": "Derivative-Main-v4.zip.part21",
-      "size": 244794,
-      "sha256": "922ea7ce3a9199d602264c795e277be18a5b2e3cc711947e7a089cdbb1301a50"
+      "size": 8693800,
+      "sha256": "cdbe8f10a34485682db31840f9a1d33327f603c24db5a9dd770c1ce2b9f6d6bc"
     }
   ]
 }
