@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-170434-6f741d",
+ "ts": 1795338282,
+ "exit_code": 2,
+ "ok": false,
+ "output": "下载字节: 60526 (期望 72182)\n字节数不符，可能是 CDN 旧缓存，未覆盖\nwindow.PMV_VAULT = {\n  \"format\": \"pmv\",\n  \"version\": 1,\n  \"generatedAt\": \"2026-11-22T16:42:14+08:00\",\n  \"kdf\": {\n    \"algo\": \"PBKDF2-HMAC-SHA256\",\n    \"hash\": \"SHA-256\",\n    \"iterations\": 210000,\n    \n"
+}
