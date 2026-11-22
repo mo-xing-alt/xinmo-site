@@ -1,0 +1,7 @@
+{
+ "job_id": "20261122-193745-56c46e",
+ "ts": 1795347475,
+ "exit_code": 0,
+ "ok": true,
+ "output": "4e50009ef8f672c4c71031f21aaee64ca331f37dd5b7c0bf5f3c734d7bdb9d51  /var/www/xinmo-site/assets/js/memory-graph.js\ne20021ba72ab5c262a177eacf5eee236cd2c5f1579265106281bd25fd3f0ce54  /var/www/xinmo-site/assets/js/memory-graph-3d.js\n668449957b8dd105f731c451533d50d25ef2c6d41635c904472a1e8eabfa25e8  /var/www/xinmo-site/assets/js/memory-graph-view.js\n152c856e6f09158ec81e7df1b5f431888763046ff4f23c99e675c21dd3f14e8f  /var/www/xinmo-site/assets/css/memory-graph.css\nhtml=6709 js3d=200/29927\n"
+}
