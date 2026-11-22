@@ -1,7 +1,0 @@
-{
- "job_id": "20261122-155752-3df5bc",
- "ts": 1795334279,
- "exit_code": 0,
- "ok": true,
- "output": "113427 /tmp/mg3.js\n4e50009ef8f672c4c71031f21aaee64ca331f37dd5b7c0bf5f3c734d7bdb9d51  /tmp/mg3.js\n113427 /var/www/xinmo-site/assets/js/memory-graph.js\n4e50009ef8f672c4c71031f21aaee64ca331f37dd5b7c0bf5f3c734d7bdb9d51  /var/www/xinmo-site/assets/js/memory-graph.js\n"
-}
