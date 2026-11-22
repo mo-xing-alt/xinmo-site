@@ -197,6 +197,20 @@ window.RESOURCE_CATALOG = {
       updated: "2026-11-22"
     },
     {
+      id: "mc-derivative-pack",
+      title: "MC 光影一键安装包",
+      subtitle: "26.1.1 · Derivative · 含 AI 安装指令",
+      description: "给朋友用的 Minecraft Java 26.1.1 完整分发包：Derivative 光影（已修雨闪光/玻璃透明）+ Continuity 无缝玻璃 + Patrix 32x 与 Stay True 材质包 + SnuggleCraft 休闲内容（家具、生物、地图、动态光等 34 个 mod）。约 400 MB，已拆成 9 个分卷并附一键合并校验脚本。本页有一键复制的「给大模型安装指令」——下载合并后把指令发给任意大模型，它会自己定位 .minecraft、装 Fabric、复制文件并校验；人类也能照步骤手动装。专为 26.1.1，26.3 上会花屏。",
+      category: "tool",
+      icon: "tool",
+      accent: "indigo",
+      url: "./tools/mc-derivative-pack/index.html",
+      tags: ["Minecraft", "26.1.1", "Derivative 光影", "Patrix 32x", "Continuity", "SnuggleCraft", "分卷合并", "AI 安装指令", "PCL"],
+      meta: "Windows · MC 26.1.1 · 含 AI 安装指令",
+      status: "可用",
+      updated: "2026-11-22"
+    },
+    {
       id: "coming-soon",
       soon: true,
       title: "下一个资源正在路上",
