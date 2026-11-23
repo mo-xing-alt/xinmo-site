@@ -1,1 +1,0 @@
-{"id": "20261124-071757-080e0d", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "find / -maxdepth 4 -name _vault_sync.sh 2>/dev/null; ls -d /root/*bridge* /opt/*bridge* 2>/dev/null", "ts": 1795475877}
