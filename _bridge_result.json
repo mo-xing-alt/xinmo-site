@@ -1,0 +1,7 @@
+{
+ "job_id": "20261124-065305-307211",
+ "ts": 1795474393,
+ "exit_code": 0,
+ "ok": true,
+ "output": "API 记录字节: 159254\n下载字节: 159254\n\"generatedAt\": \"2026-11-24T06:52:11+08:00\"\n-rw-r--r-- 1 root root 159254 Nov 24 06:53 /var/www/xinmo-site/vault-data.js\n---- 站外自检（只看信封头，不打印密文）----\n\"generatedAt\": \"2026-11-24T06:52:11+08:00\"\n"
+}
