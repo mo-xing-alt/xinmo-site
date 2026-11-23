@@ -1,7 +1,0 @@
-{
- "job_id": "20261124-071859-54a890",
- "ts": 1795475946,
- "exit_code": 127,
- "ok": false,
- "output": "bash: /opt/xinmo-bridge/_vault_sync.sh: No such file or directory\n"
-}
