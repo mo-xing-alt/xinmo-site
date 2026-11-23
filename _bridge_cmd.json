@@ -1,1 +1,0 @@
-{"id": "20261124-072018-84990c", "token": "r1ujjQBjnj2nzf9nYBoHLtUxkcrZPfVx", "script": "curl -fsS https://xinmo.work/vault-data.js | sha256sum; curl -fsS https://xinmo.work/vault-data.js | wc -c", "ts": 1795476018}
