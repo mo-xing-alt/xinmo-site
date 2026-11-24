@@ -2405,7 +2405,7 @@
         ctx.fillStyle = "#fde68a";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("☀ 太阳", sx + sw * 0.5, sunY + sh * 0.5 + 0.5);
+        ctx.fillText("☀ 陌浔", sx + sw * 0.5, sunY + sh * 0.5 + 0.5);
         ctx.restore();
       }
     }
@@ -2812,7 +2812,12 @@
     return { nodes: state.nodes.length, edges: state.edges.length };
   }
 
-  function render(container, data, onSelect) {
+  function render(container, data, onSelect, forceCanvasFallback) {
+    if (!forceCanvasFallback && global.MemoryGraph3D && global.MemoryGraph3D.supported && global.MemoryGraph3D.supported()) {
+      state.delegated3d = true;
+      return global.MemoryGraph3D.render(container, data, { onSelect: onSelect, planar: true });
+    }
+    state.delegated3d = false;
     return mountInternal(container, data, onSelect, false);
   }
 
@@ -2834,6 +2839,10 @@
   }
 
   function destroy() {
+    if (state.delegated3d && global.MemoryGraph3D) {
+      state.delegated3d = false;
+      global.MemoryGraph3D.destroy();
+    }
     state.running = false;
     stopLoop();
     if (state.resizeTimer) {
@@ -2877,6 +2886,9 @@
   }
 
   function resetView() {
+    if (state.delegated3d && global.MemoryGraph3D) {
+      return global.MemoryGraph3D.resetView();
+    }
     state.selected = null;
     state.focusCategory = null;
     if (state.onSelect) state.onSelect(null);
@@ -2884,6 +2896,9 @@
   }
 
   function focusCategory(cat) {
+    if (state.delegated3d && global.MemoryGraph3D) {
+      return global.MemoryGraph3D.focusCategory(cat);
+    }
     state.selected = null;
     if (state.onSelect) state.onSelect(null);
     if (!cat || state.focusCategory === cat) {
@@ -2907,6 +2922,9 @@
   }
 
   function clearSelection() {
+    if (state.delegated3d && global.MemoryGraph3D) {
+      return global.MemoryGraph3D.clearSelection();
+    }
     if (!state.selected) return;
     state.selected = null;
     if (state.reducedMotion) drawFrame(0);
