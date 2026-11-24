@@ -1,25 +1,18 @@
 <!-- memory.html -->
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
 <meta name="referrer" content="no-referrer" />
-<meta name="theme-color" content="#bc141b" />
+<meta name="theme-color" content="#050814" />
 <meta name="description" content="私人记忆档案（加密，仅站主可见）" />
 <title>私人记忆档案 · 新模学习</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23bc141b'/%3E%3Cpath d='M20 12h18l10 10v30H20z' fill='%23f7e6bd'/%3E%3Cpath d='M38 12v10h10' fill='%23e3b23c'/%3E%3C/svg%3E" />
 <script>
-/* 尽早恢复主题，避免深色用户看到白屏闪烁。 */
-(function () {
-  var theme = 'light';
-  try {
-    var saved = localStorage.getItem('xinmo-theme');
-    if (saved === 'dark' || saved === 'light') { theme = saved; }
-  } catch (e) {}
-  document.documentElement.setAttribute('data-theme', theme);
-})();
+/* 统一锁定深空科技深色主题，移除浅色/深色切换。 */
+document.documentElement.setAttribute('data-theme', 'dark');
 </script>
 <link rel="stylesheet" href="./assets/css/memory.css" />
 <script defer src="./vault-data.js"></script>
@@ -27,11 +20,11 @@
 <script defer src="./assets/js/markdown-lite.js"></script>
 <script defer src="./assets/js/vendor/three.min.js"></script>
 <script defer src="./assets/js/memory-files.js"></script>
-<script defer src="./assets/js/memory-graph.js?v=20261125"></script>
-<script defer src="./assets/js/memory-graph-3d.js?v=20261125"></script>
-<script defer src="./assets/js/memory-graph-view.js?v=20261125"></script>
+<script defer src="./assets/js/memory-graph.js?v=20261125b"></script>
+<script defer src="./assets/js/memory-graph-3d.js?v=20261125b"></script>
+<script defer src="./assets/js/memory-graph-view.js?v=20261125b"></script>
 <script defer src="./assets/js/memory-app.js"></script>
-<link rel="stylesheet" href="./assets/css/memory-graph.css?v=20261125" />
+<link rel="stylesheet" href="./assets/css/memory-graph.css?v=20261125b" />
 </head>
 <body>
 
@@ -79,7 +72,6 @@
         <span id="pmv-meta" class="pmv-meta"></span>
         <button id="pmv-graph-btn" class="pmv-btn pmv-graph-btn" type="button" aria-label="回到宇宙图谱视图">◉ 图谱</button>
         <button id="pmv-nav-toggle" class="pmv-btn pmv-nav-toggle" type="button" aria-label="展开目录">目录</button>
-        <button id="pmv-theme" class="pmv-btn" type="button" aria-label="切换主题">☾ 深色</button>
         <button id="pmv-lock" class="pmv-btn" type="button" aria-label="锁定档案">锁定</button>
       </div>
     </div>
@@ -95,7 +87,7 @@
           <button type="button" class="mg-mode-btn" data-mode="plane" aria-pressed="false">平面 2D</button>
           <button type="button" class="mg-mode-btn mg-mode-action" id="mg-dir-btn" data-action="directory" aria-expanded="false" aria-controls="pmv-dir-overlay">目录</button>
         </div>
-        <span class="mg-hint">拖动旋转宇宙 · 滚轮/双指缩放 · 点击天体看详情 · 双击/R 复位</span>
+        <span class="mg-hint">拖动旋转宇宙 · 滚轮缩放观银河全景 · 点击天体/虫洞看详情 · 双击/R 复位</span>
         <button id="mg-reset" class="pmv-btn" type="button">重置视角</button>
       </div>
     </div>
