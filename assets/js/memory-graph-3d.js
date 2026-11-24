@@ -1,15 +1,32 @@
 // assets/js/memory-graph-3d.js
 /* ============================================================
- * 私人记忆档案 · 天体层级宇宙 3D 图谱（第一阶段 · 日心深空硬科幻版）
- * 中心最大天体「太阳」统领全域开普勒公转；动态深空天穹 + 无闪烁点星 + 局部暗弱伪色星云；
- * 度0黑洞 / 度1卫星与不规则小天体 / 度2~3硬阴影行星与投影冰尘环 / 度≥4六类差异化恒星球体 / 同分区旋臂星系；
- * 含3D小行星带、双尾彗星、微流星体、阳光浮尘、黄道方位标尺环、导航信标、桁架空间站与废弃探测器。
+ * 私人记忆档案 · 银河星系与「陌浔」恒星系 3D/2D 统一宇宙引擎
+ * 1. 宏大倾斜旋臂银河星系（Grand Spiral Galaxy）：暖白桃金核球 + 暗铁锈红尘埃吸收带 + 蓝紫星云旋臂 + M110/M32 伴星系；
+ *    「陌浔」恒星系位于银河旋臂一隅，缩小至银河全景时直观凸显单人记忆总体之渺小（预留多恒星朋友星系架构）。
+ * 2. 恒星「陌浔」（太阳）坐镇恒星系中心，每个连通记忆皆为差异化写实行星节点（8 类地貌 + 投影冰尘环 + 绕行小卫星），
+ *    度 1 为天然卫星，度 0 为孤立外缘黑洞；本恒星区域配置唯一一座「星际虫洞」（爱因斯坦-罗森桥 + 三轴约束环）。
+ * 3. 支持 planar 平面模式：2D 视图直接复用同一套 3D 动态宇宙环境，平移/缩放/拾取与 3D 100% 同源同步。
  * ============================================================ */
 (function (global) {
   "use strict";
 
-  var FOV = 50; var SUN_RADIUS = 136; var DEFAULT_RADIUS = 2950; var MIN_RADIUS = 58; var MAX_RADIUS = 7600;
-  var MAX_DPR = 1.5; var MAX_PARTICLES = 60000; var MAX_VISIBLE_LABELS = 24; var COMET_MIN_INTERVAL = 13.2;
+  var FOV = 50;
+  var SUN_NAME = "陌浔";
+  var SUN_RADIUS = 118;
+  var WORMHOLE_RADIUS = 54;
+  var DEFAULT_RADIUS = 2350;
+  var GALAXY_OVERVIEW_RADIUS = 26800;
+  var MIN_RADIUS = 56;
+  var MAX_RADIUS = 34000;
+  var GRAND_GALAXY_R = 19200;
+  var DEFAULT_THETA = 0.66;
+  var DEFAULT_PHI = 1.02;
+  var PLANAR_THETA = 0.66;
+  var PLANAR_PHI = 0.98;
+  var MAX_DPR = 1.5;
+  var MAX_PARTICLES = 60000;
+  var MAX_VISIBLE_LABELS = 24;
+  var COMET_MIN_INTERVAL = 13.2;
   var COMET_MAX_INTERVAL = 19.8;
 
   var FALLBACK_PALETTES = {
@@ -22,10 +39,12 @@
   };
 
   var state = {
-    active: false, container: null, rawModel: null,
+    active: false, container: null, rawModel: null, planar: false,
     renderer: null, scene: null, camera: null, root: null, bgGroup: null,
-    texCache: null, labelBox: null,
+    texCache: null, labelBox: null, sunLabelEl: null, wormholeLabelEl: null,
+    hudEl: null, hudSectorEl: null, hudScaleEl: null, hudBtns: {}, toastTimer: 0,
     planets: [], planetById: {}, galaxies: [], galaxyByCat: {},
+    grandGalaxy: null, galaxyCenter: null, stellarSystems: [], wormhole: null,
     centralSun: null, lensGhosts: [], skyDomeMat: null,
     asteroidBelt: null, rockSharedMat: null, flybyRocks: [],
     microMeteors: [], beacons: [], spaceStation: null, derelictProbe: null,
@@ -34,15 +53,15 @@
     comet: null, labels: [],
     edgesObj: null, edgeMeta: [], nodes: [], edges: [],
     raf: 0, lastTs: 0, simTime: 0, width: 0, height: 0, dpr: 1,
-    theta: 0.66, phi: 1.04, radius: DEFAULT_RADIUS, targetRadius: DEFAULT_RADIUS,
-    target: null, targetFocus: null,
+    theta: DEFAULT_THETA, phi: DEFAULT_PHI, radius: DEFAULT_RADIUS, targetRadius: DEFAULT_RADIUS,
+    target: null, targetFocus: null, baseFocus: null, panOffset: null,
     dragging: false, moved: 0, lastX: 0, lastY: 0, pointers: {}, pinchDist: 0,
-    hovered: null, selected: null, selectedEntry: null, focusCat: null,
+    hovered: null, hoveredSpecial: null, selected: null, selectedEntry: null, focusCat: null, focusedSpecial: null,
     onSelect: function () {},
     reduced: false, reduceMq: null, degraded: false,
     warmupFrames: 0, fpsFrames: 0, fpsAccum: 0,
     contextRebuilt: false, rebuildTimer: 0, onCtxLost: null, onCtxRestored: null,
-    ray: null, tmpV: null, tmpV2: null, tmpV3: null, tmpLight: null, tmpSunV: null
+    ray: null, tmpV: null, tmpV2: null, tmpV3: null, tmpLight: null, tmpSunV: null, tmpCamR: null, tmpCamU: null
   };
 
   /* ---------- 基础数学、三维确定性噪声与开普勒轨道力学 ---------- */
@@ -579,9 +598,36 @@
           r = lerp(64, 198, canyon); g = lerp(34, 96, canyon); b = lerp(28, 62, canyon);
           r = lerp(r, 245, frost); g = lerp(g, 248, frost); b = lerp(b, 255, frost);
 
-        } else {
+        } else if (archetype === 4) {
           var rift = smoothstepJS(0.08, 0.008, Math.abs(n1 - 0.50)); var rock = 24 + n2 * 44;
           r = lerp(rock, 255, rift); g = lerp(rock * 0.92, 132, rift); b = lerp(rock * 1.05, 28, rift);
+
+        } else if (archetype === 5) {
+          var iceBand = 0.5 + 0.5 * Math.sin((t * (bandFreq * 1.35) + phase) * Math.PI * 2 + (n1 - 0.5) * 1.6);
+          var streak = smoothstepJS(0.66, 0.92, cloud * 0.65 + n2 * 0.35);
+          r = lerp(10, 56, iceBand); g = lerp(52, 178, iceBand); b = lerp(148, 248, iceBand);
+          r = lerp(r, 224, streak * 0.68); g = lerp(g, 248, streak * 0.72); b = lerp(b, 255, streak * 0.76);
+
+        } else if (archetype === 6) {
+          var archSea = 0.51; var polar = smoothstepJS(0.76, 0.90, absLat + (n2 - 0.5) * 0.14);
+          if (n1 < archSea) {
+            var sh = smoothstepJS(archSea - 0.16, archSea, n1);
+            r = lerp(6, 26, sh); g = lerp(54, 152, sh); b = lerp(68, 158, sh);
+          } else {
+            var hi = smoothstepJS(archSea, 0.90, n1);
+            r = lerp(42, 196, hi); g = lerp(128, 172, hi); b = lerp(74, 108, hi);
+          }
+          var haze = smoothstepJS(0.55, 0.84, cloud) * 0.58;
+          r = lerp(lerp(r, 232, polar), 252, haze);
+          g = lerp(lerp(g, 246, polar), 244, haze);
+          b = lerp(lerp(b, 248, polar), 218, haze);
+
+        } else {
+          var satBand = 0.5 + 0.5 * Math.sin((t * (bandFreq * 1.15) - phase) * Math.PI * 2 + (n1 - 0.5) * 1.35);
+          var polarHex = smoothstepJS(0.68, 0.92, absLat);
+          r = lerp(lerp(148, 236, satBand), 156, polarHex * 0.55);
+          g = lerp(lerp(116, 206, satBand), 124, polarHex * 0.55);
+          b = lerp(lerp(96, 168, satBand), 214, polarHex * 0.72);
         }
 
         var idx = (y * W + x) * 4; data[idx] = clamp(Math.round(r), 0, 255);
@@ -696,22 +742,28 @@
     var ctx = c.getContext("2d"); var img = ctx.createImageData(W, H); var d = img.data;
 
     for (var y = 0; y < H; y++) {
-      var v = y / (H - 1); var lat = (v - 0.5) * 2; var bandEnv = Math.exp(-lat * lat * 8.5);
-      var riftEnv = Math.exp(-lat * lat * 32.0);
+      var v = y / (H - 1); var lat = (v - 0.5) * 2;
+      var wideWing = Math.exp(-lat * lat * 4.6);
+      var bandEnv = Math.exp(-lat * lat * 10.5);
+      var riftEnv = Math.exp(-lat * lat * 36.0);
       for (var x = 0; x < W; x++) {
-        var u = x / W; var ang = u * Math.PI * 2; var cx = Math.cos(ang) * 2.6 + 11.3;
-        var cz = Math.sin(ang) * 2.6 + 5.7; var cloud = fbm2D(cx, cz + v * 4.5, 4, 3011);
-        var fine = fbm2D(cx * 2.8, cz * 2.8 + v * 9.0, 3, 7919);
-        var rift = fbm2D(cx * 1.9 + 2.1, cz * 1.9 + v * 6.4, 3, 5107);
+        var u = x / W; var ang = u * Math.PI * 2; var cx = Math.cos(ang) * 2.8 + 11.3;
+        var cz = Math.sin(ang) * 2.8 + 5.7; var cloud = fbm2D(cx, cz + v * 4.8, 4, 3011);
+        var fine = fbm2D(cx * 3.2, cz * 3.2 + v * 9.6, 3, 7919);
+        var rift = fbm2D(cx * 2.3 + 2.1, cz * 2.3 + v * 7.2, 4, 5107);
 
-        var lum = bandEnv * (0.28 + cloud * 0.84) * (0.58 + fine * 0.58);
-        var dustCut = riftEnv * clamp((rift - 0.38) * 2.6, 0, 0.86);
+        var coreLon = Math.exp(-Math.pow((u - 0.48) * 3.4, 2));
+        var lum = (wideWing * 0.34 + bandEnv * (0.42 + coreLon * 0.58)) * (0.34 + cloud * 0.86) * (0.56 + fine * 0.62);
+        var dustCut = riftEnv * clamp((rift - 0.34) * 2.85, 0, 0.90);
         var net = clamp(lum * (1 - dustCut), 0, 1);
 
-        var warm = Math.exp(-Math.pow((u - 0.48) * 3.6, 2)) * bandEnv;
-        var r = lerp(108, 232, warm * 0.58 + fine * 0.18) * net;
-        var g = lerp(128, 212, warm * 0.42 + cloud * 0.24) * net;
-        var b = lerp(172, 236, 0.36 + cloud * 0.38) * net;
+        var warmBulge = coreLon * bandEnv;
+        var rustRim = dustCut * bandEnv * (0.45 + 0.55 * warmBulge);
+        var tealWing = wideWing * (1 - warmBulge * 0.65);
+
+        var r = (lerp(56, 255, warmBulge * 0.78 + fine * 0.16) * net) + rustRim * 96 + tealWing * 18 * cloud;
+        var g = (lerp(116, 212, warmBulge * 0.62 + cloud * 0.22) * net) + rustRim * 38 + tealWing * 58 * cloud;
+        var b = (lerp(196, 198, warmBulge * 0.42 + cloud * 0.36) * net) + rustRim * 22 + tealWing * 108 * cloud;
 
         var idx = (y * W + x) * 4; d[idx] = clamp(Math.round(r), 0, 255);
         d[idx + 1] = clamp(Math.round(g), 0, 255); d[idx + 2] = clamp(Math.round(b), 0, 255);
@@ -766,23 +818,26 @@
     "  float a = sin(p.x * 3.7 + p.z * 2.9) * cos(p.y * 4.1 - p.x * 1.8);",
     "  float b = sin(p.y * 8.3 - p.z * 6.7 + 1.4) * cos(p.x * 7.9 + p.z * 5.2);",
     "  return clamp(0.5 + a * 0.32 + b * 0.18, 0.0, 1.0);", "}", "void main() {", "  vec3 d = normalize(vDir);",
-    "  vec3 abyss = vec3(0.007, 0.010, 0.026);", "  vec3 deepIndigo = vec3(0.022, 0.032, 0.078);",
-    "  float horizon = 1.0 - abs(d.y);", "  vec3 col = mix(abyss, deepIndigo, pow(horizon, 1.65) * 0.72);",
-    "  vec3 galUp = normalize(vec3(0.46, 0.84, -0.28));",
+    "  vec3 abyss = vec3(0.008, 0.011, 0.028);", "  vec3 deepIndigo = vec3(0.024, 0.036, 0.088);",
+    "  float horizon = 1.0 - abs(d.y);", "  vec3 col = mix(abyss, deepIndigo, pow(horizon, 1.55) * 0.78);",
+    "  vec3 galUp = normalize(vec3(0.54, 0.78, -0.31));",
     "  vec3 galX = normalize(cross(vec3(0.0, 1.0, 0.0), galUp));", "  vec3 galZ = cross(galUp, galX);",
     "  float gLat = dot(d, galUp);", "  float gLon = atan(dot(d, galZ), dot(d, galX)) / 6.2831853 + 0.5;",
-    "  float bandMask = exp(-gLat * gLat * 11.5);",
-    "  vec2 mUv1 = vec2(gLon + uTime * 0.0014, clamp(gLat * 1.15 + 0.5, 0.02, 0.98));",
-    "  vec2 mUv2 = vec2(gLon * 1.41 - uTime * 0.0009 + 0.27, clamp(gLat * 1.15 + 0.5, 0.02, 0.98));",
-    "  vec3 mw = mix(texture2D(uMilkyTex, mUv1).rgb, texture2D(uMilkyTex, mUv2).rgb, 0.40);",
-    "  col += mw * bandMask * 0.24;",
-    "  float n1 = skyNoise(d * 1.6 + vec3(uTime * 0.004, 0.0, -uTime * 0.003));",
-    "  float n2 = skyNoise(d * 3.3 - vec3(0.0, uTime * 0.003, uTime * 0.004));",
-    "  float irPatch = smoothstep(0.56, 0.92, dot(d, normalize(vec3(-0.72, 0.28, -0.63)))) * smoothstep(0.45, 0.82, n1 * 0.65 + n2 * 0.35);",
-    "  float uvPatch = smoothstep(0.58, 0.94, dot(d, normalize(vec3(0.68, -0.34, 0.65)))) * smoothstep(0.48, 0.84, n2 * 0.68 + n1 * 0.32);",
-    "  col += vec3(0.075, 0.024, 0.018) * irPatch;", "  col += vec3(0.014, 0.048, 0.072) * uvPatch;",
-    "  float darkCloud = bandMask * smoothstep(0.54, 0.82, skyNoise(d * 2.7 + vec3(2.1, -1.3, 0.8)));",
-    "  col *= (1.0 - darkCloud * 0.52);", "  gl_FragColor = vec4(col, 1.0);", "}"
+    "  float bandMask = exp(-gLat * gLat * 7.8);",
+    "  float wingMask = exp(-gLat * gLat * 2.8);",
+    "  vec2 mUv1 = vec2(gLon + uTime * 0.0018, clamp(gLat * 0.98 + 0.5, 0.02, 0.98));",
+    "  vec2 mUv2 = vec2(gLon * 1.37 - uTime * 0.0012 + 0.27, clamp(gLat * 1.12 + 0.5, 0.02, 0.98));",
+    "  vec3 mw = mix(texture2D(uMilkyTex, mUv1).rgb, texture2D(uMilkyTex, mUv2).rgb, 0.42);",
+    "  float shimmer = 0.90 + 0.10 * sin(uTime * 0.42 + gLon * 18.0);",
+    "  col += mw * bandMask * 0.42 * shimmer;",
+    "  float n1 = skyNoise(d * 1.8 + vec3(uTime * 0.006, 0.0, -uTime * 0.005));",
+    "  float n2 = skyNoise(d * 3.9 - vec3(0.0, uTime * 0.005, uTime * 0.006));",
+    "  col += vec3(0.018, 0.056, 0.105) * wingMask * smoothstep(0.36, 0.82, n1 * 0.62 + n2 * 0.38);",
+    "  float irPatch = smoothstep(0.52, 0.92, dot(d, normalize(vec3(-0.68, 0.26, -0.68)))) * smoothstep(0.42, 0.82, n1 * 0.65 + n2 * 0.35);",
+    "  float uvPatch = smoothstep(0.54, 0.94, dot(d, normalize(vec3(0.66, -0.32, 0.68)))) * smoothstep(0.45, 0.84, n2 * 0.68 + n1 * 0.32);",
+    "  col += vec3(0.082, 0.028, 0.024) * irPatch;", "  col += vec3(0.020, 0.058, 0.096) * uvPatch;",
+    "  float darkCloud = bandMask * smoothstep(0.52, 0.82, skyNoise(d * 2.9 + vec3(2.1 + uTime * 0.002, -1.3, 0.8)));",
+    "  col = mix(col, vec3(0.032, 0.012, 0.010), darkCloud * 0.46);", "  gl_FragColor = vec4(col, 1.0);", "}"
   ].join("\n");
 
   /* 2. 中心最大天体「太阳」超写实光球层与色球层着色器（米粒组织 + 黑子本影半影 + 光斑 + 临边昏暗 + 色球针状体） */
@@ -1040,7 +1095,7 @@
     "  gl_FragColor = vec4(col * alpha * uDim, clamp(alpha, 0.0, 1.0));", "}"
   ].join("\n");
 
-  /* 10. 星系旋臂 / 深空稳定点星粒子 GPU 着色器（严格保持原粒子着色器不变） */
+  /* 10. 星系旋臂 / 深空多光谱星场 GPU 粒子着色器 */
   var GALAXY_PTS_VERT = [
     "attribute vec3 aColor;",
     "attribute float aSize;",
@@ -1049,6 +1104,7 @@
     "uniform float uSpin;",
     "uniform float uCoreR;",
     "uniform float uPixelRatio;",
+    "uniform float uSizeScale;",
     "varying vec3 vColor;",
     "void main() {",
     "  vColor = aColor;",
@@ -1060,7 +1116,8 @@
     "  }",
     "  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);",
     "  float dist = max(90.0, -mvPos.z);",
-    "  gl_PointSize = clamp(aSize * uPixelRatio * (980.0 / dist), 1.0, 15.0);",
+    "  float sc = uSizeScale > 0.0 ? uSizeScale : 980.0;",
+    "  gl_PointSize = clamp(aSize * uPixelRatio * (sc / dist), 1.0, 18.0);",
     "  gl_Position = projectionMatrix * mvPos;",
     "}"
   ].join("\n");
@@ -1073,14 +1130,203 @@
     "  vec2 p = gl_PointCoord - vec2(0.5);",
     "  float d = length(p) * 2.0;",
     "  if (d > 1.0) discard;",
-    "  float halo = pow(1.0 - d, 2.6);",
-    "  float pin = exp(-d * d * 14.0);",
-    "  vec3 col = mix(vColor, vec3(1.0, 0.99, 0.96), pin * 0.65);",
-    "  gl_FragColor = vec4(col * (0.85 + pin * 0.85) * uDim, (halo * 0.72 + pin * 0.45) * uOpacity);",
+    "  float halo = pow(1.0 - d, 2.4);",
+    "  float pin = exp(-d * d * 10.5);",
+    "  vec3 col = mix(vColor, vec3(1.0, 0.99, 0.97), pin * 0.72);",
+    "  gl_FragColor = vec4(col * (1.05 + pin * 1.15) * uDim, clamp((halo * 0.82 + pin * 0.68) * uOpacity, 0.0, 1.0));",
     "}"
   ].join("\n");
 
-  /* ---------- 模型归一化与天体层级判定 ---------- */
+  /* 11. 宏大旋臂银河星系连续体积盘与铁锈暗尘埃带着色器（复刻仙女座/银河系深空摄影质感） */
+  var GRAND_GALAXY_VERT = [
+    "uniform float uRadius;",
+    "varying vec2 vDiskXZ;",
+    "void main() {",
+    "  vDiskXZ = vec2(position.x, -position.y) / max(1.0, uRadius);",
+    "  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+    "}"
+  ].join("\n");
+
+  var GRAND_GALAXY_FRAG = [
+    "uniform float uTime;",
+    "uniform float uDim;",
+    "uniform float uNearFade;",
+    "varying vec2 vDiskXZ;",
+    "float gHash(vec2 p) {",
+    "  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);",
+    "}",
+    "float gNoise(vec2 p) {",
+    "  vec2 i = floor(p);",
+    "  vec2 f = fract(p);",
+    "  vec2 u = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(gHash(i), gHash(i + vec2(1.0, 0.0)), u.x),",
+    "             mix(gHash(i + vec2(0.0, 1.0)), gHash(i + vec2(1.0, 1.0)), u.x), u.y);",
+    "}",
+    "float gFbm(vec2 p) {",
+    "  float s = 0.0;",
+    "  float a = 0.5;",
+    "  mat2 rot = mat2(0.80, -0.60, 0.60, 0.80);",
+    "  for (int k = 0; k < 4; k++) {",
+    "    s += a * gNoise(p);",
+    "    p = rot * p * 2.04 + vec2(3.7, -2.1);",
+    "    a *= 0.5;",
+    "  }",
+    "  return s;",
+    "}",
+    "float gRidged(vec2 p) {",
+    "  float s = 0.0;",
+    "  float a = 0.54;",
+    "  mat2 rot = mat2(0.80, 0.60, -0.60, 0.80);",
+    "  for (int k = 0; k < 3; k++) {",
+    "    float n = 1.0 - abs(gNoise(p) * 2.0 - 1.0);",
+    "    s += a * n * n;",
+    "    p = rot * p * 2.18 + vec2(-1.9, 4.3);",
+    "    a *= 0.5;",
+    "  }",
+    "  return s;",
+    "}",
+    "void main() {",
+    "  vec2 p = vDiskXZ;",
+    "  float r = length(p);",
+    "  if (r > 1.0) discard;",
+    "  float ang = atan(p.y, p.x);",
+    "  float flowT = uTime * 0.022;",
+    "  float nLow = gFbm(p * 4.6 + vec2(flowT, -flowT * 0.7));",
+    "  float nMid = gFbm(p * 11.5 - vec2(flowT * 1.3, flowT * 0.8));",
+    "  float nHigh = gRidged(p * 24.0 + vec2(nLow * 1.7, -nMid * 1.5));",
+    "  float logR = log(r + 0.075);",
+    "  float phTight2 = ang * 2.0 - logR * 8.40 + (nLow - 0.5) * 1.25;",
+    "  float phSpur4 = ang * 4.0 - logR * 15.20 + (nMid - 0.5) * 1.65;",
+    "  float phRing = logR * 18.5 + ang * 2.0 + (nLow - 0.5) * 2.1;",
+    "  float armMain = pow(0.5 + 0.5 * cos(phTight2), 1.75);",
+    "  float armSpur = pow(0.5 + 0.5 * cos(phSpur4), 2.35);",
+    "  float ringMod = 0.5 + 0.5 * cos(phRing);",
+    "  float bulgeCore = exp(-r * r * 190.0) * 1.55;",
+    "  float bulgeMid = exp(-pow(r * 7.8, 0.92)) * 1.08;",
+    "  float bulge = bulgeCore + bulgeMid;",
+    "  float baseDisk = exp(-r * 2.45) * smoothstep(1.0, 0.68, r) * 0.62;",
+    "  float armDisk = smoothstep(0.03, 0.14, r) * exp(-r * 1.92) * smoothstep(1.0, 0.72, r);",
+    "  float outerBlueHalo = smoothstep(0.18, 0.44, r) * exp(-max(0.0, r - 0.34) * 2.55) * smoothstep(1.0, 0.78, r);",
+    "  float starCloud = baseDisk * (0.68 + 0.32 * nLow) + armDisk * (0.28 + armMain * 0.68 + armSpur * 0.42 + ringMod * 0.24) * (0.65 + nMid * 0.58 + nHigh * 0.25);",
+    "  vec3 colCore = vec3(1.00, 0.985, 0.94);",
+    "  vec3 colPeach = vec3(1.00, 0.80, 0.63);",
+    "  vec3 colRose = vec3(0.84, 0.62, 0.66);",
+    "  vec3 colSapphire = vec3(0.36, 0.60, 0.98);",
+    "  vec3 colPeriwinkle = vec3(0.52, 0.54, 0.96);",
+    "  vec3 colHii = vec3(0.95, 0.44, 0.68);",
+    "  vec3 bulgeRGB = mix(colRose, colPeach, smoothstep(0.32, 0.07, r));",
+    "  bulgeRGB = mix(bulgeRGB, colCore, smoothstep(0.09, 0.0, r));",
+    "  vec3 diskRGB = mix(colPeach, colRose, smoothstep(0.08, 0.28, r));",
+    "  diskRGB = mix(diskRGB, colSapphire, smoothstep(0.22, 0.56, r));",
+    "  diskRGB = mix(diskRGB, colPeriwinkle, smoothstep(0.48, 0.88, r) * (0.45 + 0.55 * nLow));",
+    "  float hiiKnots = outerBlueHalo * pow(armMain, 2.0) * smoothstep(0.60, 0.86, nHigh);",
+    "  vec3 rawEmit = bulgeRGB * bulge + diskRGB * starCloud * 1.18 + colSapphire * outerBlueHalo * 0.34 + colHii * hiiKnots * 0.42;",
+    "  vec3 emit = (rawEmit / (vec3(1.0) + rawEmit * 0.46)) * 1.28;",
+    "  float dustLane1 = pow(0.5 + 0.5 * cos(phTight2 + 1.05), 3.4);",
+    "  float dustLane2 = pow(1.0 - ringMod, 3.0);",
+    "  float nearBias = 0.58 + 0.62 * smoothstep(-0.22, 0.32, p.y);",
+    "  float dustZone = smoothstep(0.045, 0.11, r) * smoothstep(0.64, 0.18, r);",
+    "  float dustRaw = dustZone * nearBias * (dustLane1 * 0.58 + dustLane2 * 0.52) * (0.44 + nHigh * 0.78);",
+    "  float dustMask = clamp(smoothstep(0.18, 0.64, dustRaw), 0.0, 0.88);",
+    "  vec3 siennaRim = vec3(0.62, 0.20, 0.068) * (0.55 + 0.90 * exp(-r * 4.6));",
+    "  vec3 darkRift = vec3(0.048, 0.016, 0.014);",
+    "  vec3 dustCol = mix(siennaRim, darkRift, smoothstep(0.24, 0.80, dustMask));",
+    "  vec3 finalCol = mix(emit, dustCol, dustMask * 0.84);",
+    "  float lumInt = max(emit.r, max(emit.g, emit.b));",
+    "  float lumAlpha = clamp(lumInt * 0.94, 0.0, 0.96);",
+    "  float outAlpha = clamp(max(lumAlpha, dustMask * 0.80 * smoothstep(0.70, 0.14, r)), 0.0, 0.96) * smoothstep(1.0, 0.82, r);",
+    "  gl_FragColor = vec4(finalCol * uDim, outAlpha * uNearFade);",
+    "}"
+  ].join("\n");
+
+  /* 12. 爱因斯坦-罗森虫洞球面引力透镜咽喉与时空曲率漏斗着色器 */
+  var WORMHOLE_THROAT_VERT = [
+    "varying vec3 vNormalV;",
+    "varying vec3 vViewPos;",
+    "varying vec3 vObjPos;",
+    "void main() {",
+    "  vObjPos = normalize(position);",
+    "  vec4 mvPos = modelViewMatrix * vec4(position, 1.0);",
+    "  vViewPos = mvPos.xyz;",
+    "  vNormalV = normalize(normalMatrix * normal);",
+    "  gl_Position = projectionMatrix * mvPos;",
+    "}"
+  ].join("\n");
+
+  var WORMHOLE_THROAT_FRAG = [
+    "uniform float uTime;",
+    "uniform float uDim;",
+    "uniform float uBoost;",
+    "varying vec3 vNormalV;",
+    "varying vec3 vViewPos;",
+    "varying vec3 vObjPos;",
+    "float whGyroid(vec3 p) {",
+    "  return dot(sin(p), cos(p.yzx));",
+    "}",
+    "void main() {",
+    "  vec3 N = normalize(vNormalV);",
+    "  vec3 V = normalize(-vViewPos);",
+    "  float mu = clamp(dot(N, V), 0.0, 1.0);",
+    "  float bend = 1.0 / (0.20 + mu * 1.35);",
+    "  float swirlAng = uTime * 0.28 + bend * 1.15;",
+    "  float cs = cos(swirlAng), sn = sin(swirlAng);",
+    "  vec3 q = normalize(vObjPos);",
+    "  vec3 dir = normalize(vec3(q.x * cs - q.z * sn, q.y * (0.72 + bend * 0.28), q.x * sn + q.z * cs));",
+    "  float w1 = 0.5 + 0.5 * (whGyroid(dir * 3.4 + vec3(uTime * 0.14, -uTime * 0.11, 1.3)) / 1.732);",
+    "  float w2 = 0.5 + 0.5 * (whGyroid(dir * 7.8 - vec3(uTime * 0.22, 0.9, uTime * 0.18)) / 1.732);",
+    "  float lensedBand = exp(-pow((dir.y + (w1 - 0.5) * 0.45) * 3.4, 2.0));",
+    "  float starPin = pow(clamp(0.5 + 0.5 * (whGyroid(dir * 34.0) / 1.732), 0.0, 1.0), 22.0);",
+    "  vec3 abyss = vec3(0.008, 0.016, 0.048);",
+    "  vec3 cyanNeb = vec3(0.08, 0.54, 0.86);",
+    "  vec3 indigoNeb = vec3(0.36, 0.28, 0.84);",
+    "  vec3 warmCore = vec3(0.92, 0.78, 0.64);",
+    "  vec3 interior = mix(abyss, indigoNeb, pow(w1, 1.8) * 0.55);",
+    "  interior += cyanNeb * lensedBand * (0.35 + 0.65 * pow(w2, 1.6));",
+    "  interior += warmCore * lensedBand * exp(-dir.x * dir.x * 4.5) * 0.36;",
+    "  interior += vec3(0.92, 0.97, 1.00) * starPin * 2.2;",
+    "  float photonRing = exp(-pow((mu - 0.14) * 14.5, 2.0)) * 1.35;",
+    "  float subRing = exp(-pow((mu - 0.26) * 18.0, 2.0)) * 0.52;",
+    "  float outerCherenkov = pow(1.0 - mu, 4.2) * (0.88 + 0.22 * sin(atan(N.y, N.x) * 6.0 - uTime * 2.6));",
+    "  vec3 ringCol = mix(vec3(0.16, 0.86, 1.00), vec3(0.62, 0.50, 1.00), 0.5 + 0.5 * sin(atan(N.y, N.x) * 2.0 + uTime * 1.2));",
+    "  vec3 col = interior * smoothstep(0.02, 0.24, mu) + ringCol * (photonRing + subRing + outerCherenkov) + vec3(0.96, 0.99, 1.00) * photonRing * 0.55;",
+    "  col *= (1.0 + uBoost * 0.32) * uDim;",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  var WORMHOLE_FUNNEL_VERT = [
+    "varying vec2 vLocalXY;",
+    "void main() {",
+    "  vLocalXY = position.xy;",
+    "  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+    "}"
+  ].join("\n");
+
+  var WORMHOLE_FUNNEL_FRAG = [
+    "uniform float uInnerR;",
+    "uniform float uOuterR;",
+    "uniform float uTime;",
+    "uniform float uDim;",
+    "uniform float uBoost;",
+    "varying vec2 vLocalXY;",
+    "void main() {",
+    "  float r = length(vLocalXY);",
+    "  float t = clamp((r - uInnerR) / max(0.001, uOuterR - uInnerR), 0.0, 1.0);",
+    "  float ang = atan(vLocalXY.y, vLocalXY.x);",
+    "  float spiral = sin(ang * 6.0 + log(max(0.001, r / uInnerR)) * 14.0 - uTime * 3.4);",
+    "  float meridian = pow(abs(cos(ang * 12.0 - uTime * 0.45)), 14.0);",
+    "  float parallel = pow(abs(sin(t * 22.0 + uTime * 1.8)), 12.0);",
+    "  float grid = clamp(meridian * 0.55 + parallel * 0.55 + smoothstep(0.45, 0.98, spiral) * 0.48, 0.0, 1.4);",
+    "  float env = smoothstep(0.0, 0.06, t) * pow(1.0 - t, 1.75);",
+    "  vec3 cCyan = vec3(0.16, 0.86, 1.00);",
+    "  vec3 cIndigo = vec3(0.52, 0.42, 0.98);",
+    "  vec3 col = mix(cCyan, cIndigo, t * 0.78);",
+    "  float alpha = clamp(env * (0.28 + grid * 0.86) * (1.0 + uBoost * 0.45), 0.0, 0.95);",
+    "  gl_FragColor = vec4(col * alpha * uDim, alpha);",
+    "}"
+  ].join("\n");
+
+  /* ---------- 模型归一化与天体层级判定（恒星=个人「陌浔」，每个连通记忆=行星节点，度1=卫星，度0=孤立黑洞） ---------- */
 
   function normalizeModel(dataOrModel, opts) {
     var model; var fromBuildModel = false;
@@ -1127,19 +1373,23 @@
       if (!catSet[nd.category]) { catSet[nd.category] = true; categories.push(nd.category); }
       var deg = nd.__deg;
       if (deg === 0) {
-        nd.__tier = "blackhole"; nd.r3 = 46;
+        nd.__tier = "blackhole"; nd.r3 = 44;
       } else if (deg === 1) {
-        nd.__tier = "satellite"; nd.r3 = 12.2 + (hashStr(nd.id + ":sr") % 26) * 0.1;
-      } else if (deg <= 3) {
-        nd.__tier = "planet"; nd.r3 = deg === 2 ? 23.0 : 27.5;
-      } else { nd.__tier = "star"; nd.r3 = clamp(34 + Math.sqrt(deg - 3) * 4.6, 34, 52); }
+        nd.__tier = "satellite"; nd.r3 = 12.4 + (hashStr(nd.id + ":sr") % 26) * 0.1;
+      } else {
+        /* 每个记忆代表一个行星节点：依关联度平滑映射为岩质行星、海洋超级地球至气态/冰巨星 */
+        nd.__tier = "planet";
+        nd.r3 = clamp(19.0 + Math.sqrt(deg - 1) * 3.9, 20.0, 35.5);
+      }
     });
 
     var onSelect = typeof opts === "function"
       ? opts
       : (opts && typeof opts.onSelect === "function" ? opts.onSelect : function () {});
+    var planar = !!(opts && typeof opts === "object" && opts.planar);
+    var friends = (opts && typeof opts === "object" && Array.isArray(opts.friends)) ? opts.friends : [];
 
-    return { nodes: model.nodes, edges: cleanEdges, categories: categories, onSelect: onSelect };
+    return { nodes: model.nodes, edges: cleanEdges, categories: categories, onSelect: onSelect, planar: planar, friends: friends };
   }
 
   /* ---------- 大间距三维力导向基础布局 ---------- */
@@ -1219,112 +1469,57 @@
     return { anchors: anchors, scale: scale };
   }
 
-  /* ---------- 日心星系群与多层级开普勒公转轨道构建（天体间距显著拉大） ---------- */
+  /* ---------- 恒星「陌浔」行星系开普勒公转轨道构建（每个记忆为行星节点，大间距无碰撞排布） ---------- */
 
   function buildHierarchyAndOrbits(THREE, nodes, categories) {
-    var byCat = {};
-    categories.forEach(function (c) { byCat[c] = []; });
+    var catIndexMap = {};
+    var catCount = Math.max(1, categories.length);
+    categories.forEach(function (c, i) { catIndexMap[c] = i; });
     nodes.forEach(function (nd) {
-      nd.__isGalaxyCore = false; nd.__galaxy = null; nd.__orbit = null; nd.__hasRing3d = false; if (!byCat[nd.category]) byCat[nd.category] = []; byCat[nd.category].push(nd);
+      nd.__isGalaxyCore = false; nd.__galaxy = null; nd.__orbit = null; nd.__hasRing3d = false;
     });
 
-    var galaxies = [];
-    var galaxyByCat = {};
-    var starCats = []; var nonStarCats = [];
-    categories.forEach(function (cat) {
-      var list = (byCat[cat] || []).filter(function (nd) { return nd.__tier !== "blackhole"; });
-      if (!list.length) return;
-      var stars = list.filter(function (nd) { return nd.__tier === "star"; });
-      if (stars.length) starCats.push({ cat: cat, list: list, stars: stars });
-      else nonStarCats.push({ cat: cat, list: list, stars: [] });
+    var planetNodes = nodes.filter(function (nd) { return nd.__tier === "planet"; });
+    /* 按关联度与确定性哈希交错排布，使内圈至外圈均匀分布岩质行星、海洋星与带环巨行星 */
+    var orderedPlanets = planetNodes.slice().sort(function (a, b) {
+      var sa = (hashStr("shell:" + a.id) % 1000) + (a.__deg >= 6 ? -180 : 0);
+      var sb = (hashStr("shell:" + b.id) % 1000) + (b.__deg >= 6 ? -180 : 0);
+      return sa - sb;
     });
 
-    var chosenGalCats = starCats.slice();
-    for (var ni = 0; ni < nonStarCats.length && chosenGalCats.length < Math.min(4, categories.length); ni++) {
-      chosenGalCats.push(nonStarCats[ni]);
-    }
+    var pCount = Math.max(1, orderedPlanets.length);
+    orderedPlanets.forEach(function (pl, idx) {
+      var rand = rng(hashStr("plOrb:" + pl.id) ^ 0x5bd1e995);
+      var cIdx = catIndexMap[pl.category] != null ? catIndexMap[pl.category] : 0;
+      var catSector = (cIdx / catCount) * Math.PI * 2;
+      var frac = pCount > 1 ? idx / (pCount - 1) : 0.4;
+      var a = 305 + frac * 1055 + (rand() - 0.5) * 14;
+      var ecc = 0.035 + rand() * 0.065;
+      var catInc = (cIdx % 2 === 0 ? 1 : -1) * (0.07 + (cIdx % 3) * 0.045);
+      var inc = catInc + (rand() - 0.5) * 0.22;
+      var period = clamp(24.0 * Math.pow(a / 480, 1.32), 14.5, 96.0);
+      var m0 = (catSector + (rand() - 0.5) * 1.18 + idx * 0.46) % (Math.PI * 2);
+      if (m0 < 0) m0 += Math.PI * 2;
 
-    var rawCenters = [];
-    chosenGalCats.forEach(function (item, idx) {
-      var sorted = (item.stars.length ? item.stars : item.list).slice().sort(function (a, b) {
-        if (b.__deg !== a.__deg) return b.__deg - a.__deg; return hashStr(a.id) - hashStr(b.id);
-      });
-      var coreNode = sorted[0]; var center = new THREE.Vector3();
-      item.list.forEach(function (nd) { center.add(nd.__baseP); });
-      center.multiplyScalar(1 / item.list.length); center.lerp(coreNode.__baseP, 0.42);
-      if (center.length() < 880) {
-        if (center.length() < 10) {
-          var fa = (idx / Math.max(1, chosenGalCats.length)) * Math.PI * 2;
-          center.set(Math.cos(fa), (idx % 2 === 0 ? 0.22 : -0.22), Math.sin(fa));
-        }
-        center.normalize().multiplyScalar(920 + (idx % 3) * 145);
-      }
-      rawCenters.push({ item: item, coreNode: coreNode, center: center });
-    });
-
-    for (var rep = 0; rep < 48; rep++) {
-      for (var a = 0; a < rawCenters.length; a++) {
-        if (rawCenters[a].center.length() < 880) {
-          rawCenters[a].center.normalize().multiplyScalar(880);
-        }
-        for (var b = a + 1; b < rawCenters.length; b++) {
-          var delta = new THREE.Vector3().subVectors(rawCenters[b].center, rawCenters[a].center);
-          var dist = delta.length() || 1; var minGap = 860;
-          if (dist < minGap) {
-            delta.multiplyScalar(((minGap - dist) / dist) * 0.38); rawCenters[a].center.sub(delta);
-            rawCenters[b].center.add(delta);
-          }
-        }
-      }
-    }
-
-    rawCenters.forEach(function (rc) {
-      var cat = rc.item.cat; var list = rc.item.list; var stars = rc.item.stars; var coreNode = rc.coreNode;
-      var rand = rng(hashStr("gal:" + cat) ^ 0x2c1b3c6d); var cPos = rc.center;
-      var macroR = Math.max(880, cPos.length());
-
-      var uDir = cPos.clone().normalize();
-      var refUp = Math.abs(uDir.y) > 0.85 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
-      var tiltedUp = refUp.clone().add(new THREE.Vector3((rand() - 0.5) * 0.55, 0, (rand() - 0.5) * 0.55)).normalize();
-      var vDir = new THREE.Vector3().crossVectors(tiltedUp, uDir).normalize();
-      var nDir = new THREE.Vector3().crossVectors(uDir, vDir).normalize();
-      var macroBasis = { u: uDir, v: vDir, n: nDir };
-
-      var macroPeriod = clamp(92 * Math.pow(macroR / 1020, 1.5), 72, 158);
-      var macroOmega = ((Math.PI * 2) / macroPeriod) * (rand() > 0.15 ? 1 : -1);
-
-      var diskRadius = clamp(255 + Math.sqrt(list.length) * 82, 275, 640);
-      var armCount = list.length >= 16 ? 4 : (list.length >= 8 ? 3 : 2);
-      var diskTiltX = (rand() - 0.5) * 0.92;
-      if (Math.abs(diskTiltX) < 0.25) diskTiltX = diskTiltX < 0 ? -0.28 : 0.28;
-      var diskTiltZ = (rand() - 0.5) * 0.86;
-
-      var gal = {
-        category: cat,
-        palette: ensurePalette(cat, coreNode.palette),
-        coreNode: coreNode,
-        members: list,
-        stars: stars,
-        baseCenter: cPos.clone(),
-        worldPos: cPos.clone(),
-        macroR: macroR,
-        macroEcc: 0.06,
-        macroM0: 0,
-        macroOmega: macroOmega,
-        macroBasis: macroBasis,
-        diskRadius: diskRadius,
-        armCount: armCount,
-        twist: 2.6 + rand() * 1.1,
-        diskTiltX: diskTiltX,
-        diskTiltZ: diskTiltZ,
-        spinSpeed: (0.12 + rand() * 0.06) * (rand() > 0.2 ? 1 : -1),
-        group: null,
-        points: null,
-        bulge: null,
-        dustMesh: null
+      pl.__orbit = {
+        mode: "sun",
+        parentNode: null,
+        a: a,
+        e: ecc,
+        M0: m0,
+        omega: ((Math.PI * 2) / period) * (rand() > 0.12 ? 1 : -1),
+        basis: buildOrbitBasis(THREE, inc, catSector * 0.5 + rand() * 1.2, rand() * Math.PI * 2),
+        showTrack: true
       };
+    });
 
-      coreNode.__isGalaxyCore = true; coreNode.__galaxy = gal; galaxies.push(gal); galaxyByCat[cat] = gal;
+    var ringTargetCount = planetNodes.length ? Math.max(2, Math.round(planetNodes.length * 0.38)) : 0;
+    planetNodes.slice().sort(function (a, b) {
+      var da = (b.__deg >= 6 ? 1 : 0) - (a.__deg >= 6 ? 1 : 0);
+      if (da !== 0) return da;
+      return (hashStr(a.id + ":ring") >>> 0) - (hashStr(b.id + ":ring") >>> 0);
+    }).forEach(function (pl, idx) {
+      pl.__hasRing3d = idx < ringTargetCount;
     });
 
     var childCounters = {};
@@ -1333,143 +1528,52 @@
       return childCounters[parentId] - 1;
     }
 
-    galaxies.forEach(function (gal) {
-      gal.coreNode.__orbit = { mode: "galaxyCore", galaxy: gal };
-      var secStars = gal.stars.filter(function (s) { return s !== gal.coreNode; });
-      secStars.sort(function (a, b) {
-        if (b.__deg !== a.__deg) return b.__deg - a.__deg; return a.__baseP.distanceTo(gal.baseCenter) - b.__baseP.distanceTo(gal.baseCenter);
-      });
-      secStars.forEach(function (st, idx) {
-        var rand = rng(hashStr("starOrb:" + st.id));
-        var frac = secStars.length > 1 ? idx / (secStars.length - 1) : 0.5;
-        var minOrb = gal.coreNode.r3 * 3.1 + 98; var maxOrb = Math.max(minOrb + 165, gal.diskRadius * 1.06);
-        var a = lerp(minOrb, maxOrb, Math.pow(frac, 0.84)) + (rand() - 0.5) * 32;
-        var ecc = 0.08 + rand() * 0.14; var inc = gal.diskTiltX * 0.62 + (rand() - 0.5) * 0.64;
-        var period = clamp(24 * Math.pow(a / 290, 1.5), 16.5, 72);
-        st.__orbit = {
-          mode: "parent", parentNode: gal.coreNode, a: a, e: ecc,
-          M0: (idx * 2.39996 + rand() * 0.75) % (Math.PI * 2), omega: (Math.PI * 2) / period,
-          basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2), showTrack: false
-        };
-      });
-    });
-
-    function wouldCreateCycle(child, cand) {
-      var cur = cand; var guard = 0;
-      while (cur && guard < 16) {
-        if (cur === child) return true;
-        cur = (cur.__orbit && cur.__orbit.mode === "parent") ? cur.__orbit.parentNode : null;
-        guard++;
-      }
-      return false;
-    }
-
-    var planetNodes = nodes.filter(function (nd) { return nd.__tier === "planet"; });
-    planetNodes.forEach(function (pl) {
-      if (pl.__isGalaxyCore) return;
-      var bestParent = null; var bestScore = -1;
-      pl.__neighbors.forEach(function (nb) {
-        var cand = nb.node;
-        if (cand.__tier === "star" && !wouldCreateCycle(pl, cand)) {
-          var score = cand.__deg * 10 + (cand.category === pl.category ? 25 : 0) + nb.w * 5;
-          if (score > bestScore) { bestScore = score; bestParent = cand; }
-        }
-      });
-      if (!bestParent) {
-        pl.__neighbors.forEach(function (nb) {
-          var cand = nb.node;
-          if (!wouldCreateCycle(pl, cand) && (cand.__deg > pl.__deg || (cand.__deg === pl.__deg && hashStr(cand.id) < hashStr(pl.id)))) {
-            var score2 = cand.__deg * 10 + nb.w * 5;
-            if (score2 > bestScore) { bestScore = score2; bestParent = cand; }
-          }
-        });
-      }
-
-      var rand = rng(hashStr("plOrb:" + pl.id)); var sib = bestParent ? nextSiblingIndex(bestParent.id) : 0;
-      var hostR = bestParent ? bestParent.r3 : 38; var a = hostR * 3.1 + 92 + sib * 68 + rand() * 28;
-      var ecc = 0.11 + rand() * 0.14; var inc = (0.35 + rand() * 0.56) * (rand() > 0.5 ? 1 : -1);
-      var period = clamp(11.6 * Math.pow(a / 225, 1.5), 9.0, 18.5);
-
-      pl.__orbit = bestParent ? {
-        mode: "parent",
-        parentNode: bestParent,
-        a: a,
-        e: ecc,
-        M0: rand() * Math.PI * 2,
-        omega: (Math.PI * 2) / period,
-        basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2),
-        showTrack: true
-      } : {
-        mode: "sun", a: 760 + rand() * 140, e: 0.12, M0: rand() * Math.PI * 2, omega: (Math.PI * 2) / 16.0,
-        basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2), showTrack: true
-      };
-    });
-
-    var ringTargetCount = planetNodes.length ? Math.max(1, Math.round(planetNodes.length / 3)) : 0;
-    planetNodes.slice().sort(function (a, b) {
-      return (hashStr(a.id + ":ring") >>> 0) - (hashStr(b.id + ":ring") >>> 0);
-    }).forEach(function (pl, idx) {
-      pl.__hasRing3d = idx < ringTargetCount;
-    });
-
     var satNodes = nodes.filter(function (nd) { return nd.__tier === "satellite"; });
     satNodes.forEach(function (sat) {
       var soleNb = sat.__neighbors.length ? sat.__neighbors[0].node : null;
-      var rand = rng(hashStr("satOrb:" + sat.id)); var sib = soleNb ? nextSiblingIndex(soleNb.id) : 0;
-      var hostR = soleNb ? soleNb.r3 : 28; var a = hostR * 2.8 + 62 + sib * 48 + rand() * 26;
-      var ecc = 0.22 + rand() * 0.14; var inc = (0.40 + rand() * 0.62) * (rand() > 0.5 ? 1 : -1);
-      var normA = clamp((a - 125) / 145, 0, 1);
-      var period = clamp(8.4 + normA * 9.4 + rand() * 2.0, 8.0, 20.0);
+      var rand = rng(hashStr("satOrb:" + sat.id));
+      var sib = soleNb ? nextSiblingIndex(soleNb.id) : 0;
+      var hostR = soleNb ? soleNb.r3 : 26;
+      var a = hostR * 2.85 + 54 + sib * 42 + rand() * 20;
+      var ecc = 0.16 + rand() * 0.12;
+      var inc = (0.36 + rand() * 0.52) * (rand() > 0.5 ? 1 : -1);
+      var period = clamp(9.2 + sib * 3.4 + rand() * 4.5, 8.5, 19.5);
 
-      if (soleNb && !wouldCreateCycle(sat, soleNb)) {
+      if (soleNb && soleNb !== sat) {
         sat.__orbit = {
           mode: "parent", parentNode: soleNb, anchor: sat.__baseP.clone(), a: a, e: ecc,
           M0: rand() * Math.PI * 2, omega: (Math.PI * 2) / period,
           basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2), showTrack: true
         };
       } else {
-        var bary = soleNb ? sat.__baseP.clone().add(soleNb.__baseP).multiplyScalar(0.5) : sat.__baseP.clone();
-        if (bary.length() < 680) bary.normalize().multiplyScalar(720);
         sat.__orbit = {
-          mode: "anchor", parentNode: null, anchor: bary, a: 68 + rand() * 24, e: ecc,
-          M0: rand() * Math.PI * 2, omega: (Math.PI * 2) / period,
-          basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2), showTrack: false
+          mode: "sun", parentNode: null, a: 820 + rand() * 180, e: 0.10,
+          M0: rand() * Math.PI * 2, omega: (Math.PI * 2) / 36.0,
+          basis: buildOrbitBasis(THREE, inc, rand() * Math.PI * 2, rand() * Math.PI * 2), showTrack: true
         };
       }
     });
 
     var bhNodes = nodes.filter(function (nd) { return nd.__tier === "blackhole"; });
     bhNodes.forEach(function (bh, idx) {
-      var rand = rng(hashStr("bhPos:" + bh.id)); var haloDist = 1720 + (idx % 3) * 140 + rand() * 110;
+      var rand = rng(hashStr("bhPos:" + bh.id));
+      var haloDist = 1540 + (idx % 3) * 130 + rand() * 90;
       bh.__orbit = {
         mode: "sun",
         a: haloDist,
-        e: 0.09,
-        M0: idx * 2.4 + rand() * Math.PI * 2,
-        omega: (Math.PI * 2) / (135 + rand() * 45),
-        basis: buildOrbitBasis(THREE, (0.28 + rand() * 0.36) * (idx % 2 === 0 ? 1 : -1), rand() * 6.28, rand() * 6.28),
+        e: 0.08,
+        M0: 2.35 + idx * 2.1 + rand() * 0.8,
+        omega: (Math.PI * 2) / (148 + rand() * 42),
+        basis: buildOrbitBasis(THREE, (0.24 + rand() * 0.28) * (idx % 2 === 0 ? 1 : -1), rand() * 6.28, rand() * 6.28),
         showTrack: false
       };
     });
 
-    return { galaxies: galaxies, galaxyByCat: galaxyByCat };
+    return { galaxies: [], galaxyByCat: {} };
   }
 
   function updateAllWorldPositions(t) {
-    var i, gal, p;
-    for (i = 0; i < state.galaxies.length; i++) {
-      gal = state.galaxies[i];
-      evalKeplerOrbit(
-        gal.macroM0 + t * gal.macroOmega,
-        gal.macroR,
-        gal.macroEcc,
-        gal.macroBasis.u,
-        gal.macroBasis.v,
-        gal.worldPos
-      );
-      if (gal.group) gal.group.position.copy(gal.worldPos);
-    }
-
+    var i, p;
     var entryByNodeId = state.planetById;
     var visited = {};
 
@@ -1478,8 +1582,6 @@
       visited[entry.node.id] = true; var orb = entry.node.__orbit;
       if (!orb) {
         entry.worldPos.copy(entry.node.__baseP);
-      } else if (orb.mode === "galaxyCore") {
-        entry.worldPos.copy(orb.galaxy.worldPos);
       } else if (orb.mode === "sun") {
         evalKeplerOrbit(orb.M0 + t * orb.omega, orb.a, orb.e, orb.basis.u, orb.basis.v, entry.worldPos);
       } else if (orb.mode === "anchor") {
@@ -1497,6 +1599,12 @@
 
     for (i = 0; i < state.planets.length; i++) {
       p = state.planets[i]; evalEntry(p, 0);
+    }
+
+    if (state.wormhole) {
+      var wh = state.wormhole;
+      evalKeplerOrbit(wh.M0 + t * wh.omega, wh.a, wh.e, wh.basis.u, wh.basis.v, wh.worldPos);
+      wh.group.position.copy(wh.worldPos);
     }
   }
 
@@ -1742,68 +1850,187 @@
 
   /* ---------- 星系盘、深空背景、小行星带、彗星、微流星体、HUD 与深空航天器 ---------- */
 
-  function registerPoints(pts, fullCount) {
-    pts.userData.fullCount = fullCount;
-    if (state.degraded) {
-      pts.geometry.setDrawRange(0, Math.max(1, Math.floor(fullCount * 0.5)));
-    }
-    state.pointSystems.push(pts);
-  }
+  /* ---------- 宏大倾斜旋臂银河星系（缩小图复刻深空仙女座/银河系全景，凸显「陌浔」恒星系之渺小） ---------- */
 
-  function createGalaxyVisuals(THREE, gal, particleBudget) {
-    var group = new THREE.Group(); group.position.copy(gal.worldPos); group.rotation.x = gal.diskTiltX;
-    group.rotation.z = gal.diskTiltZ; state.root.add(group); gal.group = group;
+  function createGrandSpiralGalaxy(THREE, starBudget) {
+    /* 以默认观测视角构建正交右手基 (R0, U0, V0)，使星系长轴沿屏幕左下→右上约 29° 倾斜、盘面倾角 63.5°，
+     * 同时令原点 (0,0,0)「陌浔」恒星严格落在银河盘面的一条外围亮旋臂内 */
+    var refPhi = 1.00, refTheta = DEFAULT_THETA;
+    var v0 = new THREE.Vector3(
+      Math.sin(refPhi) * Math.cos(refTheta),
+      Math.cos(refPhi),
+      Math.sin(refPhi) * Math.sin(refTheta)
+    ).normalize();
+    var r0 = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), v0).normalize();
+    var u0 = new THREE.Vector3().crossVectors(v0, r0).normalize();
 
-    var pal = gal.palette; var atmo = palArr(pal, "atmo"); var high = palArr(pal, "high");
-    var accent = palArr(pal, "accent"); var rand = rng(hashStr("galPts:" + gal.category) ^ 0x1b873593);
-    var count = Math.max(800, particleBudget | 0);
+    var diagAng = 0.506;
+    var incAng = 1.108;
+    var axisX = new THREE.Vector3()
+      .addScaledVector(r0, Math.cos(diagAng))
+      .addScaledVector(u0, Math.sin(diagAng))
+      .normalize();
+    var screenPerp = new THREE.Vector3()
+      .addScaledVector(r0, -Math.sin(diagAng))
+      .addScaledVector(u0, Math.cos(diagAng))
+      .normalize();
+    var axisY = new THREE.Vector3()
+      .addScaledVector(v0, Math.cos(incAng))
+      .addScaledVector(screenPerp, Math.sin(incAng))
+      .normalize();
+    var axisZ = new THREE.Vector3().crossVectors(axisX, axisY).normalize();
+    axisY.crossVectors(axisZ, axisX).normalize();
 
-    var positions = new Float32Array(count * 3); var colors = new Float32Array(count * 3);
-    var sizes = new Float32Array(count); var orbits = new Float32Array(count * 3);
+    /* 「陌浔」位于银心外约 0.44R 的旋臂区，整座行星系仅占银河直径不足 7% */
+    var moxunGalX = 7800;
+    var moxunGalZ = -2900;
+    var galCenter = new THREE.Vector3()
+      .addScaledVector(axisX, -moxunGalX)
+      .addScaledVector(axisZ, -moxunGalZ);
+    state.galaxyCenter = galCenter.clone();
 
-    var arms = gal.armCount; var maxR = gal.diskRadius; var coreR = Math.max(46, maxR * 0.16);
+    var galGroup = new THREE.Group();
+    galGroup.position.copy(galCenter);
+    var rotMat = new THREE.Matrix4().makeBasis(axisX, axisY, axisZ);
+    galGroup.quaternion.setFromRotationMatrix(rotMat);
+    state.root.add(galGroup);
+
+    /* 1. 连续体积旋臂盘与暗铁锈红尘埃吸收带（NormalBlending 真实遮蔽暗裂隙） */
+    var diskMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uRadius: { value: GRAND_GALAXY_R },
+        uTime: { value: 0 },
+        uDim: { value: 1.0 },
+        uNearFade: { value: 1.0 }
+      },
+      vertexShader: GRAND_GALAXY_VERT,
+      fragmentShader: GRAND_GALAXY_FRAG,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.NormalBlending
+    });
+    var diskSpan = GRAND_GALAXY_R * 2.04;
+    var diskMesh = new THREE.Mesh(new THREE.PlaneGeometry(diskSpan, diskSpan), diskMat);
+    diskMesh.rotation.x = -Math.PI * 0.5;
+    diskMesh.frustumCulled = false;
+    diskMesh.renderOrder = -4;
+    galGroup.add(diskMesh);
+
+    /* 2. 三维暖白桃金核球立体辉光（柔化避免中心过曝死白） */
+    var bulgeInner = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: state.texCache.corona,
+      color: 0xfff0db,
+      transparent: true,
+      opacity: 0.48,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    }));
+    bulgeInner.scale.set(GRAND_GALAXY_R * 0.34, GRAND_GALAXY_R * 0.23, 1);
+    bulgeInner.renderOrder = -3;
+    galGroup.add(bulgeInner);
+
+    var bulgeOuter = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: state.texCache.glow,
+      color: 0xffc89e,
+      transparent: true,
+      opacity: 0.36,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    }));
+    bulgeOuter.scale.set(GRAND_GALAXY_R * 0.78, GRAND_GALAXY_R * 0.46, 1);
+    bulgeOuter.renderOrder = -3;
+    galGroup.add(bulgeOuter);
+
+    /* 3. 31,000+ 差速公转旋臂恒星团与外围蓝紫星云粒子 */
+    var count = Math.max(8000, starBudget | 0);
+    var positions = new Float32Array(count * 3);
+    var colors = new Float32Array(count * 3);
+    var sizes = new Float32Array(count);
+    var orbits = new Float32Array(count * 3);
+    var rand = rng(0x5fe42834);
+    var coreR = GRAND_GALAXY_R * 0.135;
 
     for (var i = 0; i < count; i++) {
-      var u = rand(); var isHalo = (i % 6 === 0);
-      var rNorm = isHalo ? Math.pow(u, 0.78) : Math.pow(u, 1.36); var rad = 22 + rNorm * maxR;
-      var armIdx = i % arms; var armBase = (armIdx / arms) * Math.PI * 2;
-      var spiral = Math.log(1 + rad / coreR) * gal.twist * (gal.spinSpeed >= 0 ? -1 : 1);
-      var spread = (isHalo ? 1.48 : (0.17 + rNorm * 0.38)) * (rand() + rand() - 1);
+      var u = rand();
+      var isGlobular = (i % 9 === 0);
+      var rNorm = isGlobular ? Math.pow(u, 0.74) * 0.96 : Math.pow(u, 1.18) * 0.96;
+      var rad = 140 + rNorm * GRAND_GALAXY_R;
+      var useSpur = (i % 5 >= 3);
+      var arms = useSpur ? 4 : 2;
+      var armBase = ((i % arms) / arms) * Math.PI * 2;
+      var logR = Math.log(rNorm + 0.075);
+      var spiral = logR * 4.20;
+      var spread = (isGlobular ? 1.75 : (0.20 + rNorm * 0.38)) * (rand() + rand() - 1);
       var ang = armBase + spiral + spread;
-      var thickness = (1 - rNorm * 0.74) * maxR * 0.072 * (rand() + rand() - 1);
 
-      positions[i * 3] = Math.cos(ang) * rad; positions[i * 3 + 1] = thickness;
-      positions[i * 3 + 2] = Math.sin(ang) * rad;
+      /* 银心核球呈三维椭球厚度，外盘渐薄；同时避开原点「陌浔」近邻 280 单位内以免近景穿模 */
+      var thickEnv = isGlobular
+        ? (0.20 * (1 - rNorm * 0.55))
+        : (0.095 * Math.exp(-rNorm * 3.2) + 0.018 * (1 - rNorm * 0.5));
+      var thickness = GRAND_GALAXY_R * thickEnv * (rand() + rand() + rand() - 1.5) * 0.72;
+      var lx = Math.cos(ang) * rad;
+      var lz = Math.sin(ang) * rad;
+      var dMoxunSq = (lx - moxunGalX) * (lx - moxunGalX) + (lz - moxunGalZ) * (lz - moxunGalZ);
+      if (dMoxunSq < 340 * 340) {
+        rad += 420;
+        lx = Math.cos(ang) * rad;
+        lz = Math.sin(ang) * rad;
+      }
 
-      orbits[i * 3] = rad; orbits[i * 3 + 1] = ang; orbits[i * 3 + 2] = thickness;
+      positions[i * 3] = lx;
+      positions[i * 3 + 1] = thickness;
+      positions[i * 3 + 2] = lz;
+
+      orbits[i * 3] = rad;
+      orbits[i * 3 + 1] = ang;
+      orbits[i * 3 + 2] = thickness;
 
       var cr, cg, cb;
-      if (rNorm < 0.24) {
-        var kc = rNorm / 0.24; cr = lerp(255, accent[0], kc) / 255; cg = lerp(245, accent[1], kc) / 255;
-        cb = lerp(218, accent[2], kc) / 255;
-      } else if (rNorm < 0.66) {
-        var km = (rNorm - 0.24) / 0.42; cr = lerp(high[0], atmo[0], km) / 255;
-        cg = lerp(high[1], atmo[1], km) / 255; cb = lerp(high[2], atmo[2], km) / 255;
+      if (rNorm < 0.22) {
+        var kb = rNorm / 0.22;
+        cr = lerp(1.00, 0.98, kb);
+        cg = lerp(0.96, 0.80, kb);
+        cb = lerp(0.90, 0.68, kb);
+      } else if (rNorm < 0.48) {
+        var km = (rNorm - 0.22) / 0.26;
+        cr = lerp(0.94, 0.46, km);
+        cg = lerp(0.76, 0.68, km);
+        cb = lerp(0.74, 1.00, km);
       } else {
-        var ko = (rNorm - 0.66) / 0.34; cr = lerp(atmo[0], 175, ko) / 255; cg = lerp(atmo[1], 195, ko) / 255; cb = lerp(atmo[2], 235, ko) / 255;
+        var ko = (rNorm - 0.48) / 0.52;
+        var isHii = (!isGlobular && (i % 19 === 0));
+        if (isHii) {
+          cr = 0.96; cg = 0.46; cb = 0.74;
+        } else {
+          cr = lerp(0.38, 0.58, ko * 0.75);
+          cg = lerp(0.66, 0.56, ko * 0.75);
+          cb = 1.00;
+        }
       }
-      var bright = isHalo ? (0.42 + rand() * 0.38) : (0.65 + rand() * 0.48);
-      colors[i * 3] = clamp(cr * bright, 0, 1); colors[i * 3 + 1] = clamp(cg * bright, 0, 1);
-      colors[i * 3 + 2] = clamp(cb * bright, 0, 1);
+      var br = isGlobular ? (0.42 + rand() * 0.42) : (0.58 + Math.pow(rand(), 1.4) * 0.52);
+      colors[i * 3] = clamp(cr * br, 0, 1);
+      colors[i * 3 + 1] = clamp(cg * br, 0, 1);
+      colors[i * 3 + 2] = clamp(cb * br, 0, 1);
 
-      sizes[i] = (rNorm < 0.18 ? 3.2 : 1.6) + rand() * (isHalo ? 1.7 : 2.8);
+      sizes[i] = (rNorm < 0.16 ? 3.4 : 1.7) + Math.pow(rand(), 2.1) * (isGlobular ? 2.4 : 4.2);
     }
 
-    var geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setAttribute("aColor", new THREE.Float32BufferAttribute(colors, 3));
-    geo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
-    geo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(orbits, 3));
+    var ptsGeo = new THREE.BufferGeometry();
+    ptsGeo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    ptsGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(colors, 3));
+    ptsGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(sizes, 1));
+    ptsGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(orbits, 3));
 
     var ptsMat = new THREE.ShaderMaterial({
       uniforms: {
-        uTime: { value: 0 }, uSpin: { value: gal.spinSpeed }, uCoreR: { value: coreR },
-        uPixelRatio: { value: state.dpr }, uOpacity: { value: 0.78 }, uDim: { value: 1.0 }
+        uTime: { value: 0 },
+        uSpin: { value: 0.018 },
+        uCoreR: { value: coreR },
+        uPixelRatio: { value: state.dpr },
+        uSizeScale: { value: 6400.0 },
+        uOpacity: { value: 0.84 },
+        uDim: { value: 1.0 }
       },
       vertexShader: GALAXY_PTS_VERT,
       fragmentShader: GALAXY_PTS_FRAG,
@@ -1811,98 +2038,309 @@
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-
-    var pts = new THREE.Points(geo, ptsMat); pts.frustumCulled = false; group.add(pts); gal.points = pts;
+    var pts = new THREE.Points(ptsGeo, ptsMat);
+    pts.frustumCulled = false;
+    pts.renderOrder = -2;
+    galGroup.add(pts);
     registerPoints(pts, count);
 
-    var dustTex = buildGalaxyDustTexture(THREE, pal, arms, gal.twist * (gal.spinSpeed >= 0 ? 1 : -1), hashStr(gal.category));
-    var dustMat = new THREE.MeshBasicMaterial({
-      map: dustTex, transparent: true, opacity: 0.50, side: THREE.DoubleSide, depthWrite: false
-    });
-    var dustMesh = new THREE.Mesh(new THREE.PlaneGeometry(maxR * 2.05, maxR * 2.05), dustMat);
-    dustMesh.rotation.x = -Math.PI / 2; dustMesh.position.y = -1.5; group.add(dustMesh);
-    gal.dustMesh = dustMesh;
+    /* 4. 两座伴矮椭圆星系（对应参考图右下 M110 与左上内翼 M32） */
+    [
+      { lx: 1850, ly: -520, lz: 8900, sx: 3900, sy: 1850, col: 0xdbeafe, coreCol: 0xfff8eb, stars: 1100, spread: 1450 },
+      { lx: -4600, ly: 380, lz: -5600, sx: 1750, sy: 1380, col: 0xfef3c7, coreCol: 0xffffff, stars: 650, spread: 620 }
+    ].forEach(function (dw, dIdx) {
+      var dwGroup = new THREE.Group();
+      dwGroup.position.set(dw.lx, dw.ly, dw.lz);
+      galGroup.add(dwGroup);
 
-    var bulge = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: state.texCache.glow,
-      color: new THREE.Color(palColor(pal, "high", 0.30)),
+      var haloSp = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: state.texCache.distantEllip,
+        color: dw.col,
+        transparent: true,
+        opacity: dIdx === 0 ? 0.76 : 0.84,
+        rotation: dIdx === 0 ? -0.36 : 0.22,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      }));
+      haloSp.scale.set(dw.sx, dw.sy, 1);
+      haloSp.renderOrder = -2;
+      dwGroup.add(haloSp);
+
+      var coreSp = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: state.texCache.glow,
+        color: dw.coreCol,
+        transparent: true,
+        opacity: 0.72,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      }));
+      coreSp.scale.set(dw.sy * 0.75, dw.sy * 0.58, 1);
+      coreSp.renderOrder = -2;
+      dwGroup.add(coreSp);
+
+      var dc = dw.stars;
+      var dp = new Float32Array(dc * 3);
+      var dcol = new Float32Array(dc * 3);
+      var dsz = new Float32Array(dc);
+      var dorb = new Float32Array(dc * 3);
+      var dr = rng(0x9101 + dIdx * 773);
+      for (var k = 0; k < dc; k++) {
+        var rr = Math.pow(dr(), 1.6) * dw.spread;
+        var a1 = dr() * Math.PI * 2;
+        var a2 = Math.acos(dr() * 2 - 1);
+        dp[k * 3] = Math.sin(a2) * Math.cos(a1) * rr * 1.35;
+        dp[k * 3 + 1] = Math.cos(a2) * rr * 0.55;
+        dp[k * 3 + 2] = Math.sin(a2) * Math.sin(a1) * rr * 0.82;
+        var b = 0.45 + dr() * 0.55;
+        dcol[k * 3] = 0.86 * b; dcol[k * 3 + 1] = 0.91 * b; dcol[k * 3 + 2] = 1.0 * b;
+        dsz[k] = 1.3 + dr() * 2.2;
+      }
+      var dGeo = new THREE.BufferGeometry();
+      dGeo.setAttribute("position", new THREE.Float32BufferAttribute(dp, 3));
+      dGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(dcol, 3));
+      dGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(dsz, 1));
+      dGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(dorb, 3));
+      var dPts = new THREE.Points(dGeo, new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 }, uSpin: { value: 0 }, uCoreR: { value: 0 },
+          uPixelRatio: { value: state.dpr }, uSizeScale: { value: 5800.0 },
+          uOpacity: { value: 0.72 }, uDim: { value: 1.0 }
+        },
+        vertexShader: GALAXY_PTS_VERT,
+        fragmentShader: GALAXY_PTS_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      }));
+      dPts.frustumCulled = false;
+      dwGroup.add(dPts);
+      registerPoints(dPts, dc);
+    });
+
+    /* 注册多恒星（朋友）世界架构：当前仅「陌浔」一颗激活恒星系在线，预留朋友恒星扩展接口 */
+    state.stellarSystems = [
+      { id: "moxun", name: SUN_NAME, isSelf: true, worldPos: new THREE.Vector3(0, 0, 0) }
+    ];
+    if (state.rawModel && Array.isArray(state.rawModel.friends)) {
+      state.rawModel.friends.forEach(function (fr, fi) {
+        if (!fr || !fr.name) return;
+        var fAng = 1.85 + fi * 1.35;
+        var fRad = GRAND_GALAXY_R * (0.32 + (fi % 3) * 0.14);
+        var fPos = galCenter.clone()
+          .addScaledVector(axisX, Math.cos(fAng) * fRad)
+          .addScaledVector(axisZ, Math.sin(fAng) * fRad);
+        state.stellarSystems.push({ id: fr.id || ("friend-" + fi), name: fr.name, isSelf: false, worldPos: fPos });
+      });
+    }
+
+    state.grandGalaxy = {
+      group: galGroup,
+      diskMesh: diskMesh,
+      diskMat: diskMat,
+      pts: pts,
+      ptsMat: ptsMat,
+      bulgeInner: bulgeInner,
+      bulgeOuter: bulgeOuter,
+      axisX: axisX,
+      axisY: axisY,
+      axisZ: axisZ
+    };
+  }
+
+  /* ---------- 「陌浔」恒星区域唯一爱因斯坦-罗森星际虫洞（跨恒星朋友通行门户） ---------- */
+
+  function createStellarWormhole(THREE, sharedGeos) {
+    var whGroup = new THREE.Group();
+    state.root.add(whGroup);
+
+    var throatMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 }, uBoost: { value: 0.0 } },
+      vertexShader: WORMHOLE_THROAT_VERT,
+      fragmentShader: WORMHOLE_THROAT_FRAG
+    });
+    var throatMesh = new THREE.Mesh(sharedGeos.highSphere, throatMat);
+    throatMesh.scale.setScalar(WORMHOLE_RADIUS);
+    throatMesh.renderOrder = 6;
+    whGroup.add(throatMesh);
+
+    var funnelGroup = new THREE.Group();
+    funnelGroup.rotation.x = Math.PI * 0.36;
+    funnelGroup.rotation.z = -0.28;
+    whGroup.add(funnelGroup);
+
+    var innerR = WORMHOLE_RADIUS * 1.06;
+    var outerR = WORMHOLE_RADIUS * 3.15;
+    var funnelMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uInnerR: { value: innerR },
+        uOuterR: { value: outerR },
+        uTime: { value: 0 },
+        uDim: { value: 1.0 },
+        uBoost: { value: 0.0 }
+      },
+      vertexShader: WORMHOLE_FUNNEL_VERT,
+      fragmentShader: WORMHOLE_FUNNEL_FRAG,
       transparent: true,
-      opacity: 0.40,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    var funnelMesh = new THREE.Mesh(new THREE.RingGeometry(innerR, outerR, 88, 16), funnelMat);
+    funnelMesh.renderOrder = 7;
+    funnelGroup.add(funnelMesh);
+
+    /* 三轴反向旋转硬科幻磁约束陀螺环 */
+    var gimbals = [];
+    [
+      { r: WORMHOLE_RADIUS * 1.34, tube: 1.15, col: 0x22d3ee, rx: 0.45, ry: 0.0, sx: 0.42, sy: 0.68, sz: 0.15 },
+      { r: WORMHOLE_RADIUS * 1.56, tube: 1.00, col: 0x818cf8, rx: -0.62, ry: 0.8, sx: -0.31, sy: 0.24, sz: 0.56 },
+      { r: WORMHOLE_RADIUS * 1.78, tube: 0.85, col: 0xbae6fd, rx: 1.12, ry: -0.5, sx: 0.18, sy: -0.48, sz: -0.34 }
+    ].forEach(function (gCfg) {
+      var gMat = new THREE.MeshBasicMaterial({
+        color: gCfg.col,
+        transparent: true,
+        opacity: 0.52,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      var gMesh = new THREE.Mesh(new THREE.TorusGeometry(gCfg.r, gCfg.tube, 8, 64), gMat);
+      gMesh.rotation.x = gCfg.rx;
+      gMesh.rotation.y = gCfg.ry;
+      whGroup.add(gMesh);
+      gimbals.push({ mesh: gMesh, mat: gMat, sx: gCfg.sx, sy: gCfg.sy, sz: gCfg.sz });
+    });
+
+    var haloSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: state.texCache.lensRing,
+      color: 0x67e8f9,
+      transparent: true,
+      opacity: 0.42,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     }));
-    var bulgeScale = clamp(maxR * 0.82, 185, 380); bulge.scale.set(bulgeScale, bulgeScale * 0.76, 1);
-    group.add(bulge); gal.bulge = bulge;
-  }
+    haloSprite.scale.set(WORMHOLE_RADIUS * 3.85, WORMHOLE_RADIUS * 3.85, 1);
+    whGroup.add(haloSprite);
 
-  function createIntergalacticFilaments(THREE, edges) {
-    state.filaments = [];
-    if (state.galaxies.length < 2) return;
-
-    var pairWeights = {};
-    edges.forEach(function (e) {
-      if (e.sameCategory) return;
-      var ga = state.galaxyByCat[e.a.category]; var gb = state.galaxyByCat[e.b.category];
-      if (!ga || !gb || ga === gb) return;
-      var k = ga.category < gb.category ? (ga.category + "|" + gb.category) : (gb.category + "|" + ga.category);
-      if (!pairWeights[k]) pairWeights[k] = { ga: ga, gb: gb, w: 0 };
-      pairWeights[k].w += e.w || 0.15;
-    });
-
-    var pairs = Object.keys(pairWeights).map(function (k) { return pairWeights[k]; });
-    pairs.sort(function (a, b) { return b.w - a.w; });
-    pairs = pairs.slice(0, 9);
-
-    var SEG = 28;
-    pairs.forEach(function (pair, pi) {
-      var ca = palArr(pair.ga.palette, "atmo"); var cb = palArr(pair.gb.palette, "atmo");
-      var rand = rng(hashStr("fil:" + pair.ga.category + ":" + pair.gb.category) + pi);
-
-      for (var s = 0; s < 2; s++) {
-        var posArr = new Float32Array((SEG + 1) * 3); var colArr = new Float32Array((SEG + 1) * 3);
-        for (var i = 0; i <= SEG; i++) {
-          var t = i / SEG; var env = Math.pow(Math.sin(t * Math.PI), 1.7) * (s === 0 ? 0.22 : 0.12);
-          colArr[i * 3] = lerp(lerp(ca[0], 255, 0.35), lerp(cb[0], 255, 0.35), t) / 255 * env;
-          colArr[i * 3 + 1] = lerp(lerp(ca[1], 240, 0.35), lerp(cb[1], 240, 0.35), t) / 255 * env;
-          colArr[i * 3 + 2] = lerp(lerp(ca[2], 220, 0.35), lerp(cb[2], 220, 0.35), t) / 255 * env;
-        }
-        var geo = new THREE.BufferGeometry();
-        geo.setAttribute("position", new THREE.Float32BufferAttribute(posArr, 3));
-        geo.setAttribute("color", new THREE.Float32BufferAttribute(colArr, 3));
-        var line = new THREE.Line(geo, new THREE.LineBasicMaterial({
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.50,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
-        }));
-        line.frustumCulled = false; state.root.add(line);
-        state.filaments.push({
-          ga: pair.ga,
-          gb: pair.gb,
-          line: line,
-          seg: SEG,
-          arch: new THREE.Vector3((rand() - 0.5) * 360, (rand() - 0.5) * 280 + (s === 0 ? 70 : -55), (rand() - 0.5) * 360),
-          phase: rand() * 6.28
-        });
-      }
-    });
-  }
-
-  function updateFilaments(t) {
-    for (var i = 0; i < state.filaments.length; i++) {
-      var f = state.filaments[i]; var a = f.ga.worldPos, b = f.gb.worldPos;
-      var attr = f.line.geometry.getAttribute("position"); var arr = attr.array;
-      var breathe = Math.sin(t * 0.35 + f.phase) * 28; var mx = (a.x + b.x) * 0.44 + f.arch.x + breathe;
-      var my = (a.y + b.y) * 0.44 + f.arch.y - breathe * 0.6;
-      var mz = (a.z + b.z) * 0.44 + f.arch.z + breathe * 0.5;
-      for (var k = 0; k <= f.seg; k++) {
-        var u = k / f.seg; var iu = 1 - u; arr[k * 3] = iu * iu * a.x + 2 * iu * u * mx + u * u * b.x;
-        arr[k * 3 + 1] = iu * iu * a.y + 2 * iu * u * my + u * u * b.y;
-        arr[k * 3 + 2] = iu * iu * a.z + 2 * iu * u * mz + u * u * b.z;
-      }
-      attr.needsUpdate = true;
+    /* 连接「陌浔」恒星外环与虫洞入口的科技感测地航道引导线 */
+    var corrSegs = 28;
+    var corrPos = new Float32Array(corrSegs * 6);
+    var corrCol = new Float32Array(corrSegs * 6);
+    for (var ci = 0; ci < corrSegs; ci++) {
+      var kFade = 0.25 + 0.75 * (ci / corrSegs);
+      corrCol[ci * 6] = 0.14 * kFade; corrCol[ci * 6 + 1] = 0.82 * kFade; corrCol[ci * 6 + 2] = 0.98 * kFade;
+      corrCol[ci * 6 + 3] = 0.38 * kFade; corrCol[ci * 6 + 4] = 0.62 * kFade; corrCol[ci * 6 + 5] = 1.00 * kFade;
     }
+    var corrGeo = new THREE.BufferGeometry();
+    corrGeo.setAttribute("position", new THREE.Float32BufferAttribute(corrPos, 3));
+    corrGeo.setAttribute("color", new THREE.Float32BufferAttribute(corrCol, 3));
+    var corrLine = new THREE.LineSegments(corrGeo, new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.34,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    }));
+    corrLine.frustumCulled = false;
+    state.root.add(corrLine);
+
+    var whBasis = buildOrbitBasis(THREE, 0.14, -0.52, 0.28);
+    var whWorld = new THREE.Vector3();
+    evalKeplerOrbit(5.58, 1240, 0.03, whBasis.u, whBasis.v, whWorld);
+    whGroup.position.copy(whWorld);
+
+    state.wormhole = {
+      group: whGroup,
+      throatMesh: throatMesh,
+      throatMat: throatMat,
+      funnelMesh: funnelMesh,
+      funnelMat: funnelMat,
+      gimbals: gimbals,
+      haloSprite: haloSprite,
+      corrLine: corrLine,
+      corrSegs: corrSegs,
+      worldPos: whWorld,
+      base: WORMHOLE_RADIUS,
+      a: 1240,
+      e: 0.03,
+      M0: 5.58,
+      omega: (Math.PI * 2) / 190.0,
+      basis: whBasis
+    };
+  }
+
+  function updateGrandGalaxyAndWormhole(t, simDt, focusDim) {
+    var gg = state.grandGalaxy;
+    if (gg) {
+      if (simDt > 0) {
+        gg.diskMesh.rotation.z += simDt * 0.014;
+      }
+      gg.diskMat.uniforms.uTime.value = t;
+      gg.diskMat.uniforms.uDim.value = focusDim;
+      var nearFade = lerp(0.64, 1.0, smoothstepJS(1600, 5600, state.radius));
+      gg.diskMat.uniforms.uNearFade.value = nearFade;
+      gg.ptsMat.uniforms.uTime.value = t;
+      gg.ptsMat.uniforms.uDim.value = focusDim;
+      var bPulse = state.reduced ? 1.0 : (1.0 + 0.035 * Math.sin(t * 0.85));
+      gg.bulgeInner.material.opacity = 0.48 * nearFade * bPulse * focusDim;
+      gg.bulgeOuter.material.opacity = 0.36 * nearFade * focusDim;
+    }
+
+    if (state.hudLines) {
+      var hudFade = 1.0 - smoothstepJS(4200, 8200, state.radius);
+      state.hudLines.material.opacity = 0.28 * hudFade * focusDim;
+    }
+
+    var wh = state.wormhole;
+    if (wh) {
+      var isWhFocus = state.focusedSpecial === "wormhole";
+      var isWhHover = state.hoveredSpecial === "wormhole";
+      var boost = isWhFocus ? 1.0 : (isWhHover ? 0.55 : 0.0);
+      wh.throatMat.uniforms.uTime.value = t;
+      wh.throatMat.uniforms.uDim.value = focusDim;
+      wh.throatMat.uniforms.uBoost.value = boost;
+      wh.funnelMat.uniforms.uTime.value = t;
+      wh.funnelMat.uniforms.uDim.value = focusDim;
+      wh.funnelMat.uniforms.uBoost.value = boost;
+      wh.haloSprite.material.opacity = (0.48 + boost * 0.28 + (state.reduced ? 0 : 0.06 * Math.sin(t * 2.4))) * focusDim;
+      for (var gi = 0; gi < wh.gimbals.length; gi++) {
+        var g = wh.gimbals[gi];
+        if (simDt > 0) {
+          g.mesh.rotation.x += simDt * g.sx;
+          g.mesh.rotation.y += simDt * g.sy;
+          g.mesh.rotation.z += simDt * g.sz;
+        }
+        g.mat.opacity = (0.46 + boost * 0.34) * focusDim;
+      }
+
+      /* 更新恒星外环至虫洞的脉冲虚线测地航道 */
+      var cAttr = wh.corrLine.geometry.getAttribute("position");
+      var cArr = cAttr.array;
+      var wx = wh.worldPos.x, wy = wh.worldPos.y, wz = wh.worldPos.z;
+      var wLen = Math.sqrt(wx * wx + wy * wy + wz * wz) || 1;
+      var ux = wx / wLen, uy = wy / wLen, uz = wz / wLen;
+      var rStart = SUN_RADIUS * 2.15;
+      var rEnd = Math.max(rStart + 60, wLen - WORMHOLE_RADIUS * 2.35);
+      var span = rEnd - rStart;
+      var dashShift = state.reduced ? 0 : ((t * 0.38) % 1.0);
+      for (var ci = 0; ci < wh.corrSegs; ci++) {
+        var f0 = ((ci + dashShift) / wh.corrSegs) % 1.0;
+        var f1 = Math.min(1.0, f0 + 0.52 / wh.corrSegs);
+        var d0 = rStart + span * f0;
+        var d1 = rStart + span * f1;
+        cArr[ci * 6] = ux * d0; cArr[ci * 6 + 1] = uy * d0; cArr[ci * 6 + 2] = uz * d0;
+        cArr[ci * 6 + 3] = ux * d1; cArr[ci * 6 + 4] = uy * d1; cArr[ci * 6 + 5] = uz * d1;
+      }
+      cAttr.needsUpdate = true;
+      wh.corrLine.material.opacity = (isWhFocus || isWhHover ? 0.68 : 0.30) * focusDim;
+    }
+  }
+
+  function registerPoints(pts, fullCount) {
+    pts.userData.fullCount = fullCount;
+    if (state.degraded) {
+      pts.geometry.setDrawRange(0, Math.max(1, Math.floor(fullCount * 0.5)));
+    }
+    state.pointSystems.push(pts);
   }
 
   function setupCosmicBackground(THREE, deepStarBudget) {
@@ -1915,7 +2353,7 @@
       side: THREE.BackSide,
       depthWrite: false
     });
-    var skyDome = new THREE.Mesh(new THREE.SphereGeometry(11800, 44, 28), skyDomeMat);
+    var skyDome = new THREE.Mesh(new THREE.SphereGeometry(52000, 48, 32), skyDomeMat);
     skyDome.frustumCulled = false; skyDome.renderOrder = -10; bgGroup.add(skyDome);
     state.skyDomeMat = skyDomeMat;
 
@@ -1923,33 +2361,36 @@
     for (var ni = 0; ni < 12; ni++) {
       var isSmoke = ni < 7;
       var tex = isSmoke ? state.texCache.darkDust : state.texCache.nebulae[(ni - 7) % state.texCache.nebulae.length];
-      var dist = isSmoke ? (4400 + nebRand() * 1400) : (5200 + nebRand() * 1800);
+      var dist = isSmoke ? (18500 + nebRand() * 5500) : (22000 + nebRand() * 6800);
       var az = (ni / 12) * Math.PI * 2 + nebRand() * 0.55;
       var el = (nebRand() - 0.5) * (isSmoke ? 0.72 : 1.05);
       var sp = new THREE.Sprite(new THREE.SpriteMaterial({
         map: tex,
         transparent: true,
-        opacity: isSmoke ? 0.52 : (0.09 + nebRand() * 0.06),
+        opacity: isSmoke ? 0.46 : (0.11 + nebRand() * 0.06),
         depthWrite: false,
         blending: isSmoke ? THREE.NormalBlending : THREE.AdditiveBlending
       }));
       sp.position.set(
         Math.cos(el) * Math.cos(az) * dist,
-        Math.sin(el) * dist + (nebRand() - 0.5) * 420,
+        Math.sin(el) * dist + (nebRand() - 0.5) * 1600,
         Math.cos(el) * Math.sin(az) * dist
-      ); var sc = isSmoke ? (2800 + nebRand() * 1200) : (2300 + nebRand() * 1100);
-      sp.scale.set(sc * 1.45, sc * 0.86, 1); bgGroup.add(sp);
+      );
+      var sc = isSmoke ? (11000 + nebRand() * 4800) : (9400 + nebRand() * 4200);
+      sp.scale.set(sc * 1.45, sc * 0.86, 1);
+      sp.renderOrder = -9;
+      bgGroup.add(sp);
     }
 
     var dgRand = rng(0x16180339);
-    for (var gi = 0; gi < 14; gi++) {
-      var gAz = dgRand() * Math.PI * 2; var gEl = Math.asin(dgRand() * 1.7 - 0.85);
-      var gDist = 7200 + dgRand() * 2200; var isSp = gi % 3 !== 0;
+    for (var gi = 0; gi < 18; gi++) {
+      var gAz = dgRand() * Math.PI * 2; var gEl = Math.asin(dgRand() * 1.78 - 0.89);
+      var gDist = 29000 + dgRand() * 9000; var isSp = gi % 3 !== 0;
       var dgSp = new THREE.Sprite(new THREE.SpriteMaterial({
         map: isSp ? state.texCache.distantSpiral : state.texCache.distantEllip,
         color: isSp ? 0xdbeafe : 0xfef3c7,
         transparent: true,
-        opacity: 0.34 + dgRand() * 0.24,
+        opacity: 0.36 + dgRand() * 0.28,
         rotation: dgRand() * Math.PI * 2,
         depthWrite: false,
         blending: THREE.AdditiveBlending
@@ -1958,24 +2399,52 @@
         Math.cos(gEl) * Math.cos(gAz) * gDist,
         Math.sin(gEl) * gDist,
         Math.cos(gEl) * Math.sin(gAz) * gDist
-      ); var gSize = 95 + dgRand() * 115; dgSp.scale.set(gSize, gSize, 1); bgGroup.add(dgSp);
+      );
+      var gSize = 360 + dgRand() * 440;
+      dgSp.scale.set(gSize, gSize, 1);
+      dgSp.renderOrder = -8;
+      bgGroup.add(dgSp);
     }
 
-    var sCount = Math.max(1500, deepStarBudget | 0); var sPos = new Float32Array(sCount * 3);
-    var sCol = new Float32Array(sCount * 3); var sSize = new Float32Array(sCount);
-    var sOrb = new Float32Array(sCount * 3); var sr = rng(0x27182818);
+    /* 多光谱深空摄影星场：密集白/蓝/金针尖背景星 + 明亮宝蓝/暖橙前景星（复刻参考图1与图2丰富星场） */
+    var sCount = Math.max(3000, deepStarBudget | 0);
+    var sPos = new Float32Array(sCount * 3);
+    var sCol = new Float32Array(sCount * 3);
+    var sSize = new Float32Array(sCount);
+    var sOrb = new Float32Array(sCount * 3);
+    var sr = rng(0x80f041ec);
 
     for (var i = 0; i < sCount; i++) {
-      var inBand = (i % 3 !== 0); var theta = sr() * Math.PI * 2;
-      var lat = inBand ? ((sr() + sr() + sr() - 1.5) * 0.34) : Math.asin(sr() * 2 - 1);
-      var rad = 4200 + sr() * 4800; var x = Math.cos(lat) * Math.cos(theta) * rad;
-      var y = Math.sin(lat) * rad; var z = Math.cos(lat) * Math.sin(theta) * rad;
-      var cz = Math.cos(0.50), sz = Math.sin(0.50); sPos[i * 3] = x * cz - y * sz;
-      sPos[i * 3 + 1] = x * sz + y * cz; sPos[i * 3 + 2] = z;
+      var inBand = (i % 5 < 3);
+      var theta = sr() * Math.PI * 2;
+      var lat = inBand ? ((sr() + sr() + sr() - 1.5) * 0.42) : Math.asin(sr() * 2 - 1);
+      var rad = 22000 + sr() * 18000;
+      var x = Math.cos(lat) * Math.cos(theta) * rad;
+      var y = Math.sin(lat) * rad;
+      var z = Math.cos(lat) * Math.sin(theta) * rad;
+      var cz = Math.cos(0.54), sz = Math.sin(0.54);
+      sPos[i * 3] = x * cz - y * sz;
+      sPos[i * 3 + 1] = x * sz + y * cz;
+      sPos[i * 3 + 2] = z;
 
-      var kv = kelvinToRGB(3600 + Math.pow(sr(), 0.78) * 6200); var br = 0.48 + sr() * 0.52;
-      sCol[i * 3] = kv[0] * br; sCol[i * 3 + 1] = kv[1] * br; sCol[i * 3 + 2] = kv[2] * br;
-      sSize[i] = 2.6 + Math.pow(sr(), 2.6) * 6.8;
+      var specRoll = sr();
+      var rC, gC, bC;
+      if (specRoll < 0.24) {
+        /* 宝蓝 / 电光蓝高温 O-B 星 */
+        rC = 0.42 + sr() * 0.22; gC = 0.68 + sr() * 0.20; bC = 1.00;
+      } else if (specRoll < 0.42) {
+        /* 暖琥珀 / 橙金 K-M 巨星 */
+        rC = 1.00; gC = 0.66 + sr() * 0.22; bC = 0.36 + sr() * 0.22;
+      } else {
+        var kv = kelvinToRGB(4400 + Math.pow(sr(), 0.85) * 6800);
+        rC = kv[0]; gC = kv[1]; bC = kv[2];
+      }
+      var isBrightFg = (i % 48 === 0);
+      var br = isBrightFg ? 1.15 : (0.62 + sr() * 0.55);
+      sCol[i * 3] = clamp(rC * br, 0, 1);
+      sCol[i * 3 + 1] = clamp(gC * br, 0, 1);
+      sCol[i * 3 + 2] = clamp(bC * br, 0, 1);
+      sSize[i] = isBrightFg ? (9.5 + sr() * 7.2) : (2.2 + Math.pow(sr(), 2.1) * 5.8);
     }
 
     var sGeo = new THREE.BufferGeometry();
@@ -1985,8 +2454,9 @@
     sGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(sOrb, 3));
     var sPts = new THREE.Points(sGeo, new THREE.ShaderMaterial({
       uniforms: {
-        uTime: { value: 0 }, uSpin: { value: 0 }, uCoreR: { value: 0 }, uPixelRatio: { value: state.dpr },
-        uOpacity: { value: 0.90 }, uDim: { value: 1.0 }
+        uTime: { value: 0 }, uSpin: { value: 0 }, uCoreR: { value: 0 },
+        uPixelRatio: { value: state.dpr }, uSizeScale: { value: 24500.0 },
+        uOpacity: { value: 0.98 }, uDim: { value: 1.0 }
       },
       vertexShader: GALAXY_PTS_VERT,
       fragmentShader: GALAXY_PTS_FRAG,
@@ -1994,18 +2464,47 @@
       depthWrite: false,
       blending: THREE.AdditiveBlending
     }));
-    sPts.frustumCulled = false; bgGroup.add(sPts); registerPoints(sPts, sCount);
+    sPts.frustumCulled = false;
+    sPts.renderOrder = -7;
+    bgGroup.add(sPts);
+    registerPoints(sPts, sCount);
+
+    /* 前景明亮深空星芒光晕（复刻参考图2中散落的亮蓝色与金橙色前景亮星） */
+    var fgRand = rng(0x20261125);
+    for (var fgi = 0; fgi < 54; fgi++) {
+      var fAz = fgRand() * Math.PI * 2;
+      var fEl = Math.asin(fgRand() * 1.88 - 0.94);
+      var fDist = 23000 + fgRand() * 8500;
+      var isSapphire = (fgi % 4 !== 0);
+      var fgSp = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: state.texCache.corona,
+        color: isSapphire ? (fgi % 2 === 0 ? 0x5299ff : 0x93c5fd) : 0xfb923c,
+        transparent: true,
+        opacity: 0.72 + fgRand() * 0.26,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      }));
+      fgSp.position.set(
+        Math.cos(fEl) * Math.cos(fAz) * fDist,
+        Math.sin(fEl) * fDist,
+        Math.cos(fEl) * Math.sin(fAz) * fDist
+      );
+      var fgScale = 560 + fgRand() * 560;
+      fgSp.scale.set(fgScale, fgScale, 1);
+      fgSp.renderOrder = -6;
+      bgGroup.add(fgSp);
+    }
 
     state.pulsars = [];
     [
-      { pos: [-2350, 880, -1920], spin: 1.85, tilt: 0.68, color: 0xbae6fd },
-      { pos: [2480, -790, -1780], spin: -1.42, tilt: 0.58, color: 0xfde68a }
+      { pos: [-14500, 5200, -11800], spin: 1.85, tilt: 0.68, color: 0xbae6fd },
+      { pos: [15200, -4800, -10800], spin: -1.42, tilt: 0.58, color: 0xfde68a }
     ].forEach(function (cfg) {
       var pRoot = new THREE.Group(); pRoot.position.set(cfg.pos[0], cfg.pos[1], cfg.pos[2]);
       pRoot.rotation.z = 0.35; bgGroup.add(pRoot);
 
       pRoot.add(new THREE.Mesh(
-        new THREE.SphereGeometry(8, 14, 10),
+        new THREE.SphereGeometry(28, 14, 10),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
       ));
 
@@ -2017,20 +2516,20 @@
         depthWrite: false,
         blending: THREE.AdditiveBlending
       }));
-      halo.scale.set(96, 96, 1); pRoot.add(halo);
+      halo.scale.set(420, 420, 1); pRoot.add(halo);
 
       var spinPivot = new THREE.Group(); pRoot.add(spinPivot); var magAxis = new THREE.Group();
       magAxis.rotation.x = cfg.tilt; spinPivot.add(magAxis);
 
-      var beamLen = 540, beamW = 52;
+      var beamLen = 2400, beamW = 220;
       var beamMat = new THREE.MeshBasicMaterial({
-        map: state.texCache.pulsarBeam, color: cfg.color, transparent: true, opacity: 0.15,
+        map: state.texCache.pulsarBeam, color: cfg.color, transparent: true, opacity: 0.14,
         side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
       });
       [-1, 1].forEach(function (dir) {
         for (var cr = 0; cr < 2; cr++) {
           var plane = new THREE.Mesh(new THREE.PlaneGeometry(beamW, beamLen), beamMat);
-          plane.position.y = dir * (beamLen * 0.5 + 8);
+          plane.position.y = dir * (beamLen * 0.5 + 28);
           if (dir < 0) plane.rotation.z = Math.PI;
           plane.rotation.y = cr * (Math.PI * 0.5); magAxis.add(plane);
         }
@@ -2094,7 +2593,8 @@
     var dustPts = new THREE.Points(dustGeo, new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 }, uSpin: { value: 0.045 }, uCoreR: { value: 300 },
-        uPixelRatio: { value: state.dpr }, uOpacity: { value: 0.56 }, uDim: { value: 1.0 }
+        uPixelRatio: { value: state.dpr }, uSizeScale: { value: 980.0 },
+        uOpacity: { value: 0.56 }, uDim: { value: 1.0 }
       },
       vertexShader: GALAXY_PTS_VERT,
       fragmentShader: GALAXY_PTS_FRAG,
@@ -2108,27 +2608,28 @@
     function pushSeg(x1, y1, z1, x2, y2, z2, r, g, b) {
       hudVerts.push(x1, y1, z1, x2, y2, z2); hudCols.push(r, g, b, r, g, b);
     }
-    var ringRadii = [655, 1660, 1692];
+    var ringRadii = [305, 735, 1240, 1520, 1556];
     for (var ri = 0; ri < ringRadii.length; ri++) {
-      var hr = ringRadii[ri]; var segs = ri === 0 ? 96 : 144; var cInt = ri === 1 ? 0.34 : 0.18;
+      var hr = ringRadii[ri]; var segs = ri < 2 ? 96 : 144;
+      var cInt = ri === 3 ? 0.38 : (ri === 2 ? 0.28 : 0.18);
       for (var si = 0; si < segs; si++) {
-        if (ri === 2 && si % 3 === 0) continue;
+        if ((ri === 0 || ri === 4) && si % 3 === 0) continue;
         var a0 = (si / segs) * Math.PI * 2; var a1 = ((si + 1) / segs) * Math.PI * 2;
         pushSeg(
           Math.cos(a0) * hr, 0, Math.sin(a0) * hr,
           Math.cos(a1) * hr, 0, Math.sin(a1) * hr,
-          0.42 * cInt, 0.72 * cInt, 0.96 * cInt
+          0.22 * cInt, 0.80 * cInt, 1.00 * cInt
         );
       }
     }
     for (var deg = 0; deg < 360; deg += 5) {
       var radA = (deg * Math.PI) / 180; var isCard = (deg % 90 === 0); var isMajor = (deg % 30 === 0);
-      var rIn = isCard ? 1612 : (isMajor ? 1638 : 1650); var rOut = isCard ? 1732 : (isMajor ? 1706 : 1674);
-      var kBr = isCard ? 0.62 : (isMajor ? 0.38 : 0.20);
+      var rIn = isCard ? 1470 : (isMajor ? 1496 : 1510); var rOut = isCard ? 1600 : (isMajor ? 1572 : 1538);
+      var kBr = isCard ? 0.68 : (isMajor ? 0.40 : 0.22);
       pushSeg(
         Math.cos(radA) * rIn, 0, Math.sin(radA) * rIn,
         Math.cos(radA) * rOut, 0, Math.sin(radA) * rOut,
-        (isCard ? 0.95 : 0.45) * kBr, (isCard ? 0.82 : 0.76) * kBr, (isCard ? 0.48 : 0.98) * kBr
+        (isCard ? 0.96 : 0.28) * kBr, (isCard ? 0.84 : 0.82) * kBr, (isCard ? 0.46 : 1.00) * kBr
       );
     }
     var hudGeo = new THREE.BufferGeometry();
@@ -2142,6 +2643,7 @@
       blending: THREE.AdditiveBlending
     }));
     hudLines.rotation.x = 0.06; hudLines.rotation.z = -0.04; state.root.add(hudLines);
+    state.hudLines = hudLines;
 
     state.beacons = [];
     [
@@ -2608,15 +3110,16 @@
       outerHalo.scale.set(nd.r3 * 6.0, nd.r3 * 6.0, 1); group.add(outerHalo); entry.coronaOuter = outerHalo;
 
     } else if (tier === "planet") {
-      var pArch = (hVal + nd.__idx * 3) % 5; var pTex = buildPlanetTexture(THREE, nd, pArch);
+      var pArch = (hVal + nd.__idx * 3) % 8; var pTex = buildPlanetTexture(THREE, nd, pArch);
+      var hasOceanSpec = (pArch === 0 || pArch === 2 || pArch === 5 || pArch === 6);
       var pMat = new THREE.ShaderMaterial({
         uniforms: {
           map: { value: pTex },
-          uRim: { value: new THREE.Color(pArch === 0 ? 0x38bdf8 : palColor(pal, "atmo")) },
+          uRim: { value: new THREE.Color(pArch === 0 || pArch === 5 ? 0x38bdf8 : palColor(pal, "atmo")) },
           uLightDirV: { value: new THREE.Vector3(-0.55, 0.60, 0.58).normalize() }, uDim: { value: 1.0 },
-          uGlow: { value: 0.0 }, uAlbedo: { value: 1.05 }, uAtmo: { value: pArch === 4 ? 0.28 : 0.78 },
-          uNightGlow: { value: (pArch === 0 || pArch === 4) ? 1.0 : 0.0 },
-          uSpecStrength: { value: (pArch === 0 || pArch === 2) ? 1.0 : 0.32 }, uEclipse: { value: 0.0 }
+          uGlow: { value: 0.0 }, uAlbedo: { value: 1.06 }, uAtmo: { value: pArch === 4 ? 0.30 : 0.78 },
+          uNightGlow: { value: (pArch === 0 || pArch === 4 || pArch === 6) ? 1.0 : 0.0 },
+          uSpecStrength: { value: hasOceanSpec ? 1.0 : 0.34 }, uEclipse: { value: 0.0 }
         },
         vertexShader: PLANET_VERT,
         fragmentShader: PLANET_FRAG
@@ -2627,7 +3130,7 @@
 
       var pGlow = new THREE.Sprite(new THREE.SpriteMaterial({
         map: state.texCache.glow,
-        color: new THREE.Color(pArch === 0 ? 0x38bdf8 : palColor(pal, "atmo")),
+        color: new THREE.Color(pArch === 0 || pArch === 5 ? 0x38bdf8 : palColor(pal, "atmo")),
         transparent: true,
         opacity: 0.28,
         depthWrite: false,
@@ -2655,9 +3158,9 @@
         rMesh.rotation.z = rand() * Math.PI; group.add(rMesh); entry.ring = rMesh; entry.ringMat = rMat;
       }
 
-      var moonCount = 1 + (hashStr(nd.id + ":mc") % 2);
+      var moonCount = nd.__deg >= 5 ? 2 : 1;
       for (var mi = 0; mi < moonCount; mi++) {
-        var mr = rng(hashStr(nd.id + ":mini:" + mi)); var mRad = 3.6 + mr() * 1.8;
+        var mr = rng(hashStr(nd.id + ":mini:" + mi)); var mRad = 3.5 + mr() * 1.8;
         var mTex = buildMoonTexture(THREE, nd.id + ":mini:" + mi, pal);
         var mMat = new THREE.ShaderMaterial({
           uniforms: {
@@ -2682,8 +3185,8 @@
         });
       }
 
-      if (nd.__orbit && nd.__orbit.showTrack && nd.__orbit.parentNode) {
-        entry.track = createOrbitTrackLine(THREE, nd.__orbit, palColor(pal, "atmo"), 0.14);
+      if (nd.__orbit && nd.__orbit.showTrack) {
+        entry.track = createOrbitTrackLine(THREE, nd.__orbit, palColor(pal, "atmo"), 0.085);
         state.orbitLines.push(entry.track);
       }
 
@@ -2713,7 +3216,7 @@
       }));
       sGlow.scale.set(nd.r3 * 2.8, nd.r3 * 2.8, 1); group.add(sGlow); entry.glow = sGlow;
 
-      if (nd.__orbit && nd.__orbit.showTrack && nd.__orbit.parentNode) {
+      if (nd.__orbit && nd.__orbit.showTrack) {
         entry.track = createOrbitTrackLine(THREE, nd.__orbit, palColor(pal, "atmo"), 0.11);
         state.orbitLines.push(entry.track);
       }
@@ -2728,12 +3231,129 @@
     return entry;
   }
 
+  /* ---------- 科技感提示与左下角星际测绘 HUD 遥测台 ---------- */
+
+  function showSpaceToast(msg) {
+    var toastEl = document.getElementById("pmv-toast");
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add("is-visible");
+    if (state.toastTimer) clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(function () {
+      state.toastTimer = 0;
+      toastEl.classList.remove("is-visible");
+    }, 3000);
+  }
+
+  function createSpecialLabelsAndHud(container) {
+    /* 1. 恒星「陌浔」专属名称标签（近景显示恒星徽章，缩小至银河全景切换为菱形科技定位准星） */
+    var sunLbl = document.createElement("div");
+    sunLbl.className = "mg3d-label is-tier-sun";
+    sunLbl.setAttribute("role", "button");
+    sunLbl.setAttribute("tabindex", "0");
+    sunLbl.dataset.pinMode = "stellar";
+    sunLbl.innerHTML = '<span class="mg3d-sun-glyph" aria-hidden="true">☀</span><span class="mg3d-sun-name">' + SUN_NAME + '</span><span class="mg3d-sun-tag">恒星</span>';
+    sunLbl.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (state.radius > 5400) {
+        focusStellarSystem();
+        showSpaceToast("已跃迁回「" + SUN_NAME + "」恒星系 · 共环绕 " + state.planets.length + " 颗记忆天体");
+      } else {
+        focusSunCloseUp();
+      }
+    });
+    state.labelBox.appendChild(sunLbl);
+    state.sunLabelEl = sunLbl;
+
+    /* 2. 本恒星区域唯一「星际虫洞」专属标签 */
+    var whLbl = document.createElement("div");
+    whLbl.className = "mg3d-label is-tier-wormhole";
+    whLbl.setAttribute("role", "button");
+    whLbl.setAttribute("tabindex", "0");
+    whLbl.innerHTML = '<span class="mg3d-wh-glyph" aria-hidden="true">◎</span><span>星际虫洞 · 待接入</span>';
+    whLbl.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      focusWormhole();
+    });
+    state.labelBox.appendChild(whLbl);
+    state.wormholeLabelEl = whLbl;
+
+    /* 3. 左下角深空科技感 HUD 遥测与星域快速跃迁栏 */
+    var hud = document.createElement("div");
+    hud.className = "mg3d-hud";
+    hud.innerHTML = ''
+      + '<div class="mg3d-hud-readout">'
+      + '  <span class="mg3d-hud-dot" aria-hidden="true"></span>'
+      + '  <span class="mg3d-hud-sector">银河旋臂 · 陌浔恒星系</span>'
+      + '  <span class="mg3d-hud-scale">1 恒星 · ' + state.nodes.length + ' 记忆行星 · 1 虫洞</span>'
+      + '</div>'
+      + '<div class="mg3d-hud-nav" role="group" aria-label="星域尺度快速切换">'
+      + '  <button type="button" class="mg3d-hud-btn is-active" data-nav="sun">☀ 陌浔恒星系</button>'
+      + '  <button type="button" class="mg3d-hud-btn" data-nav="galaxy">🌀 银河全景</button>'
+      + '  <button type="button" class="mg3d-hud-btn" data-nav="wormhole">◎ 星际虫洞</button>'
+      + '</div>';
+
+    hud.addEventListener("pointerdown", function (ev) { ev.stopPropagation(); });
+    hud.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      var btn = ev.target.closest("[data-nav]");
+      if (!btn) return;
+      var nav = btn.getAttribute("data-nav");
+      if (nav === "sun") focusStellarSystem();
+      else if (nav === "galaxy") focusGrandGalaxy();
+      else if (nav === "wormhole") focusWormhole();
+    });
+
+    container.appendChild(hud);
+    state.hudEl = hud;
+    state.hudSectorEl = hud.querySelector(".mg3d-hud-sector");
+    state.hudScaleEl = hud.querySelector(".mg3d-hud-scale");
+    state.hudBtns = {
+      sun: hud.querySelector('[data-nav="sun"]'),
+      galaxy: hud.querySelector('[data-nav="galaxy"]'),
+      wormhole: hud.querySelector('[data-nav="wormhole"]')
+    };
+  }
+
+  function updateHudTelemetry() {
+    if (!state.hudEl) return;
+    var isWormhole = state.focusedSpecial === "wormhole";
+    var isGalaxy = !isWormhole && !state.selectedEntry && state.radius > 7200;
+    var activeKey = isWormhole ? "wormhole" : (isGalaxy ? "galaxy" : "sun");
+
+    if (state.hudSectorEl) {
+      if (isWormhole) {
+        state.hudSectorEl.textContent = "星际虫洞 · 爱因斯坦-罗森桥";
+      } else if (isGalaxy) {
+        state.hudSectorEl.textContent = "银河星系全景 · 旋臂坐标〔" + SUN_NAME + "〕";
+      } else {
+        state.hudSectorEl.textContent = "银河旋臂 · " + SUN_NAME + "恒星系" + (state.planar ? " · 2D平面" : "");
+      }
+    }
+    if (state.hudScaleEl) {
+      var onlineCount = state.stellarSystems ? state.stellarSystems.length : 1;
+      if (isGalaxy) {
+        state.hudScaleEl.textContent = "在线恒星 " + onlineCount + "（" + SUN_NAME + "）· 占星系尺度 <8%";
+      } else if (isWormhole) {
+        state.hudScaleEl.textContent = "跨恒星系通道 · 邀请朋友后激活跃迁";
+      } else {
+        state.hudScaleEl.textContent = onlineCount + " 恒星 · " + state.nodes.length + " 记忆天体 · 1 虫洞";
+      }
+    }
+    if (state.hudBtns) {
+      if (state.hudBtns.sun) state.hudBtns.sun.classList.toggle("is-active", activeKey === "sun");
+      if (state.hudBtns.galaxy) state.hudBtns.galaxy.classList.toggle("is-active", activeKey === "galaxy");
+      if (state.hudBtns.wormhole) state.hudBtns.wormhole.classList.toggle("is-active", activeKey === "wormhole");
+    }
+  }
+
   /* ---------- 场景总装配 ---------- */
 
   function setupScene(container, model, restoreSnap) {
     var THREE = global.THREE; state.container = container; state.nodes = model.nodes;
     state.edges = model.edges;
     state.onSelect = model.onSelect || function () {};
+    state.planar = restoreSnap ? !!restoreSnap.planar : !!model.planar;
     state.degraded = restoreSnap ? !!restoreSnap.degraded : isMobileDevice();
     state.warmupFrames = 0; state.fpsFrames = 0; state.fpsAccum = 0;
 
@@ -2748,21 +3368,27 @@
 
     var cv = state.renderer.domElement; cv.className = "mg3d-canvas"; container.appendChild(cv);
 
-    state.scene = new THREE.Scene(); state.camera = new THREE.PerspectiveCamera(FOV, w / h, 2.0, 26000);
+    state.scene = new THREE.Scene(); state.camera = new THREE.PerspectiveCamera(FOV, w / h, 4.0, 110000);
 
     computeLayout(THREE, state.nodes, state.edges, model.categories || []);
     var hier = buildHierarchyAndOrbits(THREE, state.nodes, model.categories || []);
     state.galaxies = hier.galaxies; state.galaxyByCat = hier.galaxyByCat;
 
-    state.theta = restoreSnap ? restoreSnap.theta : 0.66; state.phi = restoreSnap ? restoreSnap.phi : 1.04;
+    state.theta = restoreSnap ? restoreSnap.theta : (state.planar ? PLANAR_THETA : DEFAULT_THETA);
+    state.phi = restoreSnap ? restoreSnap.phi : (state.planar ? PLANAR_PHI : DEFAULT_PHI);
     state.radius = restoreSnap ? restoreSnap.radius : DEFAULT_RADIUS;
     state.targetRadius = restoreSnap ? restoreSnap.targetRadius : DEFAULT_RADIUS;
     state.target = restoreSnap && restoreSnap.target ? restoreSnap.target.clone() : new THREE.Vector3(0, 0, 0);
     state.targetFocus = restoreSnap && restoreSnap.targetFocus ? restoreSnap.targetFocus.clone() : new THREE.Vector3(0, 0, 0);
+    state.baseFocus = new THREE.Vector3(0, 0, 0);
+    state.panOffset = restoreSnap && restoreSnap.panOffset ? restoreSnap.panOffset.clone() : new THREE.Vector3(0, 0, 0);
     state.simTime = restoreSnap ? restoreSnap.simTime : 0;
+    state.focusedSpecial = null;
+    state.hoveredSpecial = null;
 
     state.tmpV = new THREE.Vector3(); state.tmpV2 = new THREE.Vector3(); state.tmpV3 = new THREE.Vector3();
     state.tmpLight = new THREE.Vector3(); state.tmpSunV = new THREE.Vector3();
+    state.tmpCamR = new THREE.Vector3(); state.tmpCamU = new THREE.Vector3();
     state.ray = new THREE.Raycaster();
 
     state.texCache = {
@@ -2788,8 +3414,8 @@
     state.planetById = {};
     state.labels = [];
 
-    var deepStarBudget = 7200; var sunlitDustBudget = 260;
-    var galaxyTotalBudget = Math.min(22000, MAX_PARTICLES - deepStarBudget - sunlitDustBudget - 4000);
+    var deepStarBudget = 18500; var sunlitDustBudget = 420;
+    var grandGalaxyStarBudget = Math.min(31500, MAX_PARTICLES - deepStarBudget - sunlitDustBudget - 2500);
     setupCosmicBackground(THREE, deepStarBudget);
 
     state.root = new THREE.Group(); state.scene.add(state.root);
@@ -2801,19 +3427,11 @@
       irregularMoonA: buildIrregularBodyGeometry(THREE, 14, 10, 0x271828, 0.42, [1.30, 0.72, 0.88])
     };
 
+    /* 装配宏大银河星系、中心恒星「陌浔」、日心科幻设施及本恒星区域唯一星际虫洞 */
+    createGrandSpiralGalaxy(THREE, grandGalaxyStarBudget);
     createCentralSun(THREE);
-
     setupHardSciFiElements(THREE, sunlitDustBudget);
-
-    var weightSum = 0;
-    var galWeights = state.galaxies.map(function (g) {
-      var wgt = 1.2 + Math.sqrt(g.members.length); weightSum += wgt; return wgt;
-    });
-    state.galaxies.forEach(function (gal, idx) {
-      var ptsCount = clamp(Math.round(galaxyTotalBudget * (galWeights[idx] / Math.max(1, weightSum))), 2200, 6800); createGalaxyVisuals(THREE, gal, ptsCount);
-    });
-
-    createIntergalacticFilaments(THREE, state.edges);
+    createStellarWormhole(THREE, sharedGeos);
 
     var labelBox = document.createElement("div"); labelBox.className = "mg3d-labels";
     container.appendChild(labelBox); state.labelBox = labelBox;
@@ -2822,7 +3440,9 @@
       var entry = buildCelestialBody(THREE, nd, sharedGeos); state.planets.push(entry); state.planetById[nd.id] = entry; state.labels.push(entry);
     });
 
-    updateAllWorldPositions(state.simTime); updateFilaments(state.simTime);
+    createSpecialLabelsAndHud(container);
+
+    updateAllWorldPositions(state.simTime);
 
     state.edgeMeta = [];
     if (state.edges.length) {
@@ -2913,12 +3533,14 @@
       if (state.contextRebuilt || !state.active) return;
 
       var snap = {
+        planar: state.planar,
         theta: state.theta,
         phi: state.phi,
         radius: state.radius,
         targetRadius: state.targetRadius,
         target: state.target ? state.target.clone() : null,
         targetFocus: state.targetFocus ? state.targetFocus.clone() : null,
+        panOffset: state.panOffset ? state.panOffset.clone() : null,
         selected: state.selected,
         focusCat: state.focusCat,
         simTime: state.simTime,
@@ -2943,40 +3565,68 @@
     cv.addEventListener("webglcontextrestored", state.onCtxRestored, false);
   }
 
-  /* ---------- 相机、拾取与大动态范围缩放交互（近观天体全貌 / 远观宇宙星网） ---------- */
+  /* ---------- 相机、2D/3D 双模同源交互与银河全景平滑过渡 ---------- */
 
   function updateCamera(dt) {
     var cam = state.camera;
     if (!cam) return;
 
+    var kR = dt > 0 ? Math.min(1, dt * 5.0) : 1;
+    var kT = dt > 0 ? Math.min(1, dt * 4.5) : 1;
+    state.radius = lerp(state.radius, state.targetRadius, kR);
+
     if (state.selectedEntry) {
-      state.targetFocus.copy(state.selectedEntry.worldPos);
+      state.baseFocus.copy(state.selectedEntry.worldPos);
+    } else if (state.focusedSpecial === "wormhole" && state.wormhole) {
+      state.baseFocus.copy(state.wormhole.worldPos);
+    } else if (state.focusedSpecial === "sun") {
+      state.baseFocus.set(0, 0, 0);
     } else if (state.focusCat) {
-      var gal = state.galaxyByCat[state.focusCat];
-      if (gal) {
-        state.targetFocus.copy(gal.worldPos);
+      var sub = state.planets.filter(function (p) { return p.node.category === state.focusCat; });
+      if (sub.length) {
+        state.tmpV.set(0, 0, 0);
+        for (var i = 0; i < sub.length; i++) state.tmpV.add(sub[i].worldPos);
+        state.tmpV.multiplyScalar(1 / sub.length);
+        state.baseFocus.copy(state.tmpV);
       } else {
-        var sub = state.planets.filter(function (p) { return p.node.category === state.focusCat; });
-        if (sub.length) {
-          state.tmpV.set(0, 0, 0);
-          for (var i = 0; i < sub.length; i++) state.tmpV.add(sub[i].worldPos);
-          state.tmpV.multiplyScalar(1 / sub.length); state.targetFocus.copy(state.tmpV);
-        }
+        state.baseFocus.set(0, 0, 0);
+      }
+    } else {
+      /* 随镜头拉远平滑过渡视点至银河星系中心，呈现完整倾斜旋臂全景与「陌浔」的渺小比例 */
+      var galBlend = smoothstepJS(4400, 15200, state.radius);
+      if (state.galaxyCenter && galBlend > 0.0001) {
+        state.baseFocus.set(
+          state.galaxyCenter.x * galBlend,
+          state.galaxyCenter.y * galBlend,
+          state.galaxyCenter.z * galBlend
+        );
+      } else {
+        state.baseFocus.set(0, 0, 0);
       }
     }
 
-    if (!state.dragging && !state.reduced && dt > 0) {
-      state.theta += dt * 0.020;
+    state.targetFocus.copy(state.baseFocus);
+    if (state.panOffset) state.targetFocus.add(state.panOffset);
+    state.target.lerp(state.targetFocus, kT);
+
+    if (state.planar) {
+      /* 平面 2D 模式：锁定最佳深空俯视倾角，保留全部 3D 动态天体公转与银河特效 */
+      var kAng = dt > 0 ? Math.min(1, dt * 7.5) : 1;
+      state.theta = lerp(state.theta, PLANAR_THETA, kAng);
+      state.phi = lerp(state.phi, PLANAR_PHI, kAng);
+    } else if (!state.dragging && !state.reduced && dt > 0) {
+      var galSlow = 1.0 - smoothstepJS(5000, 14000, state.radius) * 0.92;
+      state.theta += dt * 0.016 * galSlow;
     }
-    var kR = dt > 0 ? Math.min(1, dt * 4.8) : 0; var kT = dt > 0 ? Math.min(1, dt * 4.2) : 0;
-    state.radius = lerp(state.radius, state.targetRadius, kR); state.target.lerp(state.targetFocus, kT);
 
     var sp = Math.sin(state.phi), cp = Math.cos(state.phi);
     cam.position.set(
       state.target.x + state.radius * sp * Math.cos(state.theta),
       state.target.y + state.radius * cp,
       state.target.z + state.radius * sp * Math.sin(state.theta)
-    ); cam.lookAt(state.target); cam.updateMatrixWorld();
+    );
+    cam.lookAt(state.target);
+    cam.updateMatrixWorld();
   }
 
   function raycastScene(clientX, clientY) {
@@ -2989,22 +3639,39 @@
     var orig = state.ray.ray.origin; var dir = state.ray.ray.direction;
 
     var best = null; var bestT = Infinity;
-    for (var i = 0; i < state.planets.length; i++) {
-      var p = state.planets[i]; var hitR = Math.max(p.base * 1.25, 22); var ox = p.worldPos.x - orig.x;
-      var oy = p.worldPos.y - orig.y; var oz = p.worldPos.z - orig.z;
-      var proj = ox * dir.x + oy * dir.y + oz * dir.z;
-      if (proj < 0) continue;
-      var d2 = (ox * ox + oy * oy + oz * oz) - proj * proj;
-      if (d2 <= hitR * hitR) {
-        var tHit = proj - Math.sqrt(Math.max(0, hitR * hitR - d2));
-        if (tHit < bestT) { bestT = tHit; best = { type: "node", entry: p }; }
+
+    if (state.radius < 7200) {
+      for (var i = 0; i < state.planets.length; i++) {
+        var p = state.planets[i]; var hitR = Math.max(p.base * 1.28, 22);
+        var ox = p.worldPos.x - orig.x; var oy = p.worldPos.y - orig.y; var oz = p.worldPos.z - orig.z;
+        var proj = ox * dir.x + oy * dir.y + oz * dir.z;
+        if (proj < 0) continue;
+        var d2 = (ox * ox + oy * oy + oz * oz) - proj * proj;
+        if (d2 <= hitR * hitR) {
+          var tHit = proj - Math.sqrt(Math.max(0, hitR * hitR - d2));
+          if (tHit < bestT) { bestT = tHit; best = { type: "node", entry: p }; }
+        }
+      }
+
+      if (state.wormhole) {
+        var wh = state.wormhole;
+        var wHitR = WORMHOLE_RADIUS * 1.85;
+        var wox = wh.worldPos.x - orig.x, woy = wh.worldPos.y - orig.y, woz = wh.worldPos.z - orig.z;
+        var wProj = wox * dir.x + woy * dir.y + woz * dir.z;
+        if (wProj > 0) {
+          var wd2 = (wox * wox + woy * woy + woz * woz) - wProj * wProj;
+          if (wd2 <= wHitR * wHitR) {
+            var wHitT = wProj - Math.sqrt(Math.max(0, wHitR * wHitR - wd2));
+            if (wHitT < bestT) { bestT = wHitT; best = { type: "wormhole", entry: null }; }
+          }
+        }
       }
     }
 
     var sox = -orig.x, soy = -orig.y, soz = -orig.z; var sProj = sox * dir.x + soy * dir.y + soz * dir.z;
     if (sProj > 0) {
       var sd2 = (sox * sox + soy * soy + soz * soz) - sProj * sProj;
-      var sHitR = SUN_RADIUS * 1.08;
+      var sHitR = state.radius > 7200 ? 480 : (SUN_RADIUS * 1.12);
       if (sd2 <= sHitR * sHitR) {
         var sHitT = sProj - Math.sqrt(Math.max(0, sHitR * sHitR - sd2));
         if (sHitT < bestT) best = { type: "sun", entry: null };
@@ -3035,6 +3702,7 @@
         var dist = Math.hypot(a.x - b.x, a.y - b.y);
         if (state.pinchDist > 0) {
           var ratio = dist / state.pinchDist;
+          if (state.focusedSpecial === "sun" || state.focusedSpecial === "wormhole") state.focusedSpecial = null;
           state.targetRadius = clamp(state.targetRadius / ratio, MIN_RADIUS, MAX_RADIUS);
           state.radius = clamp(state.radius / ratio, MIN_RADIUS, MAX_RADIUS);
         }
@@ -3046,8 +3714,22 @@
         return;
       }
       var dx = e.clientX - state.lastX; var dy = e.clientY - state.lastY; state.lastX = e.clientX;
-      state.lastY = e.clientY; state.moved += Math.abs(dx) + Math.abs(dy); state.theta -= dx * 0.0055;
-      state.phi = clamp(state.phi - dy * 0.0055, 0.18, Math.PI - 0.18);
+      state.lastY = e.clientY; state.moved += Math.abs(dx) + Math.abs(dy);
+
+      if (state.planar && state.camera && state.panOffset) {
+        /* 平面 2D 拖拽：沿视平面精确 1:1 屏幕像素平移 */
+        var el = state.camera.matrixWorld.elements;
+        state.tmpCamR.set(el[0], el[1], el[2]).normalize();
+        state.tmpCamU.set(el[4], el[5], el[6]).normalize();
+        var worldPerPx = (2 * state.radius * Math.tan((FOV * Math.PI / 180) * 0.5)) / Math.max(1, state.height);
+        state.panOffset.addScaledVector(state.tmpCamR, -dx * worldPerPx);
+        state.panOffset.addScaledVector(state.tmpCamU, dy * worldPerPx);
+        var maxPan = GRAND_GALAXY_R * 1.15;
+        if (state.panOffset.length() > maxPan) state.panOffset.setLength(maxPan);
+      } else {
+        state.theta -= dx * 0.0055;
+        state.phi = clamp(state.phi - dy * 0.0055, 0.18, Math.PI - 0.18);
+      }
     });
 
     function endPointer(e) {
@@ -3060,41 +3742,115 @@
     }
     cv.addEventListener("pointerup", endPointer); cv.addEventListener("pointercancel", endPointer);
     cv.addEventListener("pointerleave", function () {
-      state.hovered = null; if (state.renderer && state.renderer.domElement) state.renderer.domElement.style.cursor = "grab";
+      state.hovered = null; state.hoveredSpecial = null;
+      if (state.renderer && state.renderer.domElement) state.renderer.domElement.style.cursor = "grab";
     });
 
     cv.addEventListener("wheel", function (e) {
       e.preventDefault();
+      if (state.focusedSpecial === "sun" || state.focusedSpecial === "wormhole") {
+        if (e.deltaY > 0) state.focusedSpecial = null;
+      }
       if (e.deltaY < 0 && !state.selectedEntry && state.hovered && state.planetById[state.hovered.id] && state.targetRadius < 1200) {
         state.targetFocus.lerp(state.planetById[state.hovered.id].worldPos, 0.35);
       }
-      var next = state.targetRadius * (1 + clamp(e.deltaY, -140, 140) * 0.0017);
+      var next = state.targetRadius * (1 + clamp(e.deltaY, -160, 160) * 0.0021);
       state.targetRadius = clamp(next, MIN_RADIUS, MAX_RADIUS);
     }, { passive: false });
 
     cv.addEventListener("dblclick", function () { resetView(); });
   }
 
+  function clearLabelSelectionClasses() {
+    if (state.planets) {
+      for (var i = 0; i < state.planets.length; i++) {
+        state.planets[i].label.classList.remove("is-selected");
+      }
+    }
+    if (state.sunLabelEl) state.sunLabelEl.classList.remove("is-selected");
+    if (state.wormholeLabelEl) state.wormholeLabelEl.classList.remove("is-selected");
+  }
+
+  function focusSunCloseUp() {
+    state.selected = null; state.selectedEntry = null; state.focusCat = null;
+    state.focusedSpecial = "sun";
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    state.targetRadius = SUN_RADIUS * 4.2;
+    state.onSelect(null);
+    clearLabelSelectionClasses();
+    if (state.sunLabelEl) state.sunLabelEl.classList.add("is-selected");
+    showSpaceToast("恒星「" + SUN_NAME + "」· 个人记忆主星（共统御 " + state.nodes.length + " 颗记忆行星）");
+  }
+
+  function focusStellarSystem() {
+    state.selected = null; state.selectedEntry = null; state.focusCat = null;
+    state.focusedSpecial = null;
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    state.targetRadius = DEFAULT_RADIUS;
+    if (!state.planar) { state.theta = DEFAULT_THETA; state.phi = DEFAULT_PHI; }
+    state.onSelect(null);
+    clearLabelSelectionClasses();
+  }
+
+  function focusGrandGalaxy() {
+    state.selected = null; state.selectedEntry = null; state.focusCat = null;
+    state.focusedSpecial = "galaxy";
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    state.theta = state.planar ? PLANAR_THETA : DEFAULT_THETA;
+    state.phi = state.planar ? PLANAR_PHI : 1.00;
+    state.targetRadius = GALAXY_OVERVIEW_RADIUS;
+    state.onSelect(null);
+    clearLabelSelectionClasses();
+  }
+
+  function focusWormhole() {
+    state.selected = null; state.selectedEntry = null; state.focusCat = null;
+    state.focusedSpecial = "wormhole";
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    state.targetRadius = WORMHOLE_RADIUS * 5.8;
+    state.onSelect(null);
+    clearLabelSelectionClasses();
+    if (state.wormholeLabelEl) state.wormholeLabelEl.classList.add("is-selected");
+    showSpaceToast("星际虫洞 · 当前仅「" + SUN_NAME + "」恒星系在线，邀请朋友后可跨恒星系通行");
+  }
+
+  function setPlanar(isPlanar) {
+    state.planar = !!isPlanar;
+    if (state.planar) {
+      state.theta = PLANAR_THETA;
+      state.phi = PLANAR_PHI;
+    }
+    updateHudTelemetry();
+  }
+
   function pickAt(clientX, clientY) {
     var hit = raycastScene(clientX, clientY);
     if (hit && hit.type === "node") {
       selectNode(hit.entry);
+    } else if (hit && hit.type === "wormhole") {
+      focusWormhole();
     } else if (hit && hit.type === "sun") {
-      state.selected = null; state.selectedEntry = null; state.focusCat = null;
-      state.targetFocus.set(0, 0, 0); state.targetRadius = SUN_RADIUS * 3.4; state.onSelect(null);
-      if (state.planets) {
-        for (var i = 0; i < state.planets.length; i++) {
-          state.planets[i].label.classList.remove("is-selected");
-        }
+      if (state.radius > 5400) {
+        focusStellarSystem();
+      } else {
+        focusSunCloseUp();
       }
     } else {
-      selectNode(null);
+      if (state.selectedEntry || state.focusedSpecial === "sun" || state.focusedSpecial === "wormhole") {
+        state.selected = null; state.selectedEntry = null; state.focusedSpecial = null;
+        clearLabelSelectionClasses();
+        state.onSelect(null);
+        if (state.radius < DEFAULT_RADIUS * 0.72) state.targetRadius = DEFAULT_RADIUS;
+      } else {
+        state.onSelect(null);
+      }
     }
   }
 
   function hoverAt(clientX, clientY) {
     var hit = raycastScene(clientX, clientY);
     state.hovered = (hit && hit.type === "node") ? hit.entry.node : null;
+    state.hoveredSpecial = (hit && (hit.type === "wormhole" || hit.type === "sun")) ? hit.type : null;
     if (state.renderer && state.renderer.domElement) {
       state.renderer.domElement.style.cursor = hit ? "pointer" : "grab";
     }
@@ -3103,59 +3859,49 @@
   function selectNode(entry) {
     var node = entry ? entry.node : null; state.selected = node ? node.id : null;
     state.selectedEntry = entry || null;
+    state.focusedSpecial = null;
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
     if (entry) {
-      state.focusCat = null; state.targetFocus.copy(entry.worldPos);
+      state.focusCat = null;
       var ringFactor = entry.ring ? 5.2 : 4.2;
       state.targetRadius = clamp(entry.base * ringFactor, MIN_RADIUS + 8, 520);
-    } else { state.targetFocus.set(0, 0, 0); state.targetRadius = DEFAULT_RADIUS; }
-    state.onSelect(node);
-    if (state.planets) {
-      for (var i = 0; i < state.planets.length; i++) {
-        var p = state.planets[i]; p.label.classList.toggle("is-selected", !!(node && p.node === node));
-      }
+    } else {
+      state.targetRadius = DEFAULT_RADIUS;
     }
+    state.onSelect(node);
+    clearLabelSelectionClasses();
+    if (entry && entry.label) entry.label.classList.add("is-selected");
   }
 
   function focusCategory(cat) {
-    state.selected = null; state.selectedEntry = null;
-    if (state.planets) {
-      for (var i = 0; i < state.planets.length; i++) {
-        state.planets[i].label.classList.remove("is-selected");
-      }
-    }
+    state.selected = null; state.selectedEntry = null; state.focusedSpecial = null;
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    clearLabelSelectionClasses();
     if (!cat || state.focusCat === cat) {
-      state.focusCat = null; state.targetFocus.set(0, 0, 0); state.targetRadius = DEFAULT_RADIUS;
+      state.focusCat = null; state.targetRadius = DEFAULT_RADIUS;
       return null;
     }
     state.focusCat = cat;
     var list = state.planets.filter(function (p) { return p.node.category === cat; });
-    if (list.length) {
-      var c = new global.THREE.Vector3();
-      list.forEach(function (p) { c.add(p.worldPos); });
-      c.multiplyScalar(1 / list.length); state.targetFocus.copy(c); state.targetRadius = 1520;
-    } else { state.targetFocus.set(0, 0, 0); state.targetRadius = DEFAULT_RADIUS; }
+    state.targetRadius = list.length ? 1480 : DEFAULT_RADIUS;
     return state.focusCat;
   }
 
   function resetView() {
-    state.selected = null; state.selectedEntry = null; state.focusCat = null; state.hovered = null;
-    if (state.targetFocus) state.targetFocus.set(0, 0, 0);
-    state.targetRadius = DEFAULT_RADIUS; state.theta = 0.66; state.phi = 1.04; state.onSelect(null);
-    if (state.planets) {
-      for (var i = 0; i < state.planets.length; i++) {
-        state.planets[i].label.classList.remove("is-selected");
-      }
-    }
+    state.selected = null; state.selectedEntry = null; state.focusCat = null;
+    state.hovered = null; state.hoveredSpecial = null; state.focusedSpecial = null;
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    state.targetRadius = DEFAULT_RADIUS;
+    state.theta = state.planar ? PLANAR_THETA : DEFAULT_THETA;
+    state.phi = state.planar ? PLANAR_PHI : DEFAULT_PHI;
+    state.onSelect(null);
+    clearLabelSelectionClasses();
   }
 
   function clearSelection() {
-    if (!state.selected) return;
-    state.selected = null; state.selectedEntry = null;
-    if (state.planets) {
-      for (var i = 0; i < state.planets.length; i++) {
-        state.planets[i].label.classList.remove("is-selected");
-      }
-    }
+    if (!state.selected && !state.focusedSpecial) return;
+    state.selected = null; state.selectedEntry = null; state.focusedSpecial = null;
+    clearLabelSelectionClasses();
   }
 
   /* ---------- 每帧主循环 ---------- */
@@ -3180,8 +3926,9 @@
 
     var selId = state.selected; var hovId = state.hovered ? state.hovered.id : null;
     var focus = state.focusCat;
+    var galFade = 1.0 - smoothstepJS(4200, 7800, state.radius);
 
-    state.edgesObj.material.opacity = selId ? 0.88 : (focus ? 0.36 : 0.38);
+    state.edgesObj.material.opacity = (selId ? 0.88 : (focus ? 0.38 : 0.34)) * galFade;
 
     for (var i = 0; i < state.edgeMeta.length; i++) {
       var m = state.edgeMeta[i]; var pa = m.ea ? m.ea.worldPos : m.a.p;
@@ -3234,7 +3981,7 @@
     state.simTime += simDt; var t = state.simTime;
 
     if (simDt > 0) {
-      updateAllWorldPositions(t); updateFilaments(t);
+      updateAllWorldPositions(t);
     }
 
     updateCamera(dt);
@@ -3244,8 +3991,9 @@
     }
     if (state.skyDomeMat) state.skyDomeMat.uniforms.uTime.value = t;
 
-    var focus = state.focusCat; var focusDim = focus ? 0.42 : 1.0;
+    var focus = state.focusCat; var focusDim = focus ? 0.52 : 1.0;
 
+    updateGrandGalaxyAndWormhole(t, simDt, focusDim);
     updateCentralSunAndOptics(t, simDt, focusDim);
 
     for (var pi = 0; pi < state.pulsars.length; pi++) {
@@ -3257,22 +4005,7 @@
 
     var viewInv = state.camera.matrixWorldInverse; updateHardSciFiScene(t, simDt, viewInv, focusDim);
 
-    for (var gi = 0; gi < state.galaxies.length; gi++) {
-      var gal = state.galaxies[gi]; var gDim = focus && gal.category !== focus ? 0.22 : 1.0;
-      if (gal.points) {
-        gal.points.material.uniforms.uTime.value = t;
-        gal.points.material.uniforms.uDim.value = lerp(gal.points.material.uniforms.uDim.value, gDim, Math.min(1, dt * 5));
-      }
-      if (gal.dustMesh) {
-        if (simDt > 0) gal.dustMesh.rotation.z -= simDt * gal.spinSpeed * 0.42;
-        gal.dustMesh.material.opacity = lerp(gal.dustMesh.material.opacity, 0.50 * gDim, Math.min(1, dt * 5));
-      }
-      if (gal.bulge) {
-        var bPulse = 1 + (state.reduced ? 0 : 0.04 * Math.sin(t * 1.4 + gi));
-        gal.bulge.material.opacity = lerp(gal.bulge.material.opacity, 0.40 * gDim * bPulse, Math.min(1, dt * 5));
-      }
-    }
-
+    var orbitGalFade = 1.0 - smoothstepJS(3800, 7200, state.radius);
     var camPos = state.camera.position; var i, p;
     for (i = 0; i < state.planets.length; i++) {
       p = state.planets[i]; var dim = focus && p.node.category !== focus ? 0.22 : 1.0;
@@ -3284,21 +4017,7 @@
       var nextScale = lerp(curScale, targetScale, Math.min(1, dt * 8));
       p.mesh.scale.setScalar(p.base * nextScale);
 
-      if (p.tier === "star") {
-        var su = p.mesh.material.uniforms; su.uTime.value = t;
-        su.uDim.value = lerp(su.uDim.value, dim, Math.min(1, dt * 6));
-        su.uBoost.value = lerp(su.uBoost.value, boost, Math.min(1, dt * 8));
-        var flare = state.reduced ? 1.0 : (1.0 + 0.065 * Math.sin(t * 2.1 + p.pulsePhase));
-        var cBaseOp = p.node.__isGalaxyCore ? 0.68 : 0.50;
-        p.glow.material.opacity = lerp(p.glow.material.opacity, (cBaseOp + boost * 0.20) * dim * flare, Math.min(1, dt * 6));
-        var cScale = p.base * (p.node.__isGalaxyCore ? 5.2 : 4.1) * flare * (1 + boost * 0.12);
-        p.glow.scale.set(cScale, cScale, 1);
-        if (p.coronaOuter) {
-          p.coronaOuter.material.opacity = lerp(p.coronaOuter.material.opacity, (0.20 + boost * 0.16) * dim, Math.min(1, dt * 6));
-        }
-        if (simDt > 0) p.mesh.rotation.y += simDt * p.spin * 0.55;
-
-      } else if (p.tier === "blackhole") {
+      if (p.tier === "blackhole") {
         updateGargantuaRig(p.bhRig, t, dim, boost);
 
       } else {
@@ -3307,17 +4026,12 @@
 
         var srcEntry = p.lightSourceNode ? state.planetById[p.lightSourceNode.id] : null;
         var eclipseVal = 0;
-        state.tmpLight.set(-p.worldPos.x, -p.worldPos.y, -p.worldPos.z).normalize().multiplyScalar(0.68);
+        state.tmpLight.set(-p.worldPos.x, -p.worldPos.y, -p.worldPos.z).normalize();
         if (srcEntry) {
-          if (srcEntry.tier === "star") {
-            state.tmpV2.subVectors(srcEntry.worldPos, p.worldPos).normalize().multiplyScalar(0.45);
-            state.tmpLight.add(state.tmpV2);
-          } else {
-            eclipseVal = computeEclipseFactor(p.worldPos, srcEntry.worldPos, srcEntry.base);
-          }
+          eclipseVal = computeEclipseFactor(p.worldPos, srcEntry.worldPos, srcEntry.base);
         }
         if (state.tmpLight.lengthSq() > 0.001) {
-          state.tmpLight.normalize().transformDirection(viewInv); pu.uLightDirV.value.copy(state.tmpLight);
+          state.tmpLight.transformDirection(viewInv); pu.uLightDirV.value.copy(state.tmpLight);
         }
         pu.uEclipse.value = lerp(pu.uEclipse.value, eclipseVal, Math.min(1, dt * 8));
 
@@ -3337,11 +4051,13 @@
         if (simDt > 0) p.mesh.rotation.y += simDt * p.spin;
       }
 
-      if (p.track && p.track.orb.parentNode) {
-        var hostE = state.planetById[p.track.orb.parentNode.id];
-        if (hostE) p.track.line.position.copy(hostE.worldPos);
-        var hostActive = state.selected === p.track.orb.parentNode.id || (state.hovered && state.hovered.id === p.track.orb.parentNode.id);
-        p.track.mat.opacity = ((isSel || isHover) ? 0.44 : (hostActive ? 0.28 : p.track.baseOpacity)) * dim;
+      if (p.track) {
+        if (p.track.orb.parentNode) {
+          var hostE = state.planetById[p.track.orb.parentNode.id];
+          if (hostE) p.track.line.position.copy(hostE.worldPos);
+        }
+        var catBoost = (focus && p.node.category === focus) ? 0.24 : p.track.baseOpacity;
+        p.track.mat.opacity = ((isSel || isHover) ? 0.44 : catBoost) * dim * orbitGalFade;
       }
     }
 
@@ -3357,18 +4073,106 @@
       mm.mat.uniforms.uLightDirV.value.copy(mm.hostEntry.mesh.material.uniforms.uLightDirV.value);
     }
 
-    updateEdgesDynamic(); updateLabels();
+    updateEdgesDynamic();
+    updateLabels();
+    updateHudTelemetry();
 
     state.renderer.render(state.scene, state.camera);
   }
 
-  /* ---------- 标签投影与防重叠（近者优先，同屏上限 24，悬停/选中强制显示） ---------- */
+  /* ---------- 标签投影与防重叠（含恒星「陌浔」远近双态标识、唯一虫洞标识及行星节点防重叠） ---------- */
 
   function updateLabels() {
     if (!state.labelBox || !state.camera) return;
     var w = state.width, h = state.height; var tanHalf = Math.tan((FOV * Math.PI / 180) / 2);
     var camPos = state.camera.position; var v = state.tmpV; var focus = state.focusCat;
+    var planetGalFade = 1.0 - smoothstepJS(4200, 6200, state.radius);
+    var placed = [];
+
+    /* 1. 恒星「陌浔」标签：近景为太阳主标签，缩小至银河全景时变为旋臂上的菱形科技定位准星 */
+    if (state.sunLabelEl) {
+      var sEl = state.sunLabelEl;
+      v.set(0, 0, 0);
+      var sunDist = camPos.distanceTo(v);
+      v.project(state.camera);
+      if (v.z > 1 || v.z < -1) {
+        sEl.style.visibility = "hidden";
+      } else {
+        var sunSx = (v.x * 0.5 + 0.5) * w;
+        var sunCenterY = (-v.y * 0.5 + 0.5) * h;
+        var isGalPin = state.radius >= 5400;
+        if (isGalPin && sEl.dataset.pinMode !== "galactic") {
+          sEl.dataset.pinMode = "galactic";
+          sEl.classList.add("is-galactic-pin");
+          sEl.innerHTML = '<span class="mg3d-reticle" aria-hidden="true"></span><span class="mg3d-pin-tag">◈ ' + SUN_NAME + '</span>';
+        } else if (!isGalPin && sEl.dataset.pinMode !== "stellar") {
+          sEl.dataset.pinMode = "stellar";
+          sEl.classList.remove("is-galactic-pin");
+          sEl.innerHTML = '<span class="mg3d-sun-glyph" aria-hidden="true">☀</span><span class="mg3d-sun-name">' + SUN_NAME + '</span><span class="mg3d-sun-tag">恒星</span>';
+        }
+        var sunProjPx = (SUN_RADIUS * (h / (2 * tanHalf))) / Math.max(1, sunDist);
+        var sunSy = isGalPin ? sunCenterY : (sunCenterY + Math.min(sunProjPx * 0.92, h * 0.35) + 14);
+        if (sunSx < -80 || sunSx > w + 80 || sunSy < -40 || sunSy > h + 40) {
+          sEl.style.visibility = "hidden";
+        } else {
+          sEl.style.visibility = "visible";
+          sEl.style.opacity = "1";
+          sEl.style.pointerEvents = "auto";
+          sEl.style.zIndex = "8";
+          sEl.style.transform = "translate3d(" + sunSx.toFixed(1) + "px," + sunSy.toFixed(1) + "px,0) translate(-50%,-50%)";
+          sEl.classList.toggle("is-hovered", state.hoveredSpecial === "sun");
+          placed.push({ x: sunSx, y: sunSy, w: 112, h: 30 });
+          if (!isGalPin) {
+            var blockSunD = Math.min(sunProjPx * 1.75, 180);
+            placed.push({ x: sunSx, y: sunCenterY, w: blockSunD, h: blockSunD });
+          }
+        }
+      }
+    }
+
+    /* 2. 本恒星区域唯一「星际虫洞」标签 */
+    if (state.wormholeLabelEl && state.wormhole) {
+      var wEl = state.wormholeLabelEl;
+      var whFade = state.focusedSpecial === "wormhole" ? 1.0 : (1.0 - smoothstepJS(4800, 7400, state.radius));
+      if (whFade < 0.05) {
+        wEl.style.visibility = "hidden";
+        wEl.style.pointerEvents = "none";
+      } else {
+        v.copy(state.wormhole.worldPos);
+        var whDist = camPos.distanceTo(v);
+        v.project(state.camera);
+        if (v.z > 1 || v.z < -1) {
+          wEl.style.visibility = "hidden";
+        } else {
+          var whProjPx = (WORMHOLE_RADIUS * 1.45 * (h / (2 * tanHalf))) / Math.max(1, whDist);
+          var whSx = (v.x * 0.5 + 0.5) * w;
+          var whCenterY = (-v.y * 0.5 + 0.5) * h;
+          var whSy = whCenterY + Math.min(whProjPx, h * 0.30) + 14;
+          if (whSx < -80 || whSx > w + 80 || whSy < -40 || whSy > h + 40) {
+            wEl.style.visibility = "hidden";
+          } else {
+            wEl.style.visibility = "visible";
+            wEl.style.opacity = whFade.toFixed(3);
+            wEl.style.pointerEvents = whFade > 0.2 ? "auto" : "none";
+            wEl.style.zIndex = "7";
+            wEl.style.transform = "translate3d(" + whSx.toFixed(1) + "px," + whSy.toFixed(1) + "px,0) translate(-50%,-50%)";
+            wEl.classList.toggle("is-hovered", state.hoveredSpecial === "wormhole");
+            placed.push({ x: whSx, y: whSy, w: 142, h: 28 });
+            var blockWhD = Math.min(whProjPx * 1.85, 220);
+            placed.push({ x: whSx, y: whCenterY, w: blockWhD, h: blockWhD });
+          }
+        }
+      }
+    }
+
     var list = state.labels; var n = list.length; var i, p, nd, el;
+    if (planetGalFade < 0.03 && !state.selectedEntry && !state.hovered) {
+      for (i = 0; i < n; i++) {
+        list[i].label.style.opacity = "0";
+        list[i].label.style.pointerEvents = "none";
+      }
+      return;
+    }
 
     for (i = 0; i < n; i++) {
       p = list[i]; nd = p.node; el = p.label; v.copy(p.worldPos); p._dist = camPos.distanceTo(v);
@@ -3406,13 +4210,13 @@
       return pa._dist - pb._dist;
     });
 
-    var placed = []; var visibleCount = 0;
+    var visibleCount = 0;
 
     for (var oi = 0; oi < order.length; oi++) {
       p = list[order[oi]]; el = p.label; nd = p.node; var isSel = state.selected === nd.id;
       var isHov = !!(state.hovered && state.hovered.id === nd.id); var mustShow = isSel || isHov;
 
-      if (!mustShow && visibleCount >= MAX_VISIBLE_LABELS) {
+      if (!mustShow && (visibleCount >= MAX_VISIBLE_LABELS || planetGalFade < 0.05)) {
         el.style.opacity = "0"; el.style.pointerEvents = "none"; continue;
       }
 
@@ -3436,10 +4240,11 @@
       placed.push({ x: x, y: free ? ty : y, w: bw, h: bh });
       visibleCount++;
 
-      var finalY = free ? ty : y; el.style.visibility = "visible"; el.style.pointerEvents = "auto";
+      var finalY = free ? ty : y; el.style.visibility = "visible";
+      el.style.pointerEvents = (mustShow || planetGalFade > 0.25) ? "auto" : "none";
       el.style.transform = "translate3d(" + x.toFixed(1) + "px," + finalY.toFixed(1) + "px,0) translate(-50%,-50%)";
       var near = clamp(1.18 - p._dist / 4200, 0.52, 1);
-      var op = dimmed ? 0.15 : (mustShow ? 1 : (0.64 * near + 0.26));
+      var op = (dimmed ? 0.15 : (mustShow ? 1 : (0.64 * near + 0.26))) * (mustShow ? 1 : planetGalFade);
       el.style.opacity = op.toFixed(3);
       el.style.zIndex = String(isSel ? 5 : (isHov ? 4 : (dimmed ? 1 : 2)));
       el.classList.toggle("is-focus", !!(focus && nd.category === focus));
@@ -3533,6 +4338,9 @@
     if (state.labelBox && state.labelBox.parentNode) {
       state.labelBox.parentNode.removeChild(state.labelBox);
     }
+    if (state.hudEl && state.hudEl.parentNode) {
+      state.hudEl.parentNode.removeChild(state.hudEl);
+    }
 
     if (state.reduceMq && state._onReduceChange) {
       if (state.reduceMq.removeEventListener) state.reduceMq.removeEventListener("change", state._onReduceChange);
@@ -3541,7 +4349,10 @@
     }
 
     state.renderer = null; state.scene = null; state.camera = null; state.root = null; state.bgGroup = null;
-    state.centralSun = null; state.lensGhosts = []; state.skyDomeMat = null; state.asteroidBelt = null;
+    state.centralSun = null; state.grandGalaxy = null; state.galaxyCenter = null; state.wormhole = null;
+    state.stellarSystems = []; state.sunLabelEl = null; state.wormholeLabelEl = null;
+    state.hudEl = null; state.hudSectorEl = null; state.hudScaleEl = null; state.hudBtns = {};
+    state.lensGhosts = []; state.skyDomeMat = null; state.asteroidBelt = null; state.hudLines = null;
     state.rockSharedMat = null; state.flybyRocks = []; state.microMeteors = []; state.beacons = [];
     state.spaceStation = null; state.derelictProbe = null; state.labelBox = null; state.edgesObj = null;
     state.edgeMeta = []; state.planets = [];
@@ -3553,7 +4364,7 @@
     state.pointers = {};
   }
 
-  /* ---------- 生命周期与对外接口（保持签名与行为完全兼容） ---------- */
+  /* ---------- 生命周期与对外接口（保持签名与行为完全兼容，新增 planar / 星域跃迁能力） ---------- */
 
   function render(container, model, opts) {
     destroy();
@@ -3563,10 +4374,6 @@
     var normalized = normalizeModel(model, opts);
     if (!normalized) return { nodes: 0, edges: 0, error: "no-model" };
     if (!normalized.nodes.length) return { nodes: 0, edges: 0 };
-
-    if (global.MemoryGraph && global.MemoryGraph.renderBackground) {
-      global.MemoryGraph.renderBackground(container);
-    }
 
     state.rawModel = normalized; state.contextRebuilt = false; setupScene(container, normalized, null);
 
@@ -3580,13 +4387,17 @@
     if (state.rebuildTimer) {
       clearTimeout(state.rebuildTimer); state.rebuildTimer = 0;
     }
+    if (state.toastTimer) {
+      clearTimeout(state.toastTimer); state.toastTimer = 0;
+    }
     global.removeEventListener("resize", onResize);
     document.removeEventListener("visibilitychange", onVisibility);
 
     disposeSceneOnly();
 
     state.nodes = []; state.edges = []; state.rawModel = null; state.selected = null;
-    state.selectedEntry = null; state.hovered = null; state.focusCat = null; state.container = null;
+    state.selectedEntry = null; state.hovered = null; state.hoveredSpecial = null;
+    state.focusCat = null; state.focusedSpecial = null; state.container = null;
   }
 
   function supported() {
@@ -3601,6 +4412,8 @@
 
   global.MemoryGraph3D = {
     render: render, destroy: destroy, resetView: resetView, focusCategory: focusCategory,
-    clearSelection: clearSelection, supported: supported
+    clearSelection: clearSelection, supported: supported, setPlanar: setPlanar,
+    focusGrandGalaxy: focusGrandGalaxy, focusWormhole: focusWormhole, focusStellarSystem: focusStellarSystem,
+    isActive: function () { return !!state.active; }
   };
 })(window);
