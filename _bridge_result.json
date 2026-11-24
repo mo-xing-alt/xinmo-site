@@ -1,0 +1,7 @@
+{
+ "job_id": "20261125-075940-84c228",
+ "ts": 1795564789,
+ "exit_code": 0,
+ "ok": true,
+ "output": "=== 同步 memory.html ===\n-rw-r--r-- 1 root root 8075 07:59:48 /var/www/xinmo-site/memory.html\ndf144ff8a789bba86d87af8d2eae930987789b742894180ce454e9d27503b4de  /var/www/xinmo-site/memory.html\n=== 同步 assets/js/memory-graph.js ===\n-rw-r--r-- 1 root root 108598 07:59:48 /var/www/xinmo-site/assets/js/memory-graph.js\nc9c066b88a1039cb3310479418c497c28a5d9e9f29910f55e1b1bbc51b3f44b3  /var/www/xinmo-site/assets/js/memory-graph.js\n=== 同步 assets/js/memory-graph-3d.js ===\n-rw-r--r-- 1 root root 210433 07:59:49 /var/www/xinmo-site/assets/js/memory-graph-3d.js\nc299264a4e7d3a2676b72013237abaabd9b9e66bd6107ad0f50fa9aef53060c4  /var/www/xinmo-site/assets/js/memory-graph-3d.js\n=== 同步 assets/js/memory-graph-view.js ===\n-rw-r--r-- 1 root root 29410 07:59:49 /var/www/xinmo-site/assets/js/memory-graph-view.js\ndcd75c18d3edaf8caec8258c9639e1f305fe127db960cec1311fc9d1d5d0ad6d  /var/www/xinmo-site/assets/js/memory-graph-view.js\n=== 同步 assets/css/memory-graph.css ===\n-rw-r--r-- 1 root root 38573 07:59:49 /var/www/xinmo-site/assets/css/memory-graph.css\nc897d2323daa4fc7b98f3e8efed2ed9f6788affe30eea92e9f23719f1b2ef8d3  /var/www/xinmo-site/assets/css/memory-graph.css\n"
+}
