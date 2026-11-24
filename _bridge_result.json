@@ -1,0 +1,7 @@
+{
+ "job_id": "20261124-190025-fb5d07",
+ "ts": 1795518033,
+ "exit_code": 0,
+ "ok": true,
+ "output": "ff06ad4e6bbf8d2e4eac602b735009d1180a0a5063ec6d6652d339d4e93c96c4  /var/www/xinmo-site/assets/js/memory-graph-3d.js\n2b8bc35179a2dc18040d5efe18242c37fe9ec53672fbffc3aef985d71488d95d  /var/www/xinmo-site/assets/css/memory-graph.css\n-rw-r--r-- 1 www-data www-data 123967 Nov 24 19:00 /var/www/xinmo-site/assets/js/memory-graph-3d.js\njs3d=200/123967\ncss=200/13996\n"
+}
