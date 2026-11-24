@@ -1,3 +1,4 @@
+<!-- memory.html -->
 <!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
@@ -27,6 +28,7 @@
 <script defer src="./assets/js/vendor/three.min.js"></script>
 <script defer src="./assets/js/memory-files.js"></script>
 <script defer src="./assets/js/memory-graph.js"></script>
+<script defer src="./assets/js/memory-graph-3d.js"></script>
 <script defer src="./assets/js/memory-graph-view.js"></script>
 <script defer src="./assets/js/memory-app.js"></script>
 <link rel="stylesheet" href="./assets/css/memory-graph.css" />
@@ -61,8 +63,8 @@
   </div>
 </div>
 
-<!-- ============================ 主体视图 ============================ -->
-<div id="app-view" hidden>
+<!-- ============================ 主体视图（默认直接进入宇宙视图，零列表闪现） ============================ -->
+<div id="app-view" class="pmv-app is-graph-active is-booting" hidden>
   <header class="pmv-header">
     <div class="pmv-header-inner">
       <div class="pmv-brand">
@@ -75,7 +77,7 @@
       </div>
       <div class="pmv-tools">
         <span id="pmv-meta" class="pmv-meta"></span>
-        <button id="pmv-graph-btn" class="pmv-btn pmv-graph-btn" type="button" aria-label="打开记忆图谱">◉ 图谱</button>
+        <button id="pmv-graph-btn" class="pmv-btn pmv-graph-btn" type="button" aria-label="回到宇宙图谱视图">◉ 图谱</button>
         <button id="pmv-nav-toggle" class="pmv-btn pmv-nav-toggle" type="button" aria-label="展开目录">目录</button>
         <button id="pmv-theme" class="pmv-btn" type="button" aria-label="切换主题">☾ 深色</button>
         <button id="pmv-lock" class="pmv-btn" type="button" aria-label="锁定档案">锁定</button>
@@ -83,37 +85,29 @@
     </div>
   </header>
 
-  <div class="pmv-shell">
-    <aside id="pmv-side" class="pmv-side">
-      <input id="pmv-search" type="search" placeholder="搜索标题或内容…" aria-label="搜索档案" />
-      <nav id="pmv-nav" class="pmv-nav" aria-label="档案分类导航"></nav>
-    </aside>
-
-    <main class="pmv-main">
-      <h1 id="pmv-doc-title"></h1>
-      <div id="pmv-doc-body"></div>
-    </main>
-
-    <aside class="pmv-toc" aria-label="本页目录">
-      <div class="pmv-toc-title">本页目录</div>
-      <nav id="pmv-toc-list"></nav>
-    </aside>
-  </div>
-
-  <!-- ===================== 三维记忆图谱视图 ===================== -->
-  <div id="pmv-graph-view" class="mg-view" hidden>
+  <!-- ===================== 宇宙 / 2D 记忆图谱主视图 ===================== -->
+  <div id="pmv-graph-view" class="mg-view">
     <div class="mg-toolbar">
       <div class="mg-legend" id="mg-legend"></div>
       <div class="mg-actions">
-        <span class="mg-hint">拖动旋转 · 滚轮缩放 · 点击节点</span>
+        <div class="mg-mode" id="mg-mode" role="group" aria-label="图谱视图与目录">
+          <button type="button" class="mg-mode-btn is-active" data-mode="universe" aria-pressed="true">宇宙</button>
+          <button type="button" class="mg-mode-btn" data-mode="plane" aria-pressed="false">平面 2D</button>
+          <button type="button" class="mg-mode-btn mg-mode-action" id="mg-dir-btn" data-action="directory" aria-expanded="false" aria-controls="pmv-dir-overlay">目录</button>
+        </div>
+        <span class="mg-hint">拖动旋转宇宙 · 滚轮/双指缩放 · 点击天体看详情 · 双击/R 复位</span>
         <button id="mg-reset" class="pmv-btn" type="button">重置视角</button>
-        <button id="mg-back" class="pmv-btn" type="button">返回列表</button>
       </div>
     </div>
+
     <div class="mg-stage" id="mg-stage">
-      <div class="mg-loading" id="mg-loading">正在构建记忆图谱…</div>
+      <div class="mg-edge-vignette" id="mg-edge-vignette" aria-hidden="true"></div>
+      <div class="mg-loading" id="mg-loading">正在构建宇宙视图…</div>
     </div>
-    <aside class="mg-detail" id="mg-detail" hidden>
+
+    <!-- 右侧玻璃覆盖层 1：节点详情（不挤占画布宽度） -->
+    <aside class="mg-detail mg-glass-overlay" id="mg-detail" role="dialog" aria-modal="false" aria-labelledby="mg-detail-title" tabindex="-1" hidden>
+      <div class="mg-drawer-handle" aria-hidden="true"></div>
       <button class="mg-detail-close" id="mg-detail-close" type="button" aria-label="关闭详情">×</button>
       <div class="mg-detail-cat" id="mg-detail-cat"></div>
       <h2 id="mg-detail-title"></h2>
@@ -132,9 +126,41 @@
       </div>
     </aside>
   </div>
+
+  <!-- ===================== 右侧玻璃覆盖层 2：档案目录与同层正文阅读（初始隐藏防闪现） ===================== -->
+  <div id="pmv-dir-overlay" class="pmv-shell mg-dir-overlay mg-glass-overlay is-initial-hidden" data-dir-pane="list" role="dialog" aria-modal="false" aria-labelledby="mg-dir-title" tabindex="-1" hidden>
+    <div class="mg-drawer-handle" aria-hidden="true"></div>
+    <div class="mg-dir-head" id="mg-dir-head">
+      <button type="button" class="mg-dir-back" id="mg-dir-back" aria-label="返回目录列表" hidden>← 返回列表</button>
+      <div class="mg-dir-heading">
+        <strong class="mg-dir-title" id="mg-dir-title">档案目录</strong>
+        <span class="mg-dir-count" id="mg-dir-count"></span>
+      </div>
+      <button type="button" class="mg-detail-close mg-dir-close" id="mg-dir-close" aria-label="关闭目录浮层">×</button>
+    </div>
+
+    <div class="mg-dir-scroll" id="mg-dir-scroll">
+      <aside id="pmv-side" class="pmv-side">
+        <input id="pmv-search" type="search" placeholder="搜索标题或内容…" aria-label="搜索档案" />
+        <nav id="pmv-nav" class="pmv-nav" aria-label="档案分类导航"></nav>
+      </aside>
+
+      <main class="pmv-main" id="pmv-main-pane">
+        <h1 id="pmv-doc-title"></h1>
+        <div id="pmv-doc-body"></div>
+      </main>
+
+      <aside class="pmv-toc" aria-label="本页目录">
+        <div class="pmv-toc-title">本页目录</div>
+        <nav id="pmv-toc-list"></nav>
+      </aside>
+    </div>
+  </div>
 </div>
 
 <div id="pmv-toast" class="toast" role="status" aria-live="polite"></div>
 
+<!-- 全站弹入式公告（由 deploy/inject_site_notice.py 注入） -->
+<script defer src="assets/js/site-notice.js"></script>
 </body>
 </html>
