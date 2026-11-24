@@ -1,7 +1,0 @@
-{
- "job_id": "20261125-065741-9b0413",
- "ts": 1795561071,
- "exit_code": 0,
- "ok": true,
- "output": "=== 同步 memory.html ===\n-rw-r--r-- 1 root root 8346 06:57:50 /var/www/xinmo-site/memory.html\n426698f0ac0b111306cc419281bca6d0c43ed5faff35c71e9f7f552fadc1f495  /var/www/xinmo-site/memory.html\n=== 同步 assets/js/memory-graph-view.js ===\n-rw-r--r-- 1 root root 28742 06:57:50 /var/www/xinmo-site/assets/js/memory-graph-view.js\n1df65ef4c3cf075628a78c74d850de8706f0a7e69620d7b1ebe8c49a422a2f00  /var/www/xinmo-site/assets/js/memory-graph-view.js\n=== 同步 assets/css/memory-graph.css ===\n-rw-r--r-- 1 root root 29236 06:57:51 /var/www/xinmo-site/assets/css/memory-graph.css\n014fef392fa1f6ffff10e95b5be59a5fef8a37fa5341d26769923bf499960ba0  /var/www/xinmo-site/assets/css/memory-graph.css\n"
-}
