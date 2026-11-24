@@ -593,7 +593,7 @@ html[data-theme="light"] .pmv-header .pmv-graph-btn:hover {
     0 1px 0 rgba(255, 255, 255, .07) inset;
   color: #e2eeff;
   overflow: hidden;
-  z-index: 24;
+  z-index: 36;
   opacity: 0;
   transform: translate3d(20px, 0, 0);
   pointer-events: none;
@@ -604,11 +604,11 @@ html[data-theme="light"] .pmv-header .pmv-graph-btn:hover {
 }
 
 .mg-view > .mg-detail.mg-glass-overlay {
-  top: 56px;
+  top: var(--mg-overlay-top-gv, 58px);
 }
 
 #app-view.is-graph-active .mg-dir-overlay {
-  top: 120px;
+  top: var(--mg-overlay-top-app, 122px);
 }
 
 .mg-view > .mg-detail.mg-glass-overlay.is-open,
@@ -938,7 +938,7 @@ html[data-theme="light"] .pmv-header .pmv-graph-btn:hover {
     position: fixed;
     left: 0;
     right: 0;
-    top: auto;
+    top: auto !important;
     bottom: 0;
     width: 100%;
     height: 68vh;
