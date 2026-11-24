@@ -434,7 +434,8 @@
   }
 
   function engine() {
-    if (isUniverseMode() && global.MemoryGraph3D && global.MemoryGraph3D.supported()) {
+    /* 3D 与 2D 统一取同一套动态 WebGL 宇宙环境（仅在浏览器不支持 WebGL 时回退 Canvas 2D） */
+    if (global.MemoryGraph3D && global.MemoryGraph3D.supported()) {
       return global.MemoryGraph3D;
     }
     return global.MemoryGraph;
@@ -442,8 +443,8 @@
 
   function hintText() {
     return isUniverseMode()
-      ? "拖动旋转宇宙 · 滚轮/双指缩放 · 点击天体看详情 · 双击/R 复位"
-      : "拖动画布/天体 · 滚轮/双指缩放 · 点击天体看详情 · 双击/R 复位";
+      ? "拖动旋转宇宙 · 滚轮缩放观银河全景 · 点击天体/虫洞看详情 · 双击/R 复位"
+      : "拖动平移星图 · 滚轮缩放观银河全景 · 点击天体/虫洞看详情 · 双击/R 复位";
   }
 
   function normalizeModeInput(mode) {
@@ -483,15 +484,18 @@
     if (!stage) return;
 
     var eng = engine();
-    var res = eng && eng.render(stage, state.data, renderDetail);
+    var renderOpts = eng === global.MemoryGraph3D
+      ? { onSelect: renderDetail, planar: !isUniverseMode() }
+      : renderDetail;
+    var res = eng && eng.render(stage, state.data, renderOpts);
     if (loading) loading.style.display = "none";
     if (!res) return;
 
     if (res.error && loading) {
-      loading.textContent = "3D 不可用，已自动切换至平面 2D 视图";
+      loading.textContent = "WebGL 不可用，已自动切换至兼容 2D 视图";
       loading.style.display = "";
       if (eng === global.MemoryGraph3D && global.MemoryGraph) {
-        global.MemoryGraph.render(stage, state.data, renderDetail);
+        global.MemoryGraph.render(stage, state.data, renderDetail, true);
       }
       global.setTimeout(function () { if (loading) loading.style.display = "none"; }, 2400);
       return;
@@ -501,7 +505,7 @@
       state.activeCat = eng.focusCategory(state.activeCat);
     }
     if (loading) {
-      loading.textContent = "天体 " + res.nodes + " · 关联 " + res.edges;
+      loading.textContent = "恒星 陌浔 · 记忆天体 " + res.nodes + " · 关联 " + res.edges;
       loading.style.display = "";
       global.setTimeout(function () { if (loading) loading.style.display = "none"; }, 1800);
     }
@@ -510,7 +514,7 @@
   function mountGraph() {
     var loading = $("mg-loading");
     if (loading) {
-      loading.textContent = isUniverseMode() ? "正在构建宇宙视图…" : "正在构建平面星图…";
+      loading.textContent = isUniverseMode() ? "正在构建银河与陌浔恒星系…" : "正在同步平面星系视图…";
       loading.style.display = "";
     }
     if (state.mountRaf) {
@@ -537,6 +541,12 @@
     } catch (e) {}
     syncModeButtons();
     if (!state.active) return;
+
+    /* 若底层统一 3D 宇宙已激活，则零销毁无缝切换 3D 自由旋转 / 2D 视平面平移，确保背景与动态 100% 同源 */
+    if (global.MemoryGraph3D && global.MemoryGraph3D.isActive && global.MemoryGraph3D.isActive() && global.MemoryGraph3D.setPlanar) {
+      global.MemoryGraph3D.setPlanar(!isUniverseMode());
+      return;
+    }
 
     var cat = state.activeCat;
     closeDetailOverlay(false, false);
