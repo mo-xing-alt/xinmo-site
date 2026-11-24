@@ -1,7 +1,0 @@
-{
- "job_id": "20261124-075930-224d01",
- "ts": 1795478379,
- "exit_code": 0,
- "ok": true,
- "output": "VPS_SHA=2d8d4ac0c1faa581b516c5125d841dc6f48f75076faa0f77474f397946ccc8d2\nVPS_BYTES=163706\nONLINE_SHA=2d8d4ac0c1faa581b516c5125d841dc6f48f75076faa0f77474f397946ccc8d2\nONLINE_BYTES=163706\nONLINE_HEAD=window.PMV_VAULT = {\n  \"format\": \"pmv\",\n"
-}
