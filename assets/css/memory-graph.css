@@ -278,3 +278,178 @@ html[data-theme="light"] .pmv-graph-btn:hover {
     animation: none;
   }
 }
+
+/* ---------- 2D / 3D 视图切换 + 3D 星球图谱（2026-11-22） ---------- */
+.mg-mode {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, .26);
+  background: rgba(8, 16, 30, .55);
+  box-shadow: inset 0 0 12px rgba(8, 20, 40, .55);
+}
+.mg-mode-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #7fa8c9;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.mg-mode-btn:hover { color: #d7efff; }
+.mg-mode-btn.is-active {
+  color: #041018;
+  background: linear-gradient(120deg, #22d3ee, #38bdf8);
+  box-shadow: 0 0 14px rgba(34, 211, 238, .45);
+}
+
+.mg3d-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.mg3d-canvas:active { cursor: grabbing; }
+
+.mg3d-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mg3d-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 148px;
+  padding: 2px 7px;
+  border-radius: 7px;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: .2px;
+  color: #d8ecff;
+  background: rgba(6, 12, 24, .66);
+  border: 1px solid rgba(56, 189, 248, .26);
+  box-shadow: 0 2px 10px rgba(2, 8, 18, .55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity .2s ease, border-color .2s ease, background .2s ease;
+  will-change: transform, opacity;
+}
+.mg3d-label:hover { border-color: rgba(34, 211, 238, .7); background: rgba(10, 24, 44, .85); }
+.mg3d-label.is-focus { border-color: rgba(34, 211, 238, .5); }
+.mg3d-label.is-selected {
+  color: #041018;
+  background: linear-gradient(120deg, #22d3ee, #7dd3fc);
+  border-color: rgba(125, 211, 252, .95);
+  box-shadow: 0 0 16px rgba(34, 211, 238, .45);
+}
+@media (max-width: 720px) {
+  .mg3d-label { max-width: 104px; font-size: 10px; padding: 1px 6px; }
+  .mg-mode-btn { padding: 4px 9px; font-size: 11px; }
+}
+
+/* assets/css/memory-graph.css（追加） */
+
+/* ---------- 天体层级宇宙 3D 深空天穹遮罩与硬科幻暗色毛玻璃标签（第一阶段追加） ---------- */
+.mg3d-canvas {
+  background: radial-gradient(
+    ellipse 130% 115% at 52% 46%,
+    #070b1c 0%,
+    #040611 52%,
+    #020308 100%
+  );
+}
+.mg3d-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 8.5px;
+  border-radius: 6px;
+  background: rgba(7, 9, 17, .80);
+  border: 1px solid rgba(148, 163, 184, .14);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .74), inset 0 1px 0 rgba(255, 255, 255, .05);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  color: #dce7f5;
+  letter-spacing: .01em;
+}
+.mg3d-label::before {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px currentColor;
+}
+.mg3d-label.is-tier-star {
+  color: #f8fafc;
+  background: rgba(9, 12, 22, .85);
+  border-color: rgba(251, 191, 36, .28);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .78), 0 0 12px rgba(251, 191, 36, .08);
+}
+.mg3d-label.is-tier-star::before {
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, .95);
+}
+.mg3d-label.is-tier-planet {
+  border-color: rgba(56, 189, 248, .28);
+}
+.mg3d-label.is-tier-planet::before {
+  background: #2dd4bf;
+  box-shadow: 0 0 7px rgba(45, 212, 191, .90);
+}
+.mg3d-label.is-tier-satellite {
+  font-size: 10.5px;
+  color: #9fb3cc;
+  background: rgba(5, 7, 14, .68);
+  border-color: rgba(148, 163, 184, .15);
+}
+.mg3d-label.is-tier-satellite::before {
+  width: 4px;
+  height: 4px;
+  background: #94a3b8;
+  box-shadow: none;
+}
+.mg3d-label.is-tier-blackhole {
+  color: #fde68a;
+  background: rgba(5, 6, 11, .92);
+  border-color: rgba(245, 158, 11, .50);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .88), 0 0 14px rgba(245, 158, 11, .22);
+}
+.mg3d-label.is-tier-blackhole::before {
+  background: #020308;
+  border: 1.5px solid #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, .95);
+}
+.mg3d-label.is-hovered {
+  color: #ffffff;
+  background: rgba(13, 19, 34, .94);
+  border-color: rgba(253, 224, 150, .68);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .85), 0 0 16px rgba(251, 191, 36, .25);
+}
+.mg3d-label.is-selected {
+  color: #050811;
+  background: linear-gradient(120deg, #fde68a, #7dd3fc);
+  border-color: rgba(255, 251, 235, .95);
+  box-shadow: 0 0 22px rgba(253, 224, 150, .44), 0 0 14px rgba(56, 189, 248, .35);
+}
+.mg3d-label.is-selected::before {
+  background: #050811;
+  box-shadow: none;
+}
