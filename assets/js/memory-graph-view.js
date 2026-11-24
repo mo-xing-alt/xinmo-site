@@ -118,7 +118,19 @@
     }
   }
 
+  function syncOverlayTopOffset() {
+    var appView = $("app-view");
+    var gv = $("pmv-graph-view");
+    var stage = $("mg-stage");
+    if (!appView || !gv || !stage) return;
+    var stageTop = stage.offsetTop || 52;
+    var appTop = (gv.offsetTop || 63) + stageTop;
+    appView.style.setProperty("--mg-overlay-top-gv", (stageTop + 10) + "px");
+    appView.style.setProperty("--mg-overlay-top-app", (appTop + 10) + "px");
+  }
+
   function syncVignette() {
+    syncOverlayTopOffset();
     var vig = $("mg-edge-vignette");
     if (vig) {
       vig.classList.toggle("is-active", Boolean(state.detailOpen || state.dirOpen));
@@ -589,6 +601,7 @@
     buildLegend();
     syncModeButtons();
     updateDirCount();
+    syncOverlayTopOffset();
 
     if (!alreadyActive) {
       destroyEngines();
@@ -691,6 +704,17 @@
   function bind() {
     if (state.bound) return;
     state.bound = true;
+
+    global.addEventListener("resize", syncOverlayTopOffset);
+    if (global.ResizeObserver) {
+      var tb = document.querySelector("#pmv-graph-view .mg-toolbar");
+      if (tb) {
+        try {
+          var ro = new global.ResizeObserver(syncOverlayTopOffset);
+          ro.observe(tb);
+        } catch (e) {}
+      }
+    }
 
     // 顶部「◉ 图谱」按钮：从正文/浮层回到视图，等价于打开视图并关掉浮层
     var topBtn = $("pmv-graph-btn");
