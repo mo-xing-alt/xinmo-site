@@ -39,8 +39,8 @@
   };
 
   var state = {
-    active: false, container: null, rawModel: null, planar: false,
-    renderer: null, scene: null, camera: null, root: null, bgGroup: null,
+    active: false, container: null, rawModel: null, planar: false, envOnly: false,
+    renderer: null, scene: null, camera: null, root: null, bgGroup: null, stellarFgGroup: null,
     texCache: null, labelBox: null, sunLabelEl: null, wormholeLabelEl: null,
     hudEl: null, hudSectorEl: null, hudScaleEl: null, hudBtns: {}, toastTimer: 0,
     planets: [], planetById: {}, galaxies: [], galaxyByCat: {},
@@ -1387,9 +1387,10 @@
       ? opts
       : (opts && typeof opts.onSelect === "function" ? opts.onSelect : function () {});
     var planar = !!(opts && typeof opts === "object" && opts.planar);
+    var envOnly = !!(opts && typeof opts === "object" && opts.envOnly);
     var friends = (opts && typeof opts === "object" && Array.isArray(opts.friends)) ? opts.friends : [];
 
-    return { nodes: model.nodes, edges: cleanEdges, categories: categories, onSelect: onSelect, planar: planar, friends: friends };
+    return { nodes: model.nodes, edges: cleanEdges, categories: categories, onSelect: onSelect, planar: planar, envOnly: envOnly, friends: friends };
   }
 
   /* ---------- 大间距三维力导向基础布局 ---------- */
@@ -1729,7 +1730,14 @@
       sun.promMats[i].uniforms.uTime.value = t; sun.promMats[i].uniforms.uDim.value = dim;
     }
 
-    var cam = state.camera; state.tmpV.set(0, 0, 0).project(cam);
+    var cam = state.camera;
+    if (state.envOnly) {
+      for (var gi0 = 0; gi0 < state.lensGhosts.length; gi0++) {
+        state.lensGhosts[gi0].sprite.visible = false;
+      }
+      return;
+    }
+    state.tmpV.set(0, 0, 0).project(cam);
     var sx = state.tmpV.x, sy = state.tmpV.y, sz = state.tmpV.z; var rScreen = Math.sqrt(sx * sx + sy * sy);
     var visible = sz > -1 && sz < 1 && rScreen < 1.28;
     if (!visible) {
@@ -3299,6 +3307,10 @@
       var btn = ev.target.closest("[data-nav]");
       if (!btn) return;
       var nav = btn.getAttribute("data-nav");
+      if (state.envOnly && global.MemoryGraph && global.MemoryGraph.handleHudNav) {
+        global.MemoryGraph.handleHudNav(nav);
+        return;
+      }
       if (nav === "sun") focusStellarSystem();
       else if (nav === "galaxy") focusGrandGalaxy();
       else if (nav === "wormhole") focusWormhole();
@@ -3354,6 +3366,7 @@
     state.edges = model.edges;
     state.onSelect = model.onSelect || function () {};
     state.planar = restoreSnap ? !!restoreSnap.planar : !!model.planar;
+    state.envOnly = restoreSnap ? !!restoreSnap.envOnly : !!model.envOnly;
     state.degraded = restoreSnap ? !!restoreSnap.degraded : isMobileDevice();
     state.warmupFrames = 0; state.fpsFrames = 0; state.fpsAccum = 0;
 
@@ -3427,8 +3440,15 @@
       irregularMoonA: buildIrregularBodyGeometry(THREE, 14, 10, 0x271828, 0.42, [1.30, 0.72, 0.88])
     };
 
-    /* 装配宏大银河星系、中心恒星「陌浔」、日心科幻设施及本恒星区域唯一星际虫洞 */
+    /* 装配宏大银河星系；3D 恒星系前景放入独立分组以便与 2D 扁平星图零销毁瞬时切换 */
     createGrandSpiralGalaxy(THREE, grandGalaxyStarBudget);
+
+    var realRoot = state.root;
+    var fgGroup = new THREE.Group();
+    realRoot.add(fgGroup);
+    state.stellarFgGroup = fgGroup;
+    state.root = fgGroup;
+
     createCentralSun(THREE);
     setupHardSciFiElements(THREE, sunlitDustBudget);
     createStellarWormhole(THREE, sharedGeos);
@@ -3482,6 +3502,8 @@
       state.edgesObj.frustumCulled = false; state.root.add(state.edgesObj);
     }
 
+    state.root = realRoot;
+
     if (restoreSnap) {
       state.focusCat = restoreSnap.focusCat || null;
       if (restoreSnap.selected && state.planetById[restoreSnap.selected]) {
@@ -3490,6 +3512,7 @@
       }
     }
 
+    applyEnvOnlyState();
     bindEvents(cv); bindContextLoss(cv); resize(); updateCamera(0);
 
     state.active = true; state.lastTs = 0; setupReducedMotion(); animate();
@@ -3571,15 +3594,16 @@
     var cam = state.camera;
     if (!cam) return;
 
-    var kR = dt > 0 ? Math.min(1, dt * 5.0) : 1;
-    var kT = dt > 0 ? Math.min(1, dt * 4.5) : 1;
+    var dampSpeed = state.planar ? 7.2 : 5.0;
+    var kR = dt > 0 ? Math.min(1, dt * dampSpeed) : 1;
+    var kT = dt > 0 ? Math.min(1, dt * (state.planar ? 7.2 : 4.5)) : 1;
     state.radius = lerp(state.radius, state.targetRadius, kR);
 
     if (state.selectedEntry) {
       state.baseFocus.copy(state.selectedEntry.worldPos);
-    } else if (state.focusedSpecial === "wormhole" && state.wormhole) {
+    } else if (!state.envOnly && state.focusedSpecial === "wormhole" && state.wormhole) {
       state.baseFocus.copy(state.wormhole.worldPos);
-    } else if (state.focusedSpecial === "sun") {
+    } else if (state.focusedSpecial === "sun" || (state.envOnly && (state.focusedSpecial === "wormhole" || state.focusedSpecial === "node2d"))) {
       state.baseFocus.set(0, 0, 0);
     } else if (state.focusCat) {
       var sub = state.planets.filter(function (p) { return p.node.category === state.focusCat; });
@@ -3812,6 +3836,119 @@
     clearLabelSelectionClasses();
     if (state.wormholeLabelEl) state.wormholeLabelEl.classList.add("is-selected");
     showSpaceToast("星际虫洞 · 当前仅「" + SUN_NAME + "」恒星系在线，邀请朋友后可跨恒星系通行");
+  }
+
+  function applyEnvOnlyState() {
+    if (state.stellarFgGroup) state.stellarFgGroup.visible = !state.envOnly;
+    if (state.labelBox) state.labelBox.style.display = state.envOnly ? "none" : "";
+    if (state.renderer && state.renderer.domElement) {
+      state.renderer.domElement.style.pointerEvents = state.envOnly ? "none" : "";
+      state.renderer.domElement.style.zIndex = state.envOnly ? "1" : "";
+    }
+    if (state.envOnly) {
+      for (var i = 0; i < state.lensGhosts.length; i++) {
+        state.lensGhosts[i].sprite.visible = false;
+      }
+    }
+  }
+
+  function setEnvOnly(isEnvOnly) {
+    state.envOnly = !!isEnvOnly;
+    state.planar = !!isEnvOnly;
+    state.selected = null;
+    state.selectedEntry = null;
+    state.hovered = null;
+    state.hoveredSpecial = null;
+    state.focusedSpecial = null;
+    if (state.panOffset) state.panOffset.set(0, 0, 0);
+    if (state.planar) {
+      state.theta = PLANAR_THETA;
+      state.phi = PLANAR_PHI;
+      updateCamera(0);
+    } else {
+      state.theta = DEFAULT_THETA;
+      state.phi = DEFAULT_PHI;
+    }
+    applyEnvOnlyState();
+    updateHudTelemetry();
+  }
+
+  function getEnvProjection() {
+    if (!state.active || !state.camera) return null;
+    var w = state.width || 1, h = state.height || 1;
+    var tanHalf = Math.tan((FOV * Math.PI / 180) * 0.5);
+    state.tmpV.set(0, 0, 0).project(state.camera);
+    var sx = (state.tmpV.x * 0.5 + 0.5) * w;
+    var sy = (-state.tmpV.y * 0.5 + 0.5) * h;
+    var scale2D = h / Math.max(1, 2 * state.radius * tanHalf);
+    return {
+      x: sx,
+      y: sy,
+      scale: scale2D,
+      radius: state.radius,
+      targetRadius: state.targetRadius,
+      settled: Math.abs(state.radius - state.targetRadius) < Math.max(4, state.targetRadius * 0.012) && (!state.target || !state.targetFocus || state.target.distanceTo(state.targetFocus) < 16),
+      behind: state.tmpV.z > 1
+    };
+  }
+
+  function panByPixels(dx, dy) {
+    if (!state.active || !state.camera || !state.panOffset) return;
+    if (state.focusedSpecial === "sun" || state.focusedSpecial === "wormhole" || state.focusedSpecial === "node2d") {
+      state.focusedSpecial = null;
+    }
+    var el = state.camera.matrixWorld.elements;
+    state.tmpCamR.set(el[0], el[1], el[2]).normalize();
+    state.tmpCamU.set(el[4], el[5], el[6]).normalize();
+    var worldPerPx = (2 * state.radius * Math.tan((FOV * Math.PI / 180) * 0.5)) / Math.max(1, state.height);
+    var stepX = -dx * worldPerPx;
+    var stepY = dy * worldPerPx;
+    state.panOffset.addScaledVector(state.tmpCamR, stepX);
+    state.panOffset.addScaledVector(state.tmpCamU, stepY);
+    var maxPan = GRAND_GALAXY_R * 1.15;
+    if (state.panOffset.length() > maxPan) {
+      state.panOffset.setLength(maxPan);
+    } else if (state.target) {
+      state.target.addScaledVector(state.tmpCamR, stepX);
+      state.target.addScaledVector(state.tmpCamU, stepY);
+    }
+  }
+
+  function zoomByFactor(factor) {
+    if (!state.active) return;
+    if (factor > 1 && (state.focusedSpecial === "sun" || state.focusedSpecial === "wormhole")) {
+      state.focusedSpecial = null;
+    }
+    state.targetRadius = clamp(state.targetRadius * factor, MIN_RADIUS, MAX_RADIUS);
+  }
+
+  function focus2DPoint(wx, wy, targetRad, rightReservePx, specialTag) {
+    if (!state.active || !state.camera || !state.panOffset) return;
+    state.selected = null;
+    state.selectedEntry = null;
+    state.focusCat = null;
+    if (specialTag !== undefined) {
+      state.focusedSpecial = specialTag || null;
+    }
+    var rad = targetRad != null ? clamp(targetRad, MIN_RADIUS, MAX_RADIUS) : state.targetRadius;
+    if (targetRad != null) {
+      state.targetRadius = rad;
+    }
+    if (state.planar && (Math.abs(state.theta - PLANAR_THETA) > 0.001 || Math.abs(state.phi - PLANAR_PHI) > 0.001)) {
+      state.theta = PLANAR_THETA;
+      state.phi = PLANAR_PHI;
+      updateCamera(0);
+    }
+    var el = state.camera.matrixWorld.elements;
+    state.tmpCamR.set(el[0], el[1], el[2]).normalize();
+    state.tmpCamU.set(el[4], el[5], el[6]).normalize();
+    var tanHalf = Math.tan((FOV * Math.PI / 180) * 0.5);
+    var worldPerPx = (2 * rad * tanHalf) / Math.max(1, state.height);
+    var reserveWorld = ((rightReservePx || 0) * 0.5) * worldPerPx;
+    state.panOffset.set(0, 0, 0)
+      .addScaledVector(state.tmpCamR, wx + reserveWorld)
+      .addScaledVector(state.tmpCamU, -wy);
+    updateHudTelemetry();
   }
 
   function setPlanar(isPlanar) {
@@ -4083,7 +4220,7 @@
   /* ---------- 标签投影与防重叠（含恒星「陌浔」远近双态标识、唯一虫洞标识及行星节点防重叠） ---------- */
 
   function updateLabels() {
-    if (!state.labelBox || !state.camera) return;
+    if (state.envOnly || !state.labelBox || !state.camera) return;
     var w = state.width, h = state.height; var tanHalf = Math.tan((FOV * Math.PI / 180) / 2);
     var camPos = state.camera.position; var v = state.tmpV; var focus = state.focusCat;
     var planetGalFade = 1.0 - smoothstepJS(4200, 6200, state.radius);
@@ -4349,6 +4486,7 @@
     }
 
     state.renderer = null; state.scene = null; state.camera = null; state.root = null; state.bgGroup = null;
+    state.stellarFgGroup = null;
     state.centralSun = null; state.grandGalaxy = null; state.galaxyCenter = null; state.wormhole = null;
     state.stellarSystems = []; state.sunLabelEl = null; state.wormholeLabelEl = null;
     state.hudEl = null; state.hudSectorEl = null; state.hudScaleEl = null; state.hudBtns = {};
@@ -4412,8 +4550,11 @@
 
   global.MemoryGraph3D = {
     render: render, destroy: destroy, resetView: resetView, focusCategory: focusCategory,
-    clearSelection: clearSelection, supported: supported, setPlanar: setPlanar,
+    clearSelection: clearSelection, supported: supported, setPlanar: setPlanar, setEnvOnly: setEnvOnly,
+    getEnvProjection: getEnvProjection, panByPixels: panByPixels, zoomByFactor: zoomByFactor,
+    focus2DPoint: focus2DPoint, showSpaceToast: showSpaceToast,
     focusGrandGalaxy: focusGrandGalaxy, focusWormhole: focusWormhole, focusStellarSystem: focusStellarSystem,
-    isActive: function () { return !!state.active; }
+    isActive: function () { return !!state.active; },
+    isEnvOnly: function () { return !!(state.active && state.envOnly); }
   };
 })(window);
