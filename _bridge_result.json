@@ -1,7 +1,0 @@
-{
- "job_id": "20261125-130019-a13012",
- "ts": 1795582826,
- "exit_code": 0,
- "ok": true,
- "output": "\"generatedAt\": \"2026-11-25T12:53:58+08:00\"\n-rw-r--r-- 1 root root 237774 13:00:26 /var/www/xinmo-site/vault-data.js\n18edd073bcb44fe64a1eb155cfa451f566355b9bd25a5db6bdf42b2696f03102  /var/www/xinmo-site/vault-data.js\n\"generatedAt\": \"2026-11-25T12:53:58+08:00\"\n"
-}
