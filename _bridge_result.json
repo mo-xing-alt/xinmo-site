@@ -1,7 +1,0 @@
-{
- "job_id": "20261125-125815-23fdc1",
- "ts": 1795582725,
- "exit_code": 1,
- "ok": false,
- "output": "curl: (22) The requested URL returned error: 504\nAPI 记录字节: 未知\ncurl: (22) The requested URL returned error: 504\n下载失败\n"
-}
