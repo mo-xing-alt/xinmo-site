@@ -434,8 +434,7 @@
   }
 
   function engine() {
-    /* 3D 与 2D 统一取同一套动态 WebGL 宇宙环境（仅在浏览器不支持 WebGL 时回退 Canvas 2D） */
-    if (global.MemoryGraph3D && global.MemoryGraph3D.supported()) {
+    if (isUniverseMode() && global.MemoryGraph3D && global.MemoryGraph3D.supported()) {
       return global.MemoryGraph3D;
     }
     return global.MemoryGraph;
@@ -444,7 +443,7 @@
   function hintText() {
     return isUniverseMode()
       ? "拖动旋转宇宙 · 滚轮缩放观银河全景 · 点击天体/虫洞看详情 · 双击/R 复位"
-      : "拖动平移星图 · 滚轮缩放观银河全景 · 点击天体/虫洞看详情 · 双击/R 复位";
+      : "拖动平移/拖拽节点 · 滚轮缩放观银河全景 · 点击节点/虫洞看详情 · 双击/R 复位";
   }
 
   function normalizeModeInput(mode) {
@@ -473,8 +472,8 @@
       global.cancelAnimationFrame(state.mountRaf);
       state.mountRaf = 0;
     }
+    try { if (global.MemoryGraph) global.MemoryGraph.destroy({ keep3dEnv: false }); } catch (e) {}
     try { if (global.MemoryGraph3D) global.MemoryGraph3D.destroy(); } catch (e) {}
-    try { if (global.MemoryGraph) global.MemoryGraph.destroy(); } catch (e) {}
   }
 
   function runMountNow() {
@@ -485,7 +484,7 @@
 
     var eng = engine();
     var renderOpts = eng === global.MemoryGraph3D
-      ? { onSelect: renderDetail, planar: !isUniverseMode() }
+      ? { onSelect: renderDetail, planar: false, envOnly: false }
       : renderDetail;
     var res = eng && eng.render(stage, state.data, renderOpts);
     if (loading) loading.style.display = "none";
@@ -495,7 +494,7 @@
       loading.textContent = "WebGL 不可用，已自动切换至兼容 2D 视图";
       loading.style.display = "";
       if (eng === global.MemoryGraph3D && global.MemoryGraph) {
-        global.MemoryGraph.render(stage, state.data, renderDetail, true);
+        global.MemoryGraph.render(stage, state.data, renderDetail);
       }
       global.setTimeout(function () { if (loading) loading.style.display = "none"; }, 2400);
       return;
@@ -514,7 +513,7 @@
   function mountGraph() {
     var loading = $("mg-loading");
     if (loading) {
-      loading.textContent = isUniverseMode() ? "正在构建银河与陌浔恒星系…" : "正在同步平面星系视图…";
+      loading.textContent = isUniverseMode() ? "正在构建银河与陌浔恒星系…" : "正在构建平面 2D 星图…";
       loading.style.display = "";
     }
     if (state.mountRaf) {
@@ -542,14 +541,24 @@
     syncModeButtons();
     if (!state.active) return;
 
-    /* 若底层统一 3D 宇宙已激活，则零销毁无缝切换 3D 自由旋转 / 2D 视平面平移，确保背景与动态 100% 同源 */
-    if (global.MemoryGraph3D && global.MemoryGraph3D.isActive && global.MemoryGraph3D.isActive() && global.MemoryGraph3D.setPlanar) {
-      global.MemoryGraph3D.setPlanar(!isUniverseMode());
+    var cat = state.activeCat;
+    closeDetailOverlay(false, false);
+
+    /* 零销毁平滑切换：保留底层动态 3D 银河环境不中断，前景瞬时切换为扁平 2D 星图式或完整 3D 宇宙 */
+    var stage = $("mg-stage");
+    if (stage && global.MemoryGraph3D && global.MemoryGraph3D.isActive && global.MemoryGraph3D.isActive()) {
+      if (isUniverseMode()) {
+        try { if (global.MemoryGraph) global.MemoryGraph.destroy({ keep3dEnv: true }); } catch (e) {}
+        global.MemoryGraph3D.setEnvOnly(false);
+        if (cat) state.activeCat = global.MemoryGraph3D.focusCategory(cat);
+      } else {
+        global.MemoryGraph3D.setEnvOnly(true);
+        global.MemoryGraph.render(stage, state.data, renderDetail);
+        if (cat) state.activeCat = global.MemoryGraph.focusCategory(cat);
+      }
       return;
     }
 
-    var cat = state.activeCat;
-    closeDetailOverlay(false, false);
     destroyEngines();
     state.activeCat = cat;
     mountGraph();
