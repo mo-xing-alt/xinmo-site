@@ -538,20 +538,111 @@
       ctx.fill();
     }
 
-    /* 兜底倾斜旋臂星云椭圆 */
+    /* 兜底 2D 星系中心（结合 5 大天体物理特征：棒状核球 + SMBH/光子环/吸积盘 + 致密核星团 + 尘埃与星暴核环 + AGN 喷流） */
     ctx.save();
     ctx.translate(w * 0.46, h * 0.54);
-    ctx.rotate(-0.50);
-    ctx.scale(1, 0.44);
-    var galG = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.min(w, h) * 0.52);
-    galG.addColorStop(0, "rgba(255, 245, 228, 0.48)");
-    galG.addColorStop(0.24, "rgba(251, 196, 162, 0.24)");
-    galG.addColorStop(0.62, "rgba(59, 130, 246, 0.14)");
+    var R = Math.min(w, h) * 0.52;
+    var animT = state.reducedMotion ? 0 : (t || 0);
+
+    // 1) 外盘与棒状核球（Barred Bulge）
+    ctx.save();
+    ctx.rotate(-0.42);
+    ctx.scale(1, 0.58);
+    var galG = ctx.createRadialGradient(0, 0, 0, 0, 0, R);
+    galG.addColorStop(0, "rgba(255, 240, 210, 0.52)");
+    galG.addColorStop(0.18, "rgba(251, 196, 132, 0.34)");
+    galG.addColorStop(0.45, "rgba(130, 108, 210, 0.16)");
+    galG.addColorStop(0.76, "rgba(56, 130, 246, 0.10)");
     galG.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = galG;
     ctx.beginPath();
-    ctx.arc(0, 0, Math.min(w, h) * 0.52, 0, Math.PI * 2);
+    ctx.arc(0, 0, R, 0, Math.PI * 2);
     ctx.fill();
+
+    // 棒状高密度老年恒星核球
+    ctx.save();
+    ctx.scale(1.65, 0.52);
+    var barG = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 0.24);
+    barG.addColorStop(0, "rgba(255, 246, 224, 0.62)");
+    barG.addColorStop(0.45, "rgba(251, 191, 104, 0.32)");
+    barG.addColorStop(1, "rgba(251, 191, 104, 0)");
+    ctx.fillStyle = barG;
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 4) 分子气体尘埃暗带与核周星暴环（粉紫 H-alpha + 蓝白星团）
+    ctx.strokeStyle = "rgba(80, 24, 14, 0.42)";
+    ctx.lineWidth = R * 0.026;
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.145, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(244, 114, 182, 0.34)";
+    ctx.lineWidth = R * 0.016;
+    ctx.setLineDash([R * 0.035, R * 0.022]);
+    ctx.lineDashOffset = -animT * 8;
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.175, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3) 致密核星团与高速 S-星点缀
+    for (var ns = 0; ns < 44; ns++) {
+      var na = (ns / 44) * Math.PI * 2 + animT * (ns % 3 === 0 ? 0.22 : 0.08);
+      var nr = R * (0.045 + ((ns * 37) % 100) / 100 * 0.14);
+      ctx.fillStyle = ns % 3 === 0 ? "rgba(186, 230, 253, 0.82)" : (ns % 5 === 0 ? "rgba(249, 168, 212, 0.78)" : "rgba(254, 240, 199, 0.80)");
+      ctx.beginPath();
+      ctx.arc(Math.cos(na) * nr, Math.sin(na) * nr, ns % 4 === 0 ? 1.6 : 1.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 5) AGN 双极相对论喷流（垂直于星系棒）
+    ctx.save();
+    ctx.rotate(-0.42 + Math.PI * 0.5);
+    for (var jd = -1; jd <= 1; jd += 2) {
+      var jg = ctx.createLinearGradient(0, jd * R * 0.03, 0, jd * R * 0.34);
+      jg.addColorStop(0, "rgba(125, 211, 252, 0.56)");
+      jg.addColorStop(0.45, "rgba(139, 92, 246, 0.24)");
+      jg.addColorStop(1, "rgba(139, 92, 246, 0)");
+      ctx.fillStyle = jg;
+      ctx.beginPath();
+      ctx.moveTo(-R * 0.008, jd * R * 0.025);
+      ctx.lineTo(R * 0.008, jd * R * 0.025);
+      ctx.lineTo(R * 0.032, jd * R * 0.34);
+      ctx.lineTo(-R * 0.032, jd * R * 0.34);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 2) 中心超大质量黑洞（吸积盘 + 视界暗影 + 炽热光子环）
+    ctx.save();
+    ctx.rotate(-0.42);
+    ctx.scale(1, 0.58);
+    var accG = ctx.createRadialGradient(0, 0, R * 0.014, 0, 0, R * 0.068);
+    accG.addColorStop(0, "rgba(255, 250, 232, 0.95)");
+    accG.addColorStop(0.32, "rgba(251, 146, 60, 0.72)");
+    accG.addColorStop(0.75, "rgba(180, 52, 18, 0.24)");
+    accG.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = accG;
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.068, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = "#040208";
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.017, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 244, 214, 0.92)";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.019, 0, Math.PI * 2);
+    ctx.stroke();
+
     ctx.restore();
   }
 
