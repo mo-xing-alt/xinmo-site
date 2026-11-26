@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /
+Sitemap: https://xinmo.work/sitemap.xml
