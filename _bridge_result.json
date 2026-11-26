@@ -1,0 +1,7 @@
+{
+ "job_id": "20261127-014544-07d493",
+ "ts": 1795715158,
+ "exit_code": 0,
+ "ok": true,
+ "output": "SYNCED: sitemap.xml\nSYNCED: robots.txt\nSYNCED: 404.html\nSYNCED: admin.html\nSYNCED: profile.html\nSYNCED: search.html\nSYNCED: resources/info-security-quiz/index.html\nSYNCED: resources/nisp-level1-quiz/index.html\nCADDY_HEADERS_INSERTED\nCADDY_RELOADED_OK\nHTTP/2 200 \r\nreferrer-policy: strict-origin-when-cross-origin\r\nstrict-transport-security: max-age=31536000; includeSubDomains\r\nx-content-type-options: nosniff\r\nx-frame-options: SAMEORIGIN\r\nHTTP/2 200 \r\n"
+}
