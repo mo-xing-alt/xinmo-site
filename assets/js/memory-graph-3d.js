@@ -25,7 +25,7 @@
   var PLANAR_THETA = 0.66;
   var PLANAR_PHI = 0.98;
   var MAX_DPR = 1.75;
-  var MAX_PARTICLES = 68000;
+  var MAX_PARTICLES = 86000;
   var MAX_VISIBLE_LABELS = 24;
   var COMET_MIN_INTERVAL = 13.2;
   var COMET_MAX_INTERVAL = 19.8;
@@ -1215,6 +1215,7 @@
     "uniform float uFlat2D;",
     "uniform float uWarpAmp;",
     "varying vec2 vDiskXZ;",
+    "varying float vEdgeFade;",
     "void main() {",
     "  vec3 pos = position;",
     "  vec2 xz = vec2(pos.x, -pos.y) / max(1.0, uRadius);",
@@ -1225,7 +1226,12 @@
     "    pos.z += warp;",
     "  }",
     "  vDiskXZ = xz;",
-    "  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);",
+    "  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);",
+    "  vec3 nV = normalize(normalMatrix * vec3(0.0, 0.0, 1.0));",
+    "  vec3 vDir = normalize(-mvPos.xyz);",
+    "  float ndv = abs(dot(nV, vDir));",
+    "  vEdgeFade = mix(mix(0.24, 1.0, smoothstep(0.02, 0.34, ndv)), 1.0, uFlat2D);",
+    "  gl_Position = projectionMatrix * mvPos;",
     "}"
   ].join("\n");
 
@@ -1237,6 +1243,7 @@
     "uniform float uLayerAlpha;",
     "uniform float uLayerSoft;",
     "varying vec2 vDiskXZ;",
+    "varying float vEdgeFade;",
     "float gHash(vec2 p) {",
     "  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);",
     "}",
@@ -1301,114 +1308,113 @@
     "  float armSpur = pow(0.5 + 0.5 * cos(phSpur4), 2.75);",
     "  float armFeather = pow(0.5 + 0.5 * cos(phFeather), 3.4);",
     "  float ringMod = 0.5 + 0.5 * cos(phRing);",
-    "  /* 特征 1：棒状核球 / 高金属丰度老年恒星核区 */",
+    "  /* 特征 1：自然融入环境的棒状核球 / 暖金老年恒星核区 */",
     "  float barAng = 0.38;",
     "  float cb = cos(barAng), sb = sin(barAng);",
     "  vec2 bP = vec2(p.x * cb + p.y * sb, -p.x * sb + p.y * cb);",
-    "  float barEllip = length(vec2(bP.x * 0.48, bP.y * 1.62));",
-    "  float peanut = 1.0 + 0.16 * exp(-pow((abs(bP.x) - 0.068) * 26.0, 2.0));",
-    "  float stellarBar = exp(-pow(barEllip * 8.6, 1.15)) * 0.88 * peanut * (0.86 + 0.28 * nMid);",
-    "  float bulgeCompact = exp(-pow(r * 9.8, 1.08)) * 0.78 * (0.88 + 0.24 * nFine);",
+    "  float barEllip = length(vec2(bP.x * 0.50, bP.y * 1.48));",
+    "  float peanut = 1.0 + 0.14 * exp(-pow((abs(bP.x) - 0.075) * 22.0, 2.0));",
+    "  float stellarBar = exp(-pow(barEllip * 7.4, 1.12)) * 0.84 * peanut * (0.86 + 0.28 * nMid);",
+    "  float bulgeCompact = exp(-pow(r * 7.8, 1.06)) * 0.80 * (0.88 + 0.24 * nFine);",
     "  float bulge = stellarBar + bulgeCompact;",
-    "  /* 特征 2：中心超大质量黑洞（人马座 A* 视界暗影 + 爱因斯坦光子环 + 差速吸积盘） */",
+    "  /* 特征 2：更宏大且自然维和的中心超大质量黑洞（深邃视界暗影 + 柔和暖金引力透镜光晕 + 渐融吸积流） */",
     "  float isMainSlice = step(uLayerSoft, 0.05);",
-    "  float bhRadius = mix(0.0115, 0.0155, uFlat2D);",
-    "  float bhVoid = smoothstep(bhRadius * 0.82, bhRadius * 1.18, r);",
-    "  float photonRing = exp(-pow((r - bhRadius * 1.24) / (bhRadius * 0.22), 2.0)) * 2.65;",
-    "  float accSwirl = ang * 3.0 - log(r + 0.008) * 14.0 - uTime * 1.45 + nFine * 2.2;",
-    "  float accShear = 0.62 + 0.38 * cos(accSwirl) * (0.7 + 0.3 * sin(ang * 5.0 + uTime * 2.1));",
-    "  float doppler = 0.76 + 0.34 * cos(ang - 0.85);",
-    "  float accBand = smoothstep(bhRadius * 1.08, bhRadius * 1.65, r) * exp(-max(0.0, r - bhRadius * 1.5) * 44.0);",
-    "  float accEmit = accBand * accShear * doppler * 2.25;",
-    "  vec3 accCol = mix(vec3(1.0, 0.96, 0.86), vec3(1.0, 0.56, 0.16), smoothstep(bhRadius * 1.3, bhRadius * 3.8, r));",
-    "  accCol = mix(accCol, vec3(0.72, 0.18, 0.06), smoothstep(bhRadius * 3.2, bhRadius * 5.5, r));",
-    "  /* 特征 3：致密核星团与高速环绕恒星 */",
-    "  float nucStarsA = gStarLayer(p * 320.0 + vec2(uTime * 0.06, -uTime * 0.04), 0.72);",
-    "  float nucStarsB = gStarLayer(p * 540.0 + vec2(-uTime * 0.11, uTime * 0.08), 0.76);",
-    "  float nucClusterMask = smoothstep(bhRadius * 1.35, 0.030, r) * exp(-r * 16.5);",
-    "  float nucClusterEmit = (nucStarsA * 1.45 + nucStarsB * 1.20) * nucClusterMask;",
-    "  /* 特征 4：分子气体尘埃丝状带与核周星暴环（Starburst Nuclear Ring） */",
-    "  float sbRingR = length(vec2(bP.x * 0.84, bP.y * 1.18));",
-    "  float sbRingBand = exp(-pow((sbRingR - 0.086) / 0.022, 2.0));",
-    "  float sbKnots = sbRingBand * smoothstep(0.42, 0.86, nFine * 0.55 + nMicro * 0.55) * (0.65 + 0.55 * pow(0.5 + 0.5 * cos(ang * 4.0 + nMid * 3.1), 1.6));",
-    "  float sbBlueKnots = sbRingBand * smoothstep(0.58, 0.92, nMicro * 0.65 + nMid * 0.45);",
-    "  /* 特征 5（2D 顶视精绘投影）：活动星系核双极喷流与尘埃环面外晕 */",
+    "  float bhRadius = mix(0.0255, 0.0315, uFlat2D);",
+    "  float bhVoid = smoothstep(bhRadius * 0.86, bhRadius * 1.24, r);",
+    "  float photonRing = exp(-pow((r - bhRadius * 1.16) / (bhRadius * 0.34), 2.0)) * 1.45;",
+    "  float accSwirl = ang * 3.0 - log(r + 0.012) * 12.5 - uTime * 1.25 + nFine * 2.4;",
+    "  float accShear = 0.64 + 0.36 * cos(accSwirl) * (0.72 + 0.28 * sin(ang * 5.0 + uTime * 1.7));",
+    "  float doppler = 0.80 + 0.28 * cos(ang - 0.85);",
+    "  float accBand = smoothstep(bhRadius * 1.02, bhRadius * 1.75, r) * exp(-max(0.0, r - bhRadius * 1.45) * 22.0);",
+    "  float accEmit = accBand * accShear * doppler * 1.55;",
+    "  vec3 accCol = mix(vec3(1.0, 0.94, 0.80), vec3(0.98, 0.62, 0.24), smoothstep(bhRadius * 1.25, bhRadius * 3.2, r));",
+    "  accCol = mix(accCol, vec3(0.76, 0.32, 0.14), smoothstep(bhRadius * 2.8, bhRadius * 5.2, r));",
+    "  /* 特征 3：致密核星团（自然无边界渐变融入核球） */",
+    "  float nucStarsA = gStarLayer(p * 300.0 + vec2(uTime * 0.05, -uTime * 0.035), 0.72);",
+    "  float nucStarsB = gStarLayer(p * 510.0 + vec2(-uTime * 0.09, uTime * 0.065), 0.76);",
+    "  float nucClusterMask = smoothstep(bhRadius * 1.18, bhRadius * 2.1, r) * exp(-r * 11.5);",
+    "  float nucClusterEmit = (nucStarsA * 1.30 + nucStarsB * 1.05) * nucClusterMask;",
+    "  /* 特征 4：柔和有机的核周星暴星云团（去除生硬几何圆环感） */",
+    "  float sbRingR = length(vec2(bP.x * 0.84, bP.y * 1.16));",
+    "  float sbRingBand = exp(-pow((sbRingR - 0.115) / 0.044, 2.0));",
+    "  float sbKnots = sbRingBand * smoothstep(0.46, 0.88, nFine * 0.55 + nMicro * 0.55) * (0.55 + 0.55 * pow(0.5 + 0.5 * cos(ang * 3.0 + nMid * 3.4), 1.6));",
+    "  float sbBlueKnots = sbRingBand * smoothstep(0.58, 0.92, nMicro * 0.62 + nMid * 0.45);",
+    "  /* 特征 5（2D 顶视柔美雾状极向晕，彻底去除刺眼光柱感） */",
     "  float jetAxisAng = barAng + 1.5708;",
     "  float cj = cos(jetAxisAng), sj = sin(jetAxisAng);",
     "  vec2 jP = vec2(p.x * cj + p.y * sj, -p.x * sj + p.y * cj);",
     "  float jDist = abs(jP.x);",
-    "  float jWidth = 0.0055 + jDist * 0.135;",
-    "  float jBeam = exp(-pow(jP.y / jWidth, 2.0)) * smoothstep(bhRadius * 1.1, 0.030, jDist) * exp(-jDist * 7.8);",
-    "  float jKnots = 0.62 + 0.48 * pow(0.5 + 0.5 * cos(jDist * 78.0 - uTime * 2.4), 3.0);",
-    "  float jet2DEmit = jBeam * jKnots * uFlat2D * 0.92;",
-    "  float torusRing2D = exp(-pow((r - 0.052) / 0.011, 2.0)) * (0.45 + 0.55 * nFine) * uFlat2D;",
+    "  float jWidth = 0.012 + jDist * 0.19;",
+    "  float jBeam = exp(-pow(jP.y / jWidth, 2.0)) * smoothstep(bhRadius * 1.1, bhRadius * 2.4, jDist) * exp(-jDist * 9.5);",
+    "  float jWisps = 0.65 + 0.35 * nMid;",
+    "  float jet2DEmit = jBeam * jWisps * uFlat2D * 0.26;",
     "  /* 银河主旋臂盘 */",
-    "  float baseDisk = exp(-r * 2.65) * smoothstep(1.0, 0.68, r) * 0.46;",
-    "  float armDisk = smoothstep(0.032, 0.13, r) * exp(-r * 1.85) * smoothstep(1.0, 0.74, r);",
-    "  float outerBlueHalo = smoothstep(0.16, 0.42, r) * exp(-max(0.0, r - 0.34) * 2.48) * smoothstep(1.0, 0.80, r);",
+    "  float baseDisk = exp(-r * 2.55) * smoothstep(1.0, 0.66, r) * 0.48;",
+    "  float armDisk = smoothstep(0.045, 0.15, r) * exp(-r * 1.80) * smoothstep(1.0, 0.72, r);",
+    "  float outerBlueHalo = smoothstep(0.16, 0.42, r) * exp(-max(0.0, r - 0.34) * 2.42) * smoothstep(1.0, 0.78, r);",
     "  float filDetail = 0.46 + nMid * 0.42 + nFine * 0.48 + nMicro * 0.34;",
-    "  float armStruct = 0.16 + armMain * 0.78 + armSpur * 0.48 + armFeather * 0.24 + ringMod * 0.18;",
+    "  float armStruct = 0.18 + armMain * 0.76 + armSpur * 0.48 + armFeather * 0.24 + ringMod * 0.16;",
     "  float starCloud = baseDisk * (0.62 + 0.38 * nMid) + armDisk * armStruct * filDetail;",
     "  float subStars1 = gStarLayer(p * 195.0, 0.84);",
     "  float subStars2 = gStarLayer(p * 365.0 + vec2(17.3, -9.1), 0.87);",
-    "  float resolvedGranules = (subStars1 * 1.25 + subStars2 * 0.95) * smoothstep(0.96, 0.04, r) * (0.28 + armMain * 0.95 + armSpur * 0.55 + bulgeCompact * 0.7);",
-    "  vec3 colCore = vec3(1.00, 0.97, 0.88);",
-    "  vec3 colGoldOld = vec3(1.00, 0.80, 0.52);",
-    "  vec3 colRose = vec3(0.86, 0.58, 0.64);",
+    "  float resolvedGranules = (subStars1 * 1.25 + subStars2 * 0.95) * smoothstep(0.96, 0.05, r) * (0.28 + armMain * 0.92 + armSpur * 0.52 + bulgeCompact * 0.65);",
+    "  vec3 colCore = vec3(1.00, 0.96, 0.86);",
+    "  vec3 colGoldOld = vec3(0.99, 0.78, 0.50);",
+    "  vec3 colRose = vec3(0.84, 0.56, 0.64);",
     "  vec3 colSapphire = vec3(0.32, 0.62, 1.00);",
-    "  vec3 colCyanShock = vec3(0.24, 0.90, 1.00);",
+    "  vec3 colCyanShock = vec3(0.28, 0.86, 0.98);",
     "  vec3 colPeriwinkle = vec3(0.52, 0.54, 0.98);",
-    "  vec3 colHii = vec3(1.00, 0.32, 0.66);",
-    "  vec3 colJet = mix(vec3(0.45, 0.88, 1.0), vec3(0.68, 0.42, 1.0), smoothstep(0.02, 0.18, jDist));",
-    "  vec3 bulgeRGB = mix(colRose, colGoldOld, smoothstep(0.24, 0.055, r));",
-    "  bulgeRGB = mix(bulgeRGB, colCore, smoothstep(0.065, 0.018, r));",
-    "  vec3 diskRGB = mix(colGoldOld, colRose, smoothstep(0.06, 0.24, r));",
+    "  vec3 colHii = vec3(0.96, 0.38, 0.66);",
+    "  vec3 colJet = mix(vec3(0.96, 0.78, 0.56), vec3(0.52, 0.56, 0.96), smoothstep(0.04, 0.20, jDist));",
+    "  vec3 bulgeRGB = mix(colRose, colGoldOld, smoothstep(0.26, 0.07, r));",
+    "  bulgeRGB = mix(bulgeRGB, colCore, smoothstep(0.085, 0.032, r));",
+    "  vec3 diskRGB = mix(colGoldOld, colRose, smoothstep(0.08, 0.26, r));",
     "  diskRGB = mix(diskRGB, colSapphire, smoothstep(0.20, 0.52, r));",
     "  diskRGB = mix(diskRGB, colPeriwinkle, smoothstep(0.48, 0.88, r) * (0.45 + 0.55 * nLow));",
     "  float hiiKnots = outerBlueHalo * pow(armMain, 2.2) * smoothstep(0.58, 0.88, nFine * 0.65 + nMicro * 0.45);",
     "  float oiiiFront = armDisk * pow(0.5 + 0.5 * cos(phTight2 - 0.42), 4.2) * smoothstep(0.62, 0.92, nFine * 0.55 + nMicro * 0.55);",
-    "  vec3 granCol = mix(colCore, colCyanShock, smoothstep(0.16, 0.55, r));",
-    "  vec3 nucStarCol = mix(vec3(0.82, 0.94, 1.0), vec3(1.0, 0.91, 0.72), gHash(floor(p * 320.0)));",
+    "  vec3 granCol = mix(colCore, colCyanShock, smoothstep(0.18, 0.55, r));",
+    "  vec3 nucStarCol = mix(vec3(0.84, 0.93, 1.0), vec3(1.0, 0.89, 0.68), gHash(floor(p * 300.0)));",
     "  vec3 rawEmit = bulgeRGB * bulge * (1.0 - uLayerSoft * 0.35)",
-    "    + diskRGB * starCloud * 1.22",
+    "    + diskRGB * starCloud * 1.18",
     "    + colSapphire * outerBlueHalo * 0.28",
-    "    + colHii * (hiiKnots * 0.68 + sbKnots * 1.38)",
-    "    + colCyanShock * (oiiiFront * 0.38 + sbBlueKnots * 1.05)",
-    "    + granCol * resolvedGranules * 0.90",
-    "    + nucStarCol * nucClusterEmit * 1.35 * isMainSlice",
-    "    + (accCol * accEmit + vec3(1.0, 0.95, 0.82) * photonRing + colJet * jet2DEmit) * isMainSlice;",
-    "  vec3 emit = (rawEmit / (vec3(1.0) + rawEmit * 0.46)) * 1.34;",
-    "  /* 内旋入棒状尘埃暗带 + 核周分子气体尘埃丝状吸收 */",
-    "  float barDust = exp(-pow(abs(bP.y - 0.012 * sign(bP.x)) / 0.014, 2.0)) * smoothstep(0.028, 0.055, abs(bP.x)) * smoothstep(0.20, 0.08, abs(bP.x)) * (0.48 + 0.52 * nFine);",
-    "  float nucSpiral = pow(0.5 + 0.5 * cos(ang * 2.0 - log(r + 0.014) * 7.2 + nFine * 1.8), 3.4) * smoothstep(0.022, 0.044, r) * smoothstep(0.155, 0.052, r);",
-    "  float dustLane1 = pow(0.5 + 0.5 * cos(phTight2 + 1.06 + (nFine - 0.5) * 0.52), 4.4);",
-    "  float dustSpur = pow(0.5 + 0.5 * cos(phSpur4 + 0.92 + (nMicro - 0.5) * 0.68), 4.0);",
+    "    + colHii * (hiiKnots * 0.62 + sbKnots * 0.92)",
+    "    + colCyanShock * (oiiiFront * 0.34 + sbBlueKnots * 0.72)",
+    "    + granCol * resolvedGranules * 0.88",
+    "    + nucStarCol * nucClusterEmit * 1.20 * isMainSlice",
+    "    + (accCol * accEmit + vec3(1.0, 0.90, 0.70) * photonRing + colJet * jet2DEmit) * isMainSlice;",
+    "  vec3 emit = (rawEmit / (vec3(1.0) + rawEmit * 0.48)) * 1.30;",
+    "  /* 自然的棒状尘埃暗带与旋臂分子尘埃丝缕吸收 */",
+    "  float barDust = exp(-pow(abs(bP.y - 0.015 * sign(bP.x)) / 0.018, 2.0)) * smoothstep(0.045, 0.085, abs(bP.x)) * smoothstep(0.24, 0.10, abs(bP.x)) * (0.48 + 0.52 * nFine);",
+    "  float nucSpiral = pow(0.5 + 0.5 * cos(ang * 2.0 - log(r + 0.022) * 6.8 + nFine * 1.9), 3.4) * smoothstep(0.042, 0.072, r) * smoothstep(0.18, 0.075, r);",
+    "  float dustLane1 = pow(0.5 + 0.5 * cos(phTight2 + 1.06 + (nFine - 0.5) * 0.52), 4.2);",
+    "  float dustSpur = pow(0.5 + 0.5 * cos(phSpur4 + 0.92 + (nMicro - 0.5) * 0.68), 3.8);",
     "  float dustLane2 = pow(1.0 - ringMod, 3.4);",
     "  float nearBias3D = 0.56 + 0.64 * smoothstep(-0.22, 0.32, p.y);",
     "  float nearBias = mix(nearBias3D, 0.92, uFlat2D);",
-    "  float dustZone = smoothstep(0.036, 0.095, r) * smoothstep(0.72, 0.16, r);",
+    "  float dustZone = smoothstep(0.055, 0.125, r) * smoothstep(0.74, 0.18, r);",
     "  float filCut = 0.36 + nFine * 0.56 + nMicro * 0.52;",
-    "  float dustRaw = (nucSpiral * 0.82 + barDust * 0.85 + torusRing2D * 0.72) * filCut + dustZone * nearBias * (dustLane1 * 0.62 + dustSpur * 0.38 + dustLane2 * 0.38) * filCut;",
-    "  float dustMask = clamp(smoothstep(0.18, 0.60, dustRaw), 0.0, 0.92) * smoothstep(bhRadius * 1.55, bhRadius * 2.5, r);",
-    "  vec3 siennaRim = vec3(0.72, 0.24, 0.075) * (0.55 + 0.98 * exp(-r * 4.2));",
-    "  vec3 darkRift = vec3(0.026, 0.009, 0.012);",
+    "  float dustRaw = (nucSpiral * 0.74 + barDust * 0.78) * filCut + dustZone * nearBias * (dustLane1 * 0.62 + dustSpur * 0.38 + dustLane2 * 0.36) * filCut;",
+    "  float dustMask = clamp(smoothstep(0.18, 0.62, dustRaw), 0.0, 0.90) * smoothstep(bhRadius * 1.45, bhRadius * 2.5, r);",
+    "  vec3 siennaRim = vec3(0.68, 0.25, 0.085) * (0.52 + 0.92 * exp(-r * 4.0));",
+    "  vec3 darkRift = vec3(0.024, 0.009, 0.014);",
     "  vec3 dustCol = mix(siennaRim, darkRift, smoothstep(0.18, 0.74, dustMask));",
-    "  vec3 finalCol = mix(emit, dustCol, dustMask * 0.88);",
-    "  /* 最中心黑洞暗影刻画（主切片生效，突出视界与光子环对比） */",
+    "  vec3 finalCol = mix(emit, dustCol, dustMask * 0.86);",
+    "  /* 中心超大质量黑洞暗影刻画（与暖金核球自然融合，零生硬白圈） */",
     "  if (isMainSlice > 0.5) {",
-    "    vec3 voidCol = vec3(0.010, 0.006, 0.018);",
+    "    vec3 voidCol = vec3(0.006, 0.004, 0.012);",
     "    finalCol = mix(voidCol, finalCol, bhVoid);",
-    "    finalCol += vec3(1.0, 0.96, 0.85) * photonRing * 0.62;",
+    "    finalCol += vec3(1.0, 0.86, 0.58) * photonRing * 0.42;",
     "  }",
     "  float lumInt = max(emit.r, max(emit.g, emit.b));",
-    "  float lumAlpha = clamp(lumInt * 0.95, 0.0, 0.97);",
-    "  float outAlpha = clamp(max(lumAlpha, dustMask * 0.85 * smoothstep(0.74, 0.12, r)), 0.0, 0.97) * smoothstep(1.0, 0.82, r);",
+    "  float lumAlpha = clamp(lumInt * 0.92, 0.0, 0.96);",
+    "  float outAlpha = clamp(max(lumAlpha, dustMask * 0.82 * smoothstep(0.74, 0.12, r)), 0.0, 0.96) * smoothstep(1.0, 0.82, r);",
     "  if (isMainSlice > 0.5) outAlpha = max(outAlpha, (1.0 - bhVoid) * 0.96);",
-    "  gl_FragColor = vec4(finalCol * uDim, outAlpha * uNearFade * uLayerAlpha);",
+    "  gl_FragColor = vec4(finalCol * uDim, outAlpha * uNearFade * uLayerAlpha * vEdgeFade);",
     "}"
   ].join("\n");
 
-  /* 11b. 3D 专属星系中心 5 大特征体积着色器（立体棒状核球、SMBH 视界与吸积盘、立体尘埃环面、相对论双极喷流） */
+  /* 11b. 3D 专属星系中心柔和体积着色器（暖金核球、宏大黑洞视界、视向引力透镜光晕、柔和吸积盘、轻盈等离子体雾） */
   var GALAXY_BULGE_VERT = [
     "varying vec3 vObjPos;",
     "varying vec3 vNormalV;",
@@ -1442,18 +1448,18 @@
     "void main() {",
     "  vec3 vDir = normalize(-vViewPos);",
     "  float ndv = abs(dot(normalize(vNormalV), vDir));",
-    "  float limb = pow(clamp(ndv, 0.0, 1.0), 1.65);",
-    "  float n1 = bNoise(vObjPos * 5.2 + vec3(uTime * 0.02, 0.0, -uTime * 0.015));",
-    "  float n2 = bNoise(vObjPos * 12.5 - vec3(0.0, uTime * 0.025, 0.0));",
-    "  float eqDust = exp(-pow(vObjPos.y * 5.5, 2.0)) * smoothstep(0.45, 0.85, n2);",
-    "  vec3 oldGold = vec3(1.00, 0.82, 0.54);",
-    "  vec3 warmCore = vec3(1.00, 0.96, 0.86);",
-    "  vec3 outerRose = vec3(0.92, 0.62, 0.48);",
+    "  float limb = pow(clamp(ndv, 0.0, 1.0), 2.15);",
+    "  float n1 = bNoise(vObjPos * 4.8 + vec3(uTime * 0.018, 0.0, -uTime * 0.014));",
+    "  float n2 = bNoise(vObjPos * 11.2 - vec3(0.0, uTime * 0.022, 0.0));",
+    "  float eqDust = exp(-pow(vObjPos.y * 5.2, 2.0)) * smoothstep(0.44, 0.86, n2);",
+    "  vec3 oldGold = vec3(0.98, 0.76, 0.46);",
+    "  vec3 warmCore = vec3(1.00, 0.94, 0.80);",
+    "  vec3 outerRose = vec3(0.84, 0.54, 0.44);",
     "  vec3 col = mix(outerRose, oldGold, limb);",
-    "  col = mix(col, warmCore, pow(limb, 2.4) * (0.72 + 0.28 * n1));",
-    "  col = mix(col, vec3(0.42, 0.16, 0.07), eqDust * 0.42);",
-    "  float alpha = pow(limb, 1.55) * (0.30 + 0.16 * n1) * uNearFade;",
-    "  gl_FragColor = vec4(col * uDim, clamp(alpha, 0.0, 0.52));",
+    "  col = mix(col, warmCore, pow(limb, 2.2) * (0.72 + 0.28 * n1));",
+    "  col = mix(col, vec3(0.36, 0.14, 0.06), eqDust * 0.36);",
+    "  float alpha = pow(limb, 1.85) * (0.28 + 0.14 * n1) * uNearFade;",
+    "  gl_FragColor = vec4(col * uDim, clamp(alpha, 0.0, 0.44));",
     "}"
   ].join("\n");
 
@@ -1461,18 +1467,62 @@
     "uniform float uTime;",
     "uniform float uDim;",
     "uniform float uNearFade;",
+    "varying vec3 vObjPos;",
     "varying vec3 vNormalV;",
     "varying vec3 vViewPos;",
     "void main() {",
     "  vec3 vDir = normalize(-vViewPos);",
     "  float ndv = clamp(dot(normalize(vNormalV), vDir), 0.0, 1.0);",
-    "  float photonRim = pow(1.0 - ndv, 4.6);",
-    "  float innerRing = exp(-pow((ndv - 0.18) / 0.055, 2.0)) * 1.45;",
-    "  float pulse = 0.94 + 0.06 * sin(uTime * 2.2);",
-    "  vec3 voidCol = vec3(0.008, 0.004, 0.014);",
-    "  vec3 rimCol = mix(vec3(1.00, 0.64, 0.22), vec3(1.00, 0.97, 0.90), clamp(photonRim * 1.2, 0.0, 1.0));",
-    "  vec3 col = mix(voidCol, rimCol * 1.65 * pulse, clamp(photonRim * 1.25 + innerRing, 0.0, 1.0));",
-    "  gl_FragColor = vec4(col * uDim, 0.98 * uNearFade);",
+    "  float photonRim = pow(1.0 - ndv, 5.4);",
+    "  float innerHalo = exp(-pow((ndv - 0.14) / 0.085, 2.0)) * 0.95;",
+    "  float asym = 0.84 + 0.16 * sin(atan(vObjPos.z, vObjPos.x) * 2.0 - uTime * 0.85);",
+    "  vec3 voidCol = vec3(0.005, 0.003, 0.010);",
+    "  vec3 rimCol = mix(vec3(0.96, 0.52, 0.18), vec3(1.00, 0.91, 0.72), clamp(photonRim * 1.15, 0.0, 1.0));",
+    "  vec3 col = mix(voidCol, rimCol * 1.28 * asym, clamp(photonRim * 1.05 + innerHalo * 0.72, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col * uDim, 0.99 * uNearFade);",
+    "}"
+  ].join("\n");
+
+  var SMBH_LENS_VERT = [
+    "varying vec2 vUv;",
+    "void main() {",
+    "  vUv = uv;",
+    "  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+    "}"
+  ].join("\n");
+
+  var SMBH_LENS_FRAG = [
+    "uniform float uTime;",
+    "uniform float uDim;",
+    "uniform float uNearFade;",
+    "varying vec2 vUv;",
+    "float lHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float lNoise(vec2 p) {",
+    "  vec2 i = floor(p); vec2 f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(lHash(i), lHash(i + vec2(1.0,0.0)), u.x), mix(lHash(i + vec2(0.0,1.0)), lHash(i + vec2(1.0,1.0)), u.x), u.y);",
+    "}",
+    "void main() {",
+    "  vec2 p = (vUv - 0.5) * 2.0;",
+    "  float r = length(p);",
+    "  if (r > 1.0) discard;",
+    "  float ang = atan(p.y, p.x);",
+    "  /* 柔和的 Gargantua 引力透镜光晕与上下弯曲吸积弧（零生硬硬圈） */",
+    "  float n1 = lNoise(vec2(ang * 3.0 - uTime * 0.35, r * 6.0));",
+    "  float n2 = lNoise(vec2(ang * 6.0 + uTime * 0.25, r * 11.0));",
+    "  float wisp = 0.72 + 0.28 * (n1 * 0.65 + n2 * 0.35);",
+    "  /* 紧贴视界的柔和光子弯折弧（r ≈ 0.31 处对应黑洞视界边缘） */",
+    "  float bhEdge = 0.305;",
+    "  float einstein = exp(-pow((r - bhEdge * 1.14) / 0.088, 2.0)) * (0.78 + 0.28 * abs(sin(ang)));",
+    "  float warmBloom = exp(-max(0.0, r - bhEdge) * 4.4) * smoothstep(bhEdge * 0.85, bhEdge * 1.12, r);",
+    "  float outerFade = pow(max(0.0, 1.0 - r), 2.1);",
+    "  float doppler = 0.82 + 0.26 * cos(ang - 0.45);",
+    "  vec3 cHot = vec3(1.00, 0.92, 0.74);",
+    "  vec3 cGold = vec3(0.98, 0.64, 0.26);",
+    "  vec3 cWarm = vec3(0.76, 0.38, 0.22);",
+    "  vec3 col = mix(cHot, cGold, smoothstep(bhEdge, bhEdge * 1.9, r));",
+    "  col = mix(col, cWarm, smoothstep(bhEdge * 1.8, 0.92, r));",
+    "  float lum = (einstein * 0.92 + warmBloom * 0.72) * wisp * doppler * outerFade;",
+    "  gl_FragColor = vec4(col * lum * uDim, clamp(lum * 0.85, 0.0, 0.88) * uNearFade);",
     "}"
   ].join("\n");
 
@@ -1488,53 +1538,23 @@
     "}",
     "void main() {",
     "  float r = length(vDiskXZ);",
-    "  if (r < 0.22 || r > 1.0) discard;",
+    "  if (r < 0.20 || r > 1.0) discard;",
     "  float ang = atan(vDiskXZ.y, vDiskXZ.x);",
-    "  float swirl1 = ang * 3.0 - log(r + 0.08) * 10.5 - uTime * 1.85;",
-    "  float swirl2 = ang * 6.0 - log(r + 0.05) * 16.0 - uTime * 2.75;",
-    "  float n1 = aNoise(vec2(r * 14.0, ang * 3.0 - uTime * 0.9));",
-    "  float n2 = aNoise(vec2(r * 28.0 - uTime * 0.6, ang * 6.0));",
-    "  float streaks = 0.56 + 0.28 * cos(swirl1 + n1 * 2.2) + 0.16 * cos(swirl2 + n2 * 1.8);",
-    "  float doppler = 0.72 + 0.42 * cos(ang - 0.65);",
-    "  float innerHot = exp(-pow((r - 0.28) / 0.075, 2.0)) * 2.2;",
-    "  float radial = smoothstep(0.22, 0.30, r) * pow(1.0 - r, 1.35);",
-    "  vec3 cHot = vec3(0.92, 0.97, 1.00);",
-    "  vec3 cGold = vec3(1.00, 0.74, 0.28);",
-    "  vec3 cAmber = vec3(0.88, 0.28, 0.07);",
-    "  vec3 col = mix(cHot, cGold, smoothstep(0.24, 0.52, r));",
-    "  col = mix(col, cAmber, smoothstep(0.50, 0.92, r));",
-    "  float lum = (radial * streaks * 1.85 + innerHot) * doppler;",
-    "  gl_FragColor = vec4(col * lum * uDim, clamp(lum * 0.85, 0.0, 0.96) * uNearFade);",
-    "}"
-  ].join("\n");
-
-  var DUSTY_TORUS_FRAG = [
-    "uniform float uTime;",
-    "uniform float uDim;",
-    "uniform float uNearFade;",
-    "varying vec3 vObjPos;",
-    "varying vec3 vNormalV;",
-    "varying vec3 vViewPos;",
-    "float tHash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }",
-    "float tNoise(vec3 p) {",
-    "  vec3 i = floor(p); vec3 f = fract(p); vec3 u = f * f * (3.0 - 2.0 * f);",
-    "  return mix(",
-    "    mix(mix(tHash(i), tHash(i + vec3(1.0,0.0,0.0)), u.x), mix(tHash(i + vec3(0.0,1.0,0.0)), tHash(i + vec3(1.0,1.0,0.0)), u.x), u.y),",
-    "    mix(mix(tHash(i + vec3(0.0,0.0,1.0)), tHash(i + vec3(1.0,0.0,1.0)), u.x), mix(tHash(i + vec3(0.0,1.0,1.0)), tHash(i + vec3(1.0,1.0,1.0)), u.x), u.y),",
-    "    u.z);",
-    "}",
-    "void main() {",
-    "  vec3 vDir = normalize(-vViewPos);",
-    "  float ndv = abs(dot(normalize(vNormalV), vDir));",
-    "  float n1 = tNoise(vObjPos * 0.008 + vec3(uTime * 0.04, 0.0, -uTime * 0.03));",
-    "  float n2 = tNoise(vObjPos * 0.019 - vec3(uTime * 0.06, 0.0, uTime * 0.04));",
-    "  float clump = smoothstep(0.28, 0.82, n1 * 0.6 + n2 * 0.4);",
-    "  float innerHeat = pow(1.0 - ndv, 1.8) * 0.65;",
-    "  vec3 darkDust = vec3(0.08, 0.03, 0.025);",
-    "  vec3 warmDust = vec3(0.76, 0.30, 0.11);",
-    "  vec3 col = mix(darkDust, warmDust, clump * 0.55 + innerHeat);",
-    "  float alpha = (0.28 + clump * 0.44) * (0.45 + 0.55 * ndv) * uNearFade;",
-    "  gl_FragColor = vec4(col * uDim, clamp(alpha, 0.0, 0.72));",
+    "  float swirl1 = ang * 3.0 - log(r + 0.09) * 9.5 - uTime * 1.35;",
+    "  float swirl2 = ang * 5.0 - log(r + 0.06) * 14.0 - uTime * 2.10;",
+    "  float n1 = aNoise(vec2(r * 12.0, ang * 3.0 - uTime * 0.7));",
+    "  float n2 = aNoise(vec2(r * 24.0 - uTime * 0.45, ang * 5.0));",
+    "  float streaks = 0.58 + 0.26 * cos(swirl1 + n1 * 2.4) + 0.16 * cos(swirl2 + n2 * 2.0);",
+    "  float doppler = 0.78 + 0.32 * cos(ang - 0.65);",
+    "  float innerHot = exp(-pow((r - 0.25) / 0.085, 2.0)) * 1.35;",
+    "  float radial = smoothstep(0.20, 0.30, r) * pow(max(0.0, 1.0 - r), 2.35);",
+    "  vec3 cHot = vec3(1.00, 0.94, 0.80);",
+    "  vec3 cGold = vec3(0.98, 0.66, 0.28);",
+    "  vec3 cAmber = vec3(0.78, 0.32, 0.12);",
+    "  vec3 col = mix(cHot, cGold, smoothstep(0.22, 0.50, r));",
+    "  col = mix(col, cAmber, smoothstep(0.46, 0.90, r));",
+    "  float lum = (radial * streaks * 1.45 + innerHot * pow(max(0.0, 1.0 - r), 1.4)) * doppler;",
+    "  gl_FragColor = vec4(col * lum * uDim, clamp(lum * 0.72, 0.0, 0.82) * uNearFade);",
     "}"
   ].join("\n");
 
@@ -1563,17 +1583,127 @@
     "  vec3 vDir = normalize(-vViewPos);",
     "  float ndv = abs(dot(normalize(vNormalV), vDir));",
     "  float h = uDir > 0.0 ? vUv.y : (1.0 - vUv.y);",
-    "  float spine = pow(clamp(ndv, 0.0, 1.0), 1.9);",
-    "  float sheath = pow(clamp(ndv, 0.0, 1.0), 0.75) * 0.45;",
-    "  float shock1 = pow(0.5 + 0.5 * cos(h * 26.0 - uTime * 3.1), 4.0);",
-    "  float shock2 = pow(0.5 + 0.5 * cos(h * 52.0 - uTime * 5.2 + vUv.x * 6.283), 3.0);",
-    "  float helix = 0.70 + 0.30 * cos(vUv.x * 12.566 - h * 18.0 + uTime * 2.2);",
-    "  float env = smoothstep(0.0, 0.09, h) * pow(max(0.0, 1.0 - h), 1.35);",
-    "  vec3 colSpine = vec3(0.76, 0.96, 1.00);",
-    "  vec3 colSheath = vec3(0.46, 0.34, 1.00);",
-    "  vec3 col = mix(colSheath, colSpine, clamp(spine * 1.15 + shock1 * 0.45, 0.0, 1.0));",
-    "  float inten = env * (spine * (0.95 + shock1 * 0.85 + shock2 * 0.35) + sheath * helix);",
-    "  gl_FragColor = vec4(col * inten * 1.35 * uDim, clamp(inten * 0.78, 0.0, 0.86) * uNearFade);",
+    "  /* 轻柔半透明星际等离子体羽雾（彻底告别刺眼白激光柱，自然消融于星海） */",
+    "  float coreSoft = pow(clamp(ndv, 0.0, 1.0), 2.35);",
+    "  float mist = pow(clamp(ndv, 0.0, 1.0), 1.15) * 0.35;",
+    "  float wave1 = 0.72 + 0.28 * cos(h * 14.0 - uTime * 1.45 + vUv.x * 6.283);",
+    "  float wave2 = 0.78 + 0.22 * sin(h * 28.0 - uTime * 2.2 - vUv.x * 12.566);",
+    "  float env = smoothstep(0.0, 0.22, h) * pow(max(0.0, 1.0 - h), 2.15);",
+    "  vec3 colBase = vec3(0.95, 0.76, 0.56);",
+    "  vec3 colMid = vec3(0.62, 0.68, 0.98);",
+    "  vec3 colTip = vec3(0.42, 0.44, 0.86);",
+    "  vec3 col = mix(colBase, colMid, smoothstep(0.05, 0.42, h));",
+    "  col = mix(col, colTip, smoothstep(0.40, 0.92, h));",
+    "  float inten = env * (coreSoft * 0.42 + mist * 0.32) * wave1 * wave2;",
+    "  gl_FragColor = vec4(col * inten * 0.92 * uDim, clamp(inten * 0.48, 0.0, 0.30) * uNearFade);",
+    "}"
+  ].join("\n");
+
+  /* 11c. 3D 体积星云 / 宇宙尘埃云团着色器（为星系提供真实立体厚度，侧视呈丰盈云海而非纸片） */
+  var GALAXY_NEBULA_VERT = [
+    "attribute vec3 aColor;",
+    "attribute float aSize;",
+    "attribute float aSeed;",
+    "attribute vec3 aOrbit;",
+    "uniform float uTime;",
+    "uniform float uSpin;",
+    "uniform float uCoreR;",
+    "uniform float uPixelRatio;",
+    "uniform float uSizeScale;",
+    "varying vec3 vColor;",
+    "varying float vSeed;",
+    "void main() {",
+    "  vColor = aColor;",
+    "  vSeed = aSeed;",
+    "  vec3 pos = position;",
+    "  if (uCoreR > 0.0 && aOrbit.x > 0.001) {",
+    "    float w = uSpin * pow(uCoreR / max(aOrbit.x, uCoreR), 0.62);",
+    "    float ang = aOrbit.y + uTime * w;",
+    "    pos = vec3(cos(ang) * aOrbit.x, aOrbit.z, sin(ang) * aOrbit.x);",
+    "  }",
+    "  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);",
+    "  float dist = max(320.0, -mvPos.z);",
+    "  gl_PointSize = clamp(aSize * uPixelRatio * (uSizeScale / dist), 3.0, 148.0);",
+    "  gl_Position = projectionMatrix * mvPos;",
+    "}"
+  ].join("\n");
+
+  var GALAXY_NEBULA_FRAG = [
+    "uniform float uOpacity;",
+    "uniform float uDim;",
+    "uniform float uNearFade;",
+    "varying vec3 vColor;",
+    "varying float vSeed;",
+    "float nHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float nVal(vec2 p) {",
+    "  vec2 i = floor(p); vec2 f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(nHash(i), nHash(i + vec2(1.0,0.0)), u.x), mix(nHash(i + vec2(0.0,1.0)), nHash(i + vec2(1.0,1.0)), u.x), u.y);",
+    "}",
+    "void main() {",
+    "  vec2 p = gl_PointCoord - vec2(0.5);",
+    "  float d = length(p) * 2.0;",
+    "  if (d > 1.0) discard;",
+    "  float ca = cos(vSeed * 6.2831), sa = sin(vSeed * 6.2831);",
+    "  vec2 rp = vec2(p.x * ca - p.y * sa, p.x * sa + p.y * ca);",
+    "  float f1 = nVal(rp * 3.8 + vec2(vSeed * 17.3, vSeed * 9.1));",
+    "  float f2 = nVal(rp * 7.6 - vec2(vSeed * 11.7, vSeed * 23.4));",
+    "  float cloud = 0.45 + 0.55 * (f1 * 0.65 + f2 * 0.35);",
+    "  float softFall = exp(-d * d * 3.6) * smoothstep(1.0, 0.18, d);",
+    "  float alpha = softFall * cloud * uOpacity * uNearFade;",
+    "  gl_FragColor = vec4(vColor * (0.92 + 0.25 * f1) * uDim, clamp(alpha, 0.0, 0.65));",
+    "}"
+  ].join("\n");
+
+  /* 11d. 3D 陨石群 / 小行星碎石带粒子着色器（不规则多棱碎岩微粒与冰晶反光，绝非圆润星球） */
+  var GALAXY_METEOR_VERT = [
+    "attribute vec3 aColor;",
+    "attribute float aSize;",
+    "attribute float aSeed;",
+    "attribute vec3 aOrbit;",
+    "uniform float uTime;",
+    "uniform float uSpin;",
+    "uniform float uCoreR;",
+    "uniform float uPixelRatio;",
+    "uniform float uSizeScale;",
+    "varying vec3 vColor;",
+    "varying float vSeed;",
+    "varying float vGlint;",
+    "void main() {",
+    "  vColor = aColor;",
+    "  vSeed = aSeed;",
+    "  vGlint = 0.68 + 0.32 * sin(uTime * (0.8 + aSeed * 1.8) + aSeed * 37.0);",
+    "  vec3 pos = position;",
+    "  if (uCoreR > 0.0 && aOrbit.x > 0.001) {",
+    "    float w = uSpin * pow(uCoreR / max(aOrbit.x, uCoreR), 0.62);",
+    "    float ang = aOrbit.y + uTime * w;",
+    "    pos = vec3(cos(ang) * aOrbit.x, aOrbit.z, sin(ang) * aOrbit.x);",
+    "  }",
+    "  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);",
+    "  float dist = max(140.0, -mvPos.z);",
+    "  gl_PointSize = clamp(aSize * uPixelRatio * (uSizeScale / dist), 1.3, 5.4);",
+    "  gl_Position = projectionMatrix * mvPos;",
+    "}"
+  ].join("\n");
+
+  var GALAXY_METEOR_FRAG = [
+    "uniform float uOpacity;",
+    "uniform float uDim;",
+    "uniform float uNearFade;",
+    "varying vec3 vColor;",
+    "varying float vSeed;",
+    "varying float vGlint;",
+    "void main() {",
+    "  vec2 p = gl_PointCoord - vec2(0.5);",
+    "  float ang = atan(p.y, p.x) + vSeed * 6.2831;",
+    "  /* 不规则多边形陨石/碎岩轮廓（带棱角与长短轴） */",
+    "  float aspect = 1.0 + 0.28 * cos(ang * 2.0 + vSeed * 5.0);",
+    "  float jag = 0.78 + 0.16 * cos(ang * 3.0 + vSeed * 11.0) + 0.10 * sin(ang * 5.0 - vSeed * 7.0);",
+    "  float d = length(p) * 2.0 / (jag * aspect);",
+    "  if (d > 1.0) discard;",
+    "  float facet = 0.62 + 0.38 * smoothstep(-0.4, 0.45, p.x * cos(vSeed * 6.28) + p.y * sin(vSeed * 6.28));",
+    "  float edgeSoft = smoothstep(1.0, 0.42, d);",
+    "  vec3 col = vColor * facet * vGlint;",
+    "  gl_FragColor = vec4(col * uDim, edgeSoft * uOpacity * uNearFade);",
     "}"
   ].join("\n");
 
@@ -2086,7 +2216,14 @@
     }
 
     var edgeFade = smoothstepJS(1.28, 0.22, rScreen) * smoothstepJS(0.03, 0.16, rScreen + 0.08);
-    var sunCamDist = cam.position.length(); var occAtten = 1.0;
+    var galAtten = 1.0 - smoothstepJS(3400, 6800, state.radius);
+    if (galAtten < 0.01) {
+      for (var gi2 = 0; gi2 < state.lensGhosts.length; gi2++) {
+        state.lensGhosts[gi2].sprite.visible = false;
+      }
+      return;
+    }
+    var sunCamDist = cam.position.length(); var occAtten = galAtten;
     if (state.selectedEntry) {
       var eDist = cam.position.distanceTo(state.selectedEntry.worldPos);
       if (eDist < sunCamDist) occAtten = 0.35;
@@ -2209,14 +2346,23 @@
       state.galaxyCenter.copy(is2D ? gg.center2D : gg.center3D);
     }
     gg.diskMat.uniforms.uFlat2D.value = is2D ? 1.0 : 0.0;
-    if (gg.diskLayers3D) {
-      gg.diskLayers3D.visible = !is2D;
-    }
     if (gg.core3DGroup) {
       gg.core3DGroup.visible = !is2D;
     }
     if (gg.polarJets3D) {
       gg.polarJets3D.visible = !is2D;
+    }
+    if (gg.galGridLines) {
+      gg.galGridLines.visible = is2D;
+    }
+    if (gg.nebulaMat) {
+      gg.nebulaMat.uniforms.uOpacity.value = is2D ? 0.13 : 0.24;
+    }
+    if (gg.dustMat) {
+      gg.dustMat.uniforms.uOpacity.value = is2D ? 0.20 : 0.34;
+    }
+    if (gg.meteorMat) {
+      gg.meteorMat.uniforms.uOpacity.value = is2D ? 0.50 : 0.78;
     }
     if (gg.companions) {
       for (var i = 0; i < gg.companions.length; i++) {
@@ -2292,7 +2438,7 @@
     var galGroup = new THREE.Group();
     state.root.add(galGroup);
 
-    /* 1. 超高清多倍频丝缕旋臂盘 + 3D 立体多层体积厚盘切片（带微妙 S 形星系翘曲，告别“平得像张纸”） */
+    /* 1. 超高清多倍频丝缕旋臂盘（3D 侧视时自动柔化过渡，让位给真实 3D 立体星海、星云与陨石群厚度） */
     var diskMat = new THREE.ShaderMaterial({
       uniforms: {
         uRadius: { value: GRAND_GALAXY_R },
@@ -2316,80 +2462,39 @@
     var diskMesh = new THREE.Mesh(diskGeo, diskMat);
     diskMesh.rotation.x = -Math.PI * 0.5;
     diskMesh.frustumCulled = false;
-    diskMesh.renderOrder = -4;
+    diskMesh.renderOrder = -5;
     galGroup.add(diskMesh);
 
-    /* 3D 专属多层厚盘体积切片（±0.016R、±0.036R 上下立体分层，侧看呈现真实立体盘面与尘埃厚度） */
-    var diskLayers3D = new THREE.Group();
-    var diskLayerMats = [];
-    var layerSpecs = [
-      { dy: GRAND_GALAXY_R * 0.016, alpha: 0.34, soft: 0.42, scale: 0.985, rotZ: 0.025 },
-      { dy: -GRAND_GALAXY_R * 0.016, alpha: 0.34, soft: 0.42, scale: 0.985, rotZ: -0.025 },
-      { dy: GRAND_GALAXY_R * 0.036, alpha: 0.17, soft: 0.72, scale: 0.92, rotZ: 0.055 },
-      { dy: -GRAND_GALAXY_R * 0.036, alpha: 0.17, soft: 0.72, scale: 0.92, rotZ: -0.055 }
-    ];
-    for (var lsi = 0; lsi < layerSpecs.length; lsi++) {
-      var ls = layerSpecs[lsi];
-      var lMat = new THREE.ShaderMaterial({
-        uniforms: {
-          uRadius: { value: GRAND_GALAXY_R * ls.scale },
-          uTime: { value: 0 },
-          uDim: { value: 1.0 },
-          uNearFade: { value: 1.0 },
-          uFlat2D: { value: 0.0 },
-          uWarpAmp: { value: 0.036 },
-          uLayerAlpha: { value: ls.alpha },
-          uLayerSoft: { value: ls.soft }
-        },
-        vertexShader: GRAND_GALAXY_VERT,
-        fragmentShader: GRAND_GALAXY_FRAG,
-        transparent: true,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-      });
-      var lMesh = new THREE.Mesh(diskGeo, lMat);
-      lMesh.rotation.x = -Math.PI * 0.5;
-      lMesh.rotation.z = ls.rotZ;
-      lMesh.position.y = ls.dy;
-      lMesh.scale.set(ls.scale, ls.scale, 1);
-      lMesh.frustumCulled = false;
-      lMesh.renderOrder = -5;
-      diskLayers3D.add(lMesh);
-      diskLayerMats.push({ mat: lMat, mesh: lMesh });
-    }
-    galGroup.add(diskLayers3D);
-
-    /* 2. 银心 5 大天体物理特征精致组合（2D/3D 共源光晕 + 3D 立体核球/SMBH/吸积盘/透镜光弧/尘埃环面/致密核星团与S星轨/星暴核环/相对论喷流） */
+    /* 2. 银心柔美自然光晕（彻底移除生硬外圈，全部改用柔和暖金星云辉光融入环境） */
     var bulgeInner = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: state.texCache.corona,
-      color: 0xffedd2,
+      map: state.texCache.glow,
+      color: 0xffdfaa,
       transparent: true,
-      opacity: 0.36,
+      opacity: 0.34,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     }));
-    bulgeInner.scale.set(GRAND_GALAXY_R * 0.072, GRAND_GALAXY_R * 0.056, 1);
-    bulgeInner.renderOrder = -2;
+    bulgeInner.scale.set(GRAND_GALAXY_R * 0.24, GRAND_GALAXY_R * 0.18, 1);
+    bulgeInner.renderOrder = -3;
     galGroup.add(bulgeInner);
 
     var bulgeOuter = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: state.texCache.lensRing,
-      color: 0xf6c36b,
+      map: state.texCache.glow,
+      color: 0xd99b66,
       transparent: true,
       opacity: 0.22,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     }));
-    bulgeOuter.scale.set(GRAND_GALAXY_R * 0.088, GRAND_GALAXY_R * 0.088, 1);
-    bulgeOuter.renderOrder = -2;
+    bulgeOuter.scale.set(GRAND_GALAXY_R * 0.44, GRAND_GALAXY_R * 0.28, 1);
+    bulgeOuter.renderOrder = -4;
     galGroup.add(bulgeOuter);
 
-    /* 2b. 3D 专属立体星系中心核心组（五大特征全立体化） */
+    /* 2b. 3D 专属立体星系中心核心组（更宏大的自然维和黑洞 + 视向引力透镜光晕 + 渐融吸积流 + 丰盈立体核球） */
     var core3DGroup = new THREE.Group();
     galGroup.add(core3DGroup);
 
-    // 特征 1：3D 立体棒状核球（暖金高金属丰度老年恒星椭球，侧看饱满隆起）
+    // 立体暖金棒状核球柔雾（侧看丰满柔和隆起，无缝包覆黑洞）
     var bulgeVolMat = new THREE.ShaderMaterial({
       uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 } },
       vertexShader: GALAXY_BULGE_VERT,
@@ -2400,14 +2505,14 @@
       blending: THREE.AdditiveBlending
     });
     var bulgeVolMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 44, 32), bulgeVolMat);
-    bulgeVolMesh.scale.set(GRAND_GALAXY_R * 0.225, GRAND_GALAXY_R * 0.132, GRAND_GALAXY_R * 0.148);
+    bulgeVolMesh.scale.set(GRAND_GALAXY_R * 0.265, GRAND_GALAXY_R * 0.165, GRAND_GALAXY_R * 0.185);
     bulgeVolMesh.rotation.y = -0.38;
     bulgeVolMesh.frustumCulled = false;
-    bulgeVolMesh.renderOrder = -3;
+    bulgeVolMesh.renderOrder = -4;
     core3DGroup.add(bulgeVolMesh);
 
-    // 特征 2：超大质量黑洞视界球（人马座 A* 暗影 + 锐利爱因斯坦光子环）+ 倾斜差速吸积盘 + 引力透镜上/下弯曲光弧
-    var smbhR = GRAND_GALAXY_R * 0.0155;
+    // 更宏大的中心超大质量黑洞视界球（直径提升近一倍，与周围暖金核球自然相融）
+    var smbhR = GRAND_GALAXY_R * 0.029;
     var smbhMat = new THREE.ShaderMaterial({
       uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 } },
       vertexShader: GALAXY_BULGE_VERT,
@@ -2415,13 +2520,28 @@
       transparent: true,
       depthWrite: false
     });
-    var smbhMesh = new THREE.Mesh(new THREE.SphereGeometry(smbhR, 36, 28), smbhMat);
+    var smbhMesh = new THREE.Mesh(new THREE.SphereGeometry(smbhR, 42, 32), smbhMat);
     smbhMesh.frustumCulled = false;
-    smbhMesh.renderOrder = 2;
+    smbhMesh.renderOrder = 3;
     core3DGroup.add(smbhMesh);
 
+    // 视向自适应 Gargantua 引力透镜柔光弧（始终顺应相机视角平滑包裹黑洞，零硬边零切面）
+    var smbhLensMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 } },
+      vertexShader: SMBH_LENS_VERT,
+      fragmentShader: SMBH_LENS_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    var smbhLensMesh = new THREE.Mesh(new THREE.PlaneGeometry(smbhR * 6.6, smbhR * 6.6), smbhLensMat);
+    smbhLensMesh.frustumCulled = false;
+    smbhLensMesh.renderOrder = 2;
+    core3DGroup.add(smbhLensMesh);
+
+    // 柔和旋入式赤道吸积盘（外缘指数消融进黄金核球与星云，毫无生硬圆圈边界）
     var accMat = new THREE.ShaderMaterial({
-      uniforms: { uRadius: { value: smbhR * 4.4 }, uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 }, uFlat2D: { value: 1.0 }, uWarpAmp: { value: 0.0 } },
+      uniforms: { uRadius: { value: smbhR * 5.6 }, uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 }, uFlat2D: { value: 1.0 }, uWarpAmp: { value: 0.0 } },
       vertexShader: GRAND_GALAXY_VERT,
       fragmentShader: ACCRETION_DISK_FRAG,
       transparent: true,
@@ -2429,77 +2549,15 @@
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-    var accDiskMesh = new THREE.Mesh(new THREE.PlaneGeometry(smbhR * 8.8, smbhR * 8.8), accMat);
-    accDiskMesh.rotation.x = -Math.PI * 0.5 + 0.18;
-    accDiskMesh.rotation.z = 0.24;
+    var accDiskMesh = new THREE.Mesh(new THREE.PlaneGeometry(smbhR * 11.2, smbhR * 11.2), accMat);
+    accDiskMesh.rotation.x = -Math.PI * 0.5 + 0.11;
+    accDiskMesh.rotation.z = 0.22;
     accDiskMesh.frustumCulled = false;
     accDiskMesh.renderOrder = 1;
     core3DGroup.add(accDiskMesh);
 
-    // 引力透镜弯曲光弧（垂直于主吸积盘，模拟黑洞背后吸积盘光线弯曲）
-    var accLensMesh = new THREE.Mesh(new THREE.PlaneGeometry(smbhR * 6.0, smbhR * 6.0), accMat);
-    accLensMesh.rotation.y = 0.42;
-    accLensMesh.rotation.x = 0.14;
-    accLensMesh.frustumCulled = false;
-    accLensMesh.renderOrder = 1;
-    core3DGroup.add(accLensMesh);
-
-    // 特征 4 & 5：立体尘埃环面（Dusty Torus，环绕吸积盘外缘，含热尘埃团块质感）
-    var torusMat = new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uDim: { value: 1.0 }, uNearFade: { value: 1.0 } },
-      vertexShader: GALAXY_BULGE_VERT,
-      fragmentShader: DUSTY_TORUS_FRAG,
-      transparent: true,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-      blending: THREE.NormalBlending
-    });
-    var dustyTorusMesh = new THREE.Mesh(new THREE.TorusGeometry(smbhR * 4.85, smbhR * 1.45, 22, 64), torusMat);
-    dustyTorusMesh.rotation.x = Math.PI * 0.5 + 0.12;
-    dustyTorusMesh.scale.set(1.0, 1.0, 0.72);
-    dustyTorusMesh.frustumCulled = false;
-    dustyTorusMesh.renderOrder = 0;
-    core3DGroup.add(dustyTorusMesh);
-
-    // 特征 3：高速环绕黑洞的 S-星（S-Stars）精致立体椭圆轨道细痕（6 条倾斜开普勒轨道）
-    var sOrbSegs = [];
-    var sOrbSpecs = [
-      { a: smbhR * 2.9, e: 0.52, inc: 0.62, om: 0.2, col: [0.62, 0.88, 1.0] },
-      { a: smbhR * 3.8, e: 0.44, inc: -0.78, om: 1.3, col: [1.0, 0.86, 0.58] },
-      { a: smbhR * 4.9, e: 0.36, inc: 0.95, om: 2.4, col: [0.74, 0.92, 1.0] },
-      { a: smbhR * 5.8, e: 0.48, inc: -0.45, om: 3.5, col: [1.0, 0.78, 0.68] },
-      { a: smbhR * 7.1, e: 0.28, inc: 1.15, om: 4.6, col: [0.58, 0.84, 1.0] },
-      { a: smbhR * 8.4, e: 0.32, inc: -0.88, om: 5.4, col: [1.0, 0.90, 0.70] }
-    ];
-    for (var soi = 0; soi < sOrbSpecs.length; soi++) {
-      var so = sOrbSpecs[soi];
-      var bOrb = buildOrbitBasis(THREE, so.inc, so.om, soi * 0.85);
-      var tmpP0 = new THREE.Vector3(), tmpP1 = new THREE.Vector3();
-      var steps = 48;
-      for (var st = 0; st < steps; st++) {
-        evalKeplerOrbit((st / steps) * Math.PI * 2, so.a, so.e, bOrb.u, bOrb.v, tmpP0);
-        evalKeplerOrbit(((st + 1) / steps) * Math.PI * 2, so.a, so.e, bOrb.u, bOrb.v, tmpP1);
-        sOrbSegs.push(tmpP0.x, tmpP0.y, tmpP0.z, tmpP1.x, tmpP1.y, tmpP1.z, so.col[0], so.col[1], so.col[2], so.col[0], so.col[1], so.col[2]);
-      }
-    }
-    var sCnt = sOrbSegs.length / 12;
-    var sPos = new Float32Array(sCnt * 6), sCol = new Float32Array(sCnt * 6);
-    for (var si0 = 0; si0 < sCnt; si0++) {
-      for (var sp0 = 0; sp0 < 6; sp0++) {
-        sPos[si0 * 6 + sp0] = sOrbSegs[si0 * 12 + sp0];
-        sCol[si0 * 6 + sp0] = sOrbSegs[si0 * 12 + 6 + sp0];
-      }
-    }
-    var sOrbGeo = new THREE.BufferGeometry();
-    sOrbGeo.setAttribute("position", new THREE.Float32BufferAttribute(sPos, 3));
-    sOrbGeo.setAttribute("color", new THREE.Float32BufferAttribute(sCol, 3));
-    var sOrbMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.28, depthWrite: false, blending: THREE.AdditiveBlending });
-    var sOrbLines = new THREE.LineSegments(sOrbGeo, sOrbMat);
-    sOrbLines.frustumCulled = false;
-    core3DGroup.add(sOrbLines);
-
-    /* 2c. 致密核星团 + 高速 S-星 + 核周星暴环（2D/3D 共源立体粒子，2D 自动压平为精致核星团与星暴环） */
-    var ncCount = state.degraded ? 1600 : 3400;
+    /* 2c. 致密核球星团与环黑洞星辰（5,000 颗柔和 3D 分布，无任何线框轨道，自然包裹黑洞并向核球过渡） */
+    var ncCount = state.degraded ? 2200 : 5000;
     var ncPos = new Float32Array(ncCount * 3);
     var ncCol = new Float32Array(ncCount * 3);
     var ncSz = new Float32Array(ncCount);
@@ -2508,36 +2566,37 @@
     for (var ni = 0; ni < ncCount; ni++) {
       var modeSel = ni % 10;
       var nRad, nAng, nY, nR, nG, nB, nSize;
-      if (modeSel < 3) {
-        // 紧贴黑洞的高速蓝白 S-星群（球状立体包裹黑洞）
-        nRad = smbhR * (1.55 + Math.pow(ncRand(), 1.35) * 6.8);
+      if (modeSel < 2) {
+        // 环绕大黑洞自然起舞的近核星辰（暖白与浅金蓝，无几何线框）
+        var sR = smbhR * (1.42 + Math.pow(ncRand(), 1.45) * 4.8);
         nAng = ncRand() * Math.PI * 2;
         var el = Math.acos(ncRand() * 2 - 1);
-        nY = Math.cos(el) * nRad * 0.68;
-        nRad = Math.max(smbhR * 1.4, Math.sin(el) * nRad);
-        nR = 0.72 + ncRand() * 0.28; nG = 0.88 + ncRand() * 0.12; nB = 1.0;
-        nSize = 1.65 + Math.pow(ncRand(), 2.0) * 2.6;
-      } else if (modeSel < 7) {
-        // 核球致密老年恒星团（暖金/奶油白，呈 3D 棒状花生核球立体隆起）
-        var rn = Math.pow(ncRand(), 1.55) * 0.19;
-        nRad = smbhR * 2.4 + rn * GRAND_GALAXY_R;
+        nY = Math.cos(el) * sR * 0.72;
+        nRad = Math.max(smbhR * 1.32, Math.sin(el) * sR);
+        nR = 0.92 + ncRand() * 0.08; nG = 0.86 + ncRand() * 0.12; nB = 0.72 + ncRand() * 0.28;
+        nSize = 1.45 + Math.pow(ncRand(), 2.0) * 2.35;
+      } else if (modeSel < 8) {
+        // 丰盈 3D 棒状核球致密恒星海洋（侧视饱满厚实，彻底消除中心孤立感）
+        var rn = Math.pow(ncRand(), 1.42) * 0.24;
+        nRad = smbhR * 1.65 + rn * GRAND_GALAXY_R;
         var bSide = (ni % 2 === 0) ? 0 : Math.PI;
-        nAng = -0.38 + bSide + (ncRand() + ncRand() - 1) * 1.05;
-        nY = GRAND_GALAXY_R * (0.115 * Math.exp(-rn * 6.5) + 0.018) * (ncRand() + ncRand() + ncRand() - 1.5) * 0.85;
-        nR = 1.0; nG = 0.78 + ncRand() * 0.18; nB = 0.48 + ncRand() * 0.34;
-        nSize = 1.45 + Math.pow(ncRand(), 2.2) * 2.4;
+        nAng = -0.38 + bSide + (ncRand() + ncRand() - 1) * 1.38;
+        var bulgeH = 0.165 * Math.exp(-rn * 4.8) + 0.030;
+        nY = GRAND_GALAXY_R * bulgeH * (ncRand() + ncRand() + ncRand() - 1.5) * 0.92;
+        nR = 1.0; nG = 0.76 + ncRand() * 0.20; nB = 0.44 + ncRand() * 0.36;
+        nSize = 1.35 + Math.pow(ncRand(), 2.2) * 2.4;
       } else {
-        // 核周星暴环（Starburst Nuclear Ring：H-alpha 玫红星云团 + 蓝白年轻 OB 星团）
-        nRad = GRAND_GALAXY_R * (0.068 + (ncRand() + ncRand() - 1) * 0.026);
+        // 柔和星暴云区年轻恒星簇（自然融入内旋臂，无生硬环形边界）
+        nRad = GRAND_GALAXY_R * (0.095 + (ncRand() + ncRand() - 1) * 0.055);
         nAng = ncRand() * Math.PI * 2;
-        nY = GRAND_GALAXY_R * 0.018 * (ncRand() + ncRand() - 1);
+        nY = GRAND_GALAXY_R * 0.048 * (ncRand() + ncRand() + ncRand() - 1.5) * 0.85;
         var isPinkHii = (ni % 3 !== 0);
         if (isPinkHii) {
-          nR = 1.0; nG = 0.28 + ncRand() * 0.26; nB = 0.64 + ncRand() * 0.24;
-          nSize = 2.0 + Math.pow(ncRand(), 1.8) * 3.0;
+          nR = 1.0; nG = 0.38 + ncRand() * 0.26; nB = 0.66 + ncRand() * 0.24;
+          nSize = 1.75 + Math.pow(ncRand(), 1.9) * 2.6;
         } else {
-          nR = 0.36 + ncRand() * 0.34; nG = 0.86 + ncRand() * 0.14; nB = 1.0;
-          nSize = 1.7 + Math.pow(ncRand(), 2.0) * 2.5;
+          nR = 0.46 + ncRand() * 0.34; nG = 0.84 + ncRand() * 0.14; nB = 1.0;
+          nSize = 1.55 + Math.pow(ncRand(), 2.0) * 2.3;
         }
       }
       ncPos[ni * 3] = Math.cos(nAng) * nRad;
@@ -2546,7 +2605,7 @@
       ncOrb[ni * 3] = nRad;
       ncOrb[ni * 3 + 1] = nAng;
       ncOrb[ni * 3 + 2] = nY;
-      var nbr = 0.72 + ncRand() * 0.38;
+      var nbr = 0.68 + ncRand() * 0.38;
       ncCol[ni * 3] = clamp(nR * nbr, 0, 1);
       ncCol[ni * 3 + 1] = clamp(nG * nbr, 0, 1);
       ncCol[ni * 3 + 2] = clamp(nB * nbr, 0, 1);
@@ -2560,11 +2619,11 @@
     var ncMat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uSpin: { value: 0.145 },
-        uCoreR: { value: smbhR * 4.5 },
+        uSpin: { value: 0.085 },
+        uCoreR: { value: smbhR * 3.8 },
         uPixelRatio: { value: state.dpr },
-        uSizeScale: { value: 3600.0 },
-        uOpacity: { value: 0.96 },
+        uSizeScale: { value: 3500.0 },
+        uOpacity: { value: 0.94 },
         uDim: { value: 1.0 }
       },
       vertexShader: GRAND_GALAXY_STAR_VERT,
@@ -2579,43 +2638,329 @@
     galGroup.add(ncPts);
     registerPoints(ncPts, ncCount);
 
-    /* 3. 38,000+ 针尖级锐利差速公转旋臂恒星团、立体厚盘与 S 形翘曲外盘、OB 蓝超巨星协与 H-II 电离星团 */
-    var count = Math.max(12000, starBudget | 0);
+    /* 2d. 3D 体积发光星云云海（3,200 团柔和多层 FBM 立体星云，赋予星系真正的立体云雾厚度，绝非星球） */
+    var nebCount = state.degraded ? 1500 : 3200;
+    var nebPos = new Float32Array(nebCount * 3);
+    var nebCol = new Float32Array(nebCount * 3);
+    var nebSz = new Float32Array(nebCount);
+    var nebSeed = new Float32Array(nebCount);
+    var nebOrb = new Float32Array(nebCount * 3);
+    var nebRand = rng(0x7c19e4b2);
+    var coreR = GRAND_GALAXY_R * 0.135;
+    for (var nbi = 0; nbi < nebCount; nbi++) {
+      var nType = nbi % 20;
+      var nbRNorm, nbAng, nbY, nbCr, nbCg, nbCb, nbSize;
+      if (nType < 6) {
+        // 核球暖金/桃杏色立体星云雾海（包裹大黑洞与核星团）
+        nbRNorm = 0.032 + Math.pow(nebRand(), 1.35) * 0.25;
+        var nbBarSide = (nbi % 2 === 0) ? 0 : Math.PI;
+        nbAng = -0.38 + nbBarSide + (nebRand() + nebRand() - 1) * 1.45;
+        nbY = GRAND_GALAXY_R * (0.165 * Math.exp(-nbRNorm * 4.2) + 0.032) * (nebRand() + nebRand() + nebRand() - 1.5) * 0.88;
+        nbCr = 0.96 + nebRand() * 0.04;
+        nbCg = 0.66 + nebRand() * 0.22;
+        nbCb = 0.38 + nebRand() * 0.28;
+        nbSize = 18.0 + nebRand() * 24.0;
+      } else if (nType < 15) {
+        // 主旋臂蓝紫/青蓝立体星云厚层（侧看呈现云雾缭绕的丰厚星系盘）
+        nbRNorm = 0.11 + Math.pow(nebRand(), 1.02) * 0.84;
+        var nbArms = (nbi % 5 >= 3) ? 4 : 2;
+        var nbArmBase = ((nbi % nbArms) / nbArms) * Math.PI * 2;
+        var nbSpiral = Math.log(nbRNorm + 0.058) * 4.20;
+        nbAng = nbArmBase + nbSpiral + (0.18 + nbRNorm * 0.30) * (nebRand() + nebRand() - 1);
+        var nbWarp = Math.sin(nbAng - 0.55) * Math.pow(nbRNorm, 2.15) * GRAND_GALAXY_R * 0.036;
+        var nbThick = (0.095 * (1.0 - nbRNorm * 0.38) + 0.032);
+        nbY = nbWarp + GRAND_GALAXY_R * nbThick * (nebRand() + nebRand() + nebRand() - 1.5) * 0.82;
+        var blueMix = nebRand();
+        nbCr = lerp(0.24, 0.54, blueMix);
+        nbCg = lerp(0.52, 0.56, blueMix);
+        nbCb = lerp(0.96, 1.00, blueMix);
+        nbSize = 20.0 + nebRand() * 28.0;
+      } else if (nType < 18) {
+        // H-alpha 玫红/琥珀玫瑰星云团（嵌入旋臂与星暴区，增添深空层次）
+        nbRNorm = 0.08 + Math.pow(nebRand(), 1.12) * 0.72;
+        var hrBase = ((nbi % 2) / 2) * Math.PI * 2;
+        nbAng = hrBase + Math.log(nbRNorm + 0.058) * 4.20 + (0.14 + nbRNorm * 0.22) * (nebRand() + nebRand() - 1);
+        var hrWarp = Math.sin(nbAng - 0.55) * Math.pow(nbRNorm, 2.15) * GRAND_GALAXY_R * 0.036;
+        nbY = hrWarp + GRAND_GALAXY_R * (0.068 * (1.0 - nbRNorm * 0.3)) * (nebRand() + nebRand() - 1);
+        nbCr = 0.92; nbCg = 0.34 + nebRand() * 0.24; nbCb = 0.60 + nebRand() * 0.24;
+        nbSize = 15.0 + nebRand() * 20.0;
+      } else {
+        // 外银晕淡紫/深蓝薄雾（让盘面边缘柔滑融入深空宇宙）
+        nbRNorm = 0.22 + Math.pow(nebRand(), 0.82) * 0.75;
+        nbAng = nebRand() * Math.PI * 2;
+        nbY = GRAND_GALAXY_R * (0.18 * (1.0 - nbRNorm * 0.38)) * (nebRand() + nebRand() - 1);
+        nbCr = 0.30; nbCg = 0.42; nbCb = 0.78;
+        nbSize = 24.0 + nebRand() * 28.0;
+      }
+      var nbRad = smbhR * 1.45 + nbRNorm * GRAND_GALAXY_R;
+      nebPos[nbi * 3] = Math.cos(nbAng) * nbRad;
+      nebPos[nbi * 3 + 1] = nbY;
+      nebPos[nbi * 3 + 2] = Math.sin(nbAng) * nbRad;
+      nebOrb[nbi * 3] = nbRad;
+      nebOrb[nbi * 3 + 1] = nbAng;
+      nebOrb[nbi * 3 + 2] = nbY;
+      var nbBr = 0.55 + nebRand() * 0.45;
+      nebCol[nbi * 3] = clamp(nbCr * nbBr, 0, 1);
+      nebCol[nbi * 3 + 1] = clamp(nbCg * nbBr, 0, 1);
+      nebCol[nbi * 3 + 2] = clamp(nbCb * nbBr, 0, 1);
+      nebSz[nbi] = nbSize;
+      nebSeed[nbi] = nebRand();
+    }
+    var nebGeo = new THREE.BufferGeometry();
+    nebGeo.setAttribute("position", new THREE.Float32BufferAttribute(nebPos, 3));
+    nebGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(nebCol, 3));
+    nebGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(nebSz, 1));
+    nebGeo.setAttribute("aSeed", new THREE.Float32BufferAttribute(nebSeed, 1));
+    nebGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(nebOrb, 3));
+    var nebulaMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uSpin: { value: 0.018 },
+        uCoreR: { value: coreR },
+        uPixelRatio: { value: state.dpr },
+        uSizeScale: { value: 26500.0 },
+        uOpacity: { value: 0.24 },
+        uDim: { value: 1.0 },
+        uNearFade: { value: 1.0 }
+      },
+      vertexShader: GALAXY_NEBULA_VERT,
+      fragmentShader: GALAXY_NEBULA_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    var nebulaPts = new THREE.Points(nebGeo, nebulaMat);
+    nebulaPts.frustumCulled = false;
+    nebulaPts.renderOrder = -3;
+    galGroup.add(nebulaPts);
+    registerPoints(nebulaPts, nebCount);
+
+    /* 2e. 3D 暗赭色分子尘埃立体云带（类似草帽星系 M104 侧视暗尘带，立体穿插于赤道盘面与内核尘埃区） */
+    var dustCount = state.degraded ? 550 : 1150;
+    var dustPos = new Float32Array(dustCount * 3);
+    var dustCol = new Float32Array(dustCount * 3);
+    var dustSz = new Float32Array(dustCount);
+    var dustSeed = new Float32Array(dustCount);
+    var dustOrb = new Float32Array(dustCount * 3);
+    var dustRand = rng(0x5a3d91c7);
+    for (var dti = 0; dti < dustCount; dti++) {
+      var isInnerDust = (dti % 4 === 0);
+      var dRNorm = isInnerDust ? (0.055 + Math.pow(dustRand(), 1.2) * 0.17) : (0.14 + Math.pow(dustRand(), 1.05) * 0.68);
+      var dRad = smbhR * 2.1 + dRNorm * GRAND_GALAXY_R;
+      var dArm = ((dti % 2) / 2) * Math.PI * 2;
+      var dAng = isInnerDust
+        ? (dustRand() * Math.PI * 2)
+        : (dArm + Math.log(dRNorm + 0.058) * 4.20 + 0.52 + (dustRand() + dustRand() - 1) * 0.26);
+      var dWarp = Math.sin(dAng - 0.55) * Math.pow(dRNorm, 2.15) * GRAND_GALAXY_R * 0.036;
+      var dThick = isInnerDust ? 0.054 : (0.048 * (1.0 - dRNorm * 0.30));
+      var dY = dWarp + GRAND_GALAXY_R * dThick * (dustRand() + dustRand() - 1);
+      dustPos[dti * 3] = Math.cos(dAng) * dRad;
+      dustPos[dti * 3 + 1] = dY;
+      dustPos[dti * 3 + 2] = Math.sin(dAng) * dRad;
+      dustOrb[dti * 3] = dRad;
+      dustOrb[dti * 3 + 1] = dAng;
+      dustOrb[dti * 3 + 2] = dY;
+      var warmEdge = isInnerDust ? 0.65 : (dustRand() * 0.45);
+      dustCol[dti * 3] = lerp(0.05, 0.28, warmEdge);
+      dustCol[dti * 3 + 1] = lerp(0.025, 0.11, warmEdge);
+      dustCol[dti * 3 + 2] = lerp(0.04, 0.06, warmEdge);
+      dustSz[dti] = (isInnerDust ? 14.0 : 18.0) + dustRand() * 19.0;
+      dustSeed[dti] = dustRand();
+    }
+    var dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute("position", new THREE.Float32BufferAttribute(dustPos, 3));
+    dustGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(dustCol, 3));
+    dustGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(dustSz, 1));
+    dustGeo.setAttribute("aSeed", new THREE.Float32BufferAttribute(dustSeed, 1));
+    dustGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(dustOrb, 3));
+    var dustMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uSpin: { value: 0.018 },
+        uCoreR: { value: coreR },
+        uPixelRatio: { value: state.dpr },
+        uSizeScale: { value: 22500.0 },
+        uOpacity: { value: 0.34 },
+        uDim: { value: 1.0 },
+        uNearFade: { value: 1.0 }
+      },
+      vertexShader: GALAXY_NEBULA_VERT,
+      fragmentShader: GALAXY_NEBULA_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending
+    });
+    var dustPts = new THREE.Points(dustGeo, dustMat);
+    dustPts.frustumCulled = false;
+    dustPts.renderOrder = -2;
+    galGroup.add(dustPts);
+    registerPoints(dustPts, dustCount);
+
+    /* 2f. 3D 陨石群 / 小行星碎石带与冰晶微尘流（4,400 颗不规则多棱碎石微粒，构成丰盈的太空质地，严禁圆球行星） */
+    var metCount = state.degraded ? 2000 : 4400;
+    var metPos = new Float32Array(metCount * 3);
+    var metCol = new Float32Array(metCount * 3);
+    var metSz = new Float32Array(metCount);
+    var metSeed = new Float32Array(metCount);
+    var metOrb = new Float32Array(metCount * 3);
+    var metRand = rng(0x88f13c29);
+    for (var mti = 0; mti < metCount; mti++) {
+      var isCoreBelt = (mti % 4 === 0);
+      var mRNorm = isCoreBelt ? (0.048 + Math.pow(metRand(), 1.18) * 0.20) : (0.12 + Math.pow(metRand(), 0.96) * 0.82);
+      var mRad = smbhR * 2.15 + mRNorm * GRAND_GALAXY_R;
+      var mArms = (mti % 5 >= 3) ? 4 : 2;
+      var mArmBase = ((mti % mArms) / mArms) * Math.PI * 2;
+      var mAng = isCoreBelt
+        ? (metRand() * Math.PI * 2)
+        : (mArmBase + Math.log(mRNorm + 0.058) * 4.20 + (0.20 + mRNorm * 0.34) * (metRand() + metRand() - 1));
+      var mWarp = Math.sin(mAng - 0.55) * Math.pow(mRNorm, 2.15) * GRAND_GALAXY_R * 0.036;
+      var mThick = isCoreBelt ? (0.088 * (1.0 - mRNorm * 1.4) + 0.032) : (0.082 * (1.0 - mRNorm * 0.36));
+      var mY = mWarp + GRAND_GALAXY_R * mThick * (metRand() + metRand() + metRand() - 1.5) * 0.82;
+      var mlx = Math.cos(mAng) * mRad;
+      var mlz = Math.sin(mAng) * mRad;
+      var mdSq = (mlx - moxunGalX) * (mlx - moxunGalX) + (mlz - moxunGalZ) * (mlz - moxunGalZ);
+      if (mdSq < 420 * 420) {
+        mRad += 520;
+        mlx = Math.cos(mAng) * mRad;
+        mlz = Math.sin(mAng) * mRad;
+      }
+      metPos[mti * 3] = mlx;
+      metPos[mti * 3 + 1] = mY;
+      metPos[mti * 3 + 2] = mlz;
+      metOrb[mti * 3] = mRad;
+      metOrb[mti * 3 + 1] = mAng;
+      metOrb[mti * 3 + 2] = mY;
+      var rockTint = metRand();
+      if (isCoreBelt) {
+        // 内核受暖金光照亮的古铜/铁镍碎岩陨石群
+        metCol[mti * 3] = lerp(0.72, 0.96, rockTint);
+        metCol[mti * 3 + 1] = lerp(0.54, 0.74, rockTint);
+        metCol[mti * 3 + 2] = lerp(0.38, 0.52, rockTint);
+      } else if (mti % 3 === 0) {
+        // 冰晶慧核碎屑（冷银青色微闪）
+        metCol[mti * 3] = lerp(0.56, 0.78, rockTint);
+        metCol[mti * 3 + 1] = lerp(0.68, 0.88, rockTint);
+        metCol[mti * 3 + 2] = lerp(0.84, 0.98, rockTint);
+      } else {
+        // 硅酸盐/碳质小行星与陨石群（暖灰褐与星光照亮的岩石棱面）
+        metCol[mti * 3] = lerp(0.46, 0.72, rockTint);
+        metCol[mti * 3 + 1] = lerp(0.44, 0.64, rockTint);
+        metCol[mti * 3 + 2] = lerp(0.48, 0.68, rockTint);
+      }
+      metSz[mti] = 1.65 + Math.pow(metRand(), 1.9) * 3.1;
+      metSeed[mti] = metRand();
+    }
+    var metGeo = new THREE.BufferGeometry();
+    metGeo.setAttribute("position", new THREE.Float32BufferAttribute(metPos, 3));
+    metGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(metCol, 3));
+    metGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(metSz, 1));
+    metGeo.setAttribute("aSeed", new THREE.Float32BufferAttribute(metSeed, 1));
+    metGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(metOrb, 3));
+    var meteorMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uSpin: { value: 0.021 },
+        uCoreR: { value: coreR },
+        uPixelRatio: { value: state.dpr },
+        uSizeScale: { value: 3800.0 },
+        uOpacity: { value: 0.78 },
+        uDim: { value: 1.0 },
+        uNearFade: { value: 1.0 }
+      },
+      vertexShader: GALAXY_METEOR_VERT,
+      fragmentShader: GALAXY_METEOR_FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending
+    });
+    var meteorPts = new THREE.Points(metGeo, meteorMat);
+    meteorPts.frustumCulled = false;
+    meteorPts.renderOrder = -1;
+    galGroup.add(meteorPts);
+    registerPoints(meteorPts, metCount);
+
+    /* 3. 46,000+ 立体厚盘恒星海与 96 座真实 3D 星团（大幅加厚垂直分布，侧看如璀璨立体的三维星河） */
+    var count = Math.max(14000, starBudget | 0);
     var positions = new Float32Array(count * 3);
     var colors = new Float32Array(count * 3);
     var sizes = new Float32Array(count);
     var orbits = new Float32Array(count * 3);
     var rand = rng(0x5fe42834);
-    var coreR = GRAND_GALAXY_R * 0.135;
+
+    // 预生成 96 座立体疏散星团与球状星团中心，构成丰盈的 3D 太空集群层次
+    var starClusters = [];
+    for (var sci = 0; sci < 96; sci++) {
+      var scIsGlob = (sci % 4 === 0);
+      var scRN = scIsGlob ? (0.10 + Math.pow(rand(), 0.9) * 0.76) : (0.10 + Math.pow(rand(), 1.02) * 0.80);
+      var scRad = smbhR * 2.0 + scRN * GRAND_GALAXY_R;
+      var scArm = ((sci % 2) / 2) * Math.PI * 2;
+      var scAng = scIsGlob
+        ? (rand() * Math.PI * 2)
+        : (scArm + Math.log(scRN + 0.058) * 4.20 + (rand() - 0.5) * 0.28);
+      var scWarp = scIsGlob ? 0 : (Math.sin(scAng - 0.55) * Math.pow(scRN, 2.15) * GRAND_GALAXY_R * 0.036);
+      var scY = scIsGlob
+        ? (GRAND_GALAXY_R * 0.26 * (1.0 - scRN * 0.35) * (rand() + rand() - 1))
+        : (scWarp + GRAND_GALAXY_R * (0.088 * (1.0 - scRN * 0.32)) * (rand() + rand() - 1));
+      starClusters.push({
+        rad: scRad,
+        ang: scAng,
+        y: scY,
+        rNorm: scRN,
+        spreadR: GRAND_GALAXY_R * (scIsGlob ? (0.016 + rand() * 0.018) : (0.018 + rand() * 0.024)),
+        spreadY: GRAND_GALAXY_R * (scIsGlob ? (0.016 + rand() * 0.018) : (0.014 + rand() * 0.018)),
+        isGlob: scIsGlob,
+        warm: scIsGlob || (scRN < 0.26)
+      });
+    }
 
     for (var i = 0; i < count; i++) {
       var u = rand();
-      var isGlobular = (i % 10 === 0);
-      var isThickDisk = (!isGlobular && (i % 4 === 0));
-      var isOBCluster = (!isGlobular && !isThickDisk && (i % 7 === 0));
-      var rNorm = isGlobular ? Math.pow(u, 0.72) * 0.96 : Math.pow(u, 1.10) * 0.96;
-      var rad = 260 + rNorm * GRAND_GALAXY_R;
-      var useSpur = (i % 5 >= 3);
-      var arms = useSpur ? 4 : 2;
-      var armBase = ((i % arms) / arms) * Math.PI * 2;
-      var logR = Math.log(rNorm + 0.058);
-      var spiral = logR * 4.20;
-      var spreadScale = isGlobular ? 1.85 : (isOBCluster ? (0.065 + rNorm * 0.12) : (0.14 + rNorm * 0.28));
-      var spread = spreadScale * (rand() + rand() - 1);
-      var ang = armBase + spiral + spread;
+      var inCluster = (i % 6 === 0);
+      var isGlobular = (!inCluster && (i % 8 === 0));
+      var isThickDisk = (!inCluster && !isGlobular && (i % 3 !== 0));
+      var isOBCluster = (!inCluster && !isGlobular && !isThickDisk && (i % 5 === 0));
+      var rNorm, rad, ang, thickness;
 
-      /* 银心恒星棒聚集（rNorm < 0.18 时沿棒轴收拢，增强旋臂起点结构感） */
-      if (!isGlobular && rNorm < 0.18 && (i % 3 !== 0)) {
-        var barSide = (i % 2 === 0) ? 0 : Math.PI;
-        ang = -0.38 + barSide + (rand() - 0.5) * 0.48;
+      if (inCluster) {
+        var cl = starClusters[i % starClusters.length];
+        var crRand = Math.pow(rand(), 1.35);
+        var ca1 = rand() * Math.PI * 2;
+        var ca2 = Math.acos(rand() * 2 - 1);
+        var offX = Math.sin(ca2) * Math.cos(ca1) * cl.spreadR * crRand;
+        var offZ = Math.sin(ca2) * Math.sin(ca1) * cl.spreadR * crRand;
+        var offY = Math.cos(ca2) * cl.spreadY * crRand;
+        var cx = Math.cos(cl.ang) * cl.rad + offX;
+        var cz = Math.sin(cl.ang) * cl.rad + offZ;
+        rad = Math.max(smbhR * 1.45, Math.hypot(cx, cz));
+        ang = Math.atan2(cz, cx);
+        rNorm = clamp((rad - smbhR * 1.45) / GRAND_GALAXY_R, 0.02, 0.98);
+        thickness = cl.y + offY;
+      } else {
+        rNorm = isGlobular ? Math.pow(u, 0.72) * 0.96 : Math.pow(u, 1.06) * 0.96;
+        rad = smbhR * 1.38 + rNorm * GRAND_GALAXY_R;
+        var useSpur = (i % 5 >= 3);
+        var arms = useSpur ? 4 : 2;
+        var armBase = ((i % arms) / arms) * Math.PI * 2;
+        var logR = Math.log(rNorm + 0.058);
+        var spiral = logR * 4.20;
+        var spreadScale = isGlobular ? 1.95 : (isOBCluster ? (0.075 + rNorm * 0.14) : (0.16 + rNorm * 0.30));
+        var spread = spreadScale * (rand() + rand() - 1);
+        ang = armBase + spiral + spread;
+
+        /* 银心恒星棒聚集（rNorm < 0.22 时自然收拢融入棒状核球） */
+        if (!isGlobular && rNorm < 0.22 && (i % 3 !== 0)) {
+          var barSide = (i % 2 === 0) ? 0 : Math.PI;
+          ang = -0.38 + barSide + (rand() - 0.5) * 0.62;
+        }
+
+        /* 大幅加厚的真实 3D 垂直星辰包络：丰盈立体核球 + 厚盘星海 + 旋臂厚带 + 广袤球状银晕 */
+        var thickEnv = isGlobular
+          ? (0.33 * (1 - rNorm * 0.36))
+          : (0.245 * Math.exp(-rNorm * 3.8) + (isThickDisk ? 0.112 : 0.056) * (1 - rNorm * 0.28));
+        var warpY = isGlobular ? 0 : (Math.sin(ang - 0.55) * Math.pow(rNorm, 2.15) * GRAND_GALAXY_R * 0.036);
+        thickness = warpY + GRAND_GALAXY_R * thickEnv * (rand() + rand() + rand() - 1.5) * 0.84;
       }
 
-      /* 饱满 3D 垂直厚度：立体花生/椭球核球 + 厚盘/薄盘双层 + 球状星团银晕 + 微妙 S 形外盘翘曲 */
-      var thickEnv = isGlobular
-        ? (0.28 * (1 - rNorm * 0.42))
-        : (0.165 * Math.exp(-rNorm * 4.4) + (isThickDisk ? 0.058 : 0.024) * (1 - rNorm * 0.35));
-      var warpY = isGlobular ? 0 : (Math.sin(ang - 0.55) * Math.pow(rNorm, 2.15) * GRAND_GALAXY_R * 0.036);
-      var thickness = warpY + GRAND_GALAXY_R * thickEnv * (rand() + rand() + rand() - 1.5) * 0.78;
       var lx = Math.cos(ang) * rad;
       var lz = Math.sin(ang) * rad;
       var dMoxunSq = (lx - moxunGalX) * (lx - moxunGalX) + (lz - moxunGalZ) * (lz - moxunGalZ);
@@ -2634,36 +2979,36 @@
       orbits[i * 3 + 2] = thickness;
 
       var cr, cg, cb;
-      if (rNorm < 0.20) {
-        var kb = rNorm / 0.20;
+      if (rNorm < 0.22) {
+        var kb = rNorm / 0.22;
         cr = lerp(1.00, 0.99, kb);
-        cg = lerp(0.97, 0.81, kb);
-        cb = lerp(0.91, 0.66, kb);
-      } else if (rNorm < 0.46) {
-        var km = (rNorm - 0.20) / 0.26;
-        cr = lerp(0.96, 0.40, km);
+        cg = lerp(0.95, 0.79, kb);
+        cb = lerp(0.84, 0.62, kb);
+      } else if (rNorm < 0.48) {
+        var km = (rNorm - 0.22) / 0.26;
+        cr = lerp(0.96, 0.42, km);
         cg = lerp(0.76, 0.70, km);
-        cb = lerp(0.72, 1.00, km);
+        cb = lerp(0.70, 1.00, km);
       } else {
-        var ko = (rNorm - 0.46) / 0.54;
+        var ko = (rNorm - 0.48) / 0.52;
         var isHii = (!isGlobular && (i % 16 === 0));
         var isOiii = (!isGlobular && !isHii && (i % 23 === 0));
         if (isHii) {
-          cr = 1.00; cg = 0.40; cb = 0.72;
+          cr = 0.98; cg = 0.44; cb = 0.72;
         } else if (isOiii) {
-          cr = 0.26; cg = 0.90; cb = 1.00;
+          cr = 0.30; cg = 0.88; cb = 1.00;
         } else {
-          cr = lerp(0.34, 0.56, ko * 0.75);
+          cr = lerp(0.36, 0.58, ko * 0.75);
           cg = lerp(0.66, 0.58, ko * 0.75);
           cb = 1.00;
         }
       }
-      var br = isGlobular ? (0.48 + rand() * 0.42) : (0.64 + Math.pow(rand(), 1.25) * 0.52);
+      var br = isGlobular ? (0.46 + rand() * 0.44) : (0.62 + Math.pow(rand(), 1.25) * 0.52);
       colors[i * 3] = clamp(cr * br, 0, 1);
       colors[i * 3 + 1] = clamp(cg * br, 0, 1);
       colors[i * 3 + 2] = clamp(cb * br, 0, 1);
 
-      sizes[i] = (rNorm < 0.14 ? 2.1 : 1.35) + Math.pow(rand(), 2.4) * (isOBCluster ? 2.9 : 2.2);
+      sizes[i] = (rNorm < 0.16 ? 2.0 : 1.35) + Math.pow(rand(), 2.35) * ((isOBCluster || inCluster) ? 2.85 : 2.2);
     }
 
     var ptsGeo = new THREE.BufferGeometry();
@@ -2678,8 +3023,8 @@
         uSpin: { value: 0.018 },
         uCoreR: { value: coreR },
         uPixelRatio: { value: state.dpr },
-        uSizeScale: { value: 3300.0 },
-        uOpacity: { value: 0.92 },
+        uSizeScale: { value: 3350.0 },
+        uOpacity: { value: 0.93 },
         uDim: { value: 1.0 }
       },
       vertexShader: GRAND_GALAXY_STAR_VERT,
@@ -2690,20 +3035,18 @@
     });
     var pts = new THREE.Points(ptsGeo, ptsMat);
     pts.frustumCulled = false;
-    pts.renderOrder = -2;
+    pts.renderOrder = -1;
     galGroup.add(pts);
     registerPoints(pts, count);
 
-    /* 4. 硬科幻银心天体测量极坐标网格（千秒差距同心环 + 陌浔银心公转轨 + 360° 游标刻度，3D/2D 共面同源） */
+    /* 4. 仅限 2D 平面模式的超淡外缘天体测量刻度（3D 模式下完全隐藏，绝不在星系上画出僵硬的扁平圆环） */
     var gridSegs = [];
     function pushGalLine(x1, y1, z1, x2, y2, z2, r1, g1, b1, r2, g2, b2) {
       gridSegs.push(x1, y1, z1, x2, y2, z2, r1, g1, b1, r2, g2, b2);
     }
     var ringCfgs = [
-      { r: GRAND_GALAXY_R * 0.20, segs: 96, dash: false, col: [0.98, 0.76, 0.36], k: 0.34 },
-      { r: moxunGalR, segs: 144, dash: true, col: [0.22, 0.84, 0.98], k: 0.62 },
-      { r: GRAND_GALAXY_R * 0.68, segs: 128, dash: true, col: [0.38, 0.68, 0.98], k: 0.30 },
-      { r: GRAND_GALAXY_R * 0.94, segs: 180, dash: false, col: [0.34, 0.76, 0.98], k: 0.40 }
+      { r: moxunGalR, segs: 144, dash: true, col: [0.22, 0.84, 0.98], k: 0.36 },
+      { r: GRAND_GALAXY_R * 0.95, segs: 180, dash: false, col: [0.34, 0.72, 0.96], k: 0.26 }
     ];
     for (var rci = 0; rci < ringCfgs.length; rci++) {
       var rc = ringCfgs[rci];
@@ -2719,34 +3062,15 @@
         );
       }
     }
-    var outerRimR = GRAND_GALAXY_R * 0.94;
-    for (var deg = 0; deg < 360; deg += 5) {
+    var outerRimR = GRAND_GALAXY_R * 0.95;
+    for (var deg = 0; deg < 360; deg += 10) {
       var dRad = (deg * Math.PI) / 180;
-      var tLen = (deg % 90 === 0) ? 460 : ((deg % 30 === 0) ? 280 : 125);
-      var tk = (deg % 30 === 0) ? 0.56 : 0.28;
+      var tLen = (deg % 90 === 0) ? 420 : ((deg % 30 === 0) ? 240 : 110);
+      var tk = (deg % 30 === 0) ? 0.38 : 0.18;
       pushGalLine(
         Math.cos(dRad) * (outerRimR - tLen * 0.5), 0, Math.sin(dRad) * (outerRimR - tLen * 0.5),
         Math.cos(dRad) * (outerRimR + tLen * 0.5), 0, Math.sin(dRad) * (outerRimR + tLen * 0.5),
         0.32 * tk, 0.82 * tk, 1.0 * tk, 0.32 * tk, 0.82 * tk, 1.0 * tk
-      );
-    }
-    for (var sec = 0; sec < 12; sec++) {
-      var sRad = (sec / 12) * Math.PI * 2;
-      pushGalLine(
-        Math.cos(sRad) * (GRAND_GALAXY_R * 0.16), 0, Math.sin(sRad) * (GRAND_GALAXY_R * 0.16),
-        Math.cos(sRad) * outerRimR, 0, Math.sin(sRad) * outerRimR,
-        0.22 * 0.18, 0.76 * 0.18, 0.98 * 0.18, 0.22 * 0.28, 0.76 * 0.28, 0.98 * 0.28
-      );
-    }
-    /* 银心指向「陌浔」旋臂坐标的高亮测地径向基准线 */
-    var mxSegs = 22;
-    for (var ms = 2; ms < mxSegs; ms += 2) {
-      var rA = (ms / mxSegs) * moxunGalR;
-      var rB = ((ms + 1) / mxSegs) * moxunGalR;
-      pushGalLine(
-        Math.cos(moxunGalAng) * rA, 0, Math.sin(moxunGalAng) * rA,
-        Math.cos(moxunGalAng) * rB, 0, Math.sin(moxunGalAng) * rB,
-        0.24, 0.68, 0.86, 0.52, 0.86, 0.98
       );
     }
 
@@ -2775,14 +3099,14 @@
     galGridLines.renderOrder = -1;
     galGroup.add(galGridLines);
 
-    /* 5. 3D 专属银心活动星系核（AGN）相对论双极体积喷流、激波结与费米激波环（2D 平面模式下隐藏以保持 100% 纯平面） */
+    /* 5. 3D 专属轻柔半透明星际极向等离子羽雾 + 漂浮电离星尘（彻底移除刺眼白柱与虚线环，自然消融于宇宙） */
     var polarJets3D = new THREE.Group();
     var jetConeMats = [];
-    var jetH = GRAND_GALAXY_R * 0.34;
+    var jetH = GRAND_GALAXY_R * 0.25;
     for (var jDir = -1; jDir <= 1; jDir += 2) {
       var coneGeo = new THREE.CylinderGeometry(
-        jDir > 0 ? GRAND_GALAXY_R * 0.044 : smbhR * 0.55,
-        jDir > 0 ? smbhR * 0.55 : GRAND_GALAXY_R * 0.044,
+        jDir > 0 ? GRAND_GALAXY_R * 0.056 : smbhR * 0.62,
+        jDir > 0 ? smbhR * 0.62 : GRAND_GALAXY_R * 0.056,
         jetH,
         28,
         1,
@@ -2798,65 +3122,64 @@
         blending: THREE.AdditiveBlending
       });
       var coneMesh = new THREE.Mesh(coneGeo, coneMat);
-      coneMesh.position.y = jDir * (smbhR * 0.85 + jetH * 0.5);
+      coneMesh.position.y = jDir * (smbhR * 0.72 + jetH * 0.5);
       coneMesh.frustumCulled = false;
-      coneMesh.renderOrder = 1;
+      coneMesh.renderOrder = 0;
       polarJets3D.add(coneMesh);
       jetConeMats.push(coneMat);
-
-      /* 内部高亮纤细喷流脊芯 */
-      var spineGeo = new THREE.CylinderGeometry(
-        jDir > 0 ? GRAND_GALAXY_R * 0.015 : smbhR * 0.25,
-        jDir > 0 ? smbhR * 0.25 : GRAND_GALAXY_R * 0.015,
-        jetH * 0.92,
-        18,
-        1,
-        true
-      );
-      var spineMesh = new THREE.Mesh(spineGeo, coneMat);
-      spineMesh.position.y = jDir * (smbhR * 0.85 + jetH * 0.46);
-      spineMesh.frustumCulled = false;
-      spineMesh.renderOrder = 2;
-      polarJets3D.add(spineMesh);
     }
 
-    var jetSegs = [];
-    for (var dir = -1; dir <= 1; dir += 2) {
-      jetSegs.push(0, dir * smbhR * 1.1, 0, 0, dir * jetH, 0, 0.72, 0.95, 1.0, 0.12, 0.24, 0.56);
-      for (var jr = 1; jr <= 3; jr++) {
-        var jRingY = dir * GRAND_GALAXY_R * (0.068 * jr);
-        var jRingR = GRAND_GALAXY_R * (0.024 * jr + 0.008);
-        for (var js = 0; js < 36; js += 2) {
-          var ja0 = (js / 36) * Math.PI * 2, ja1 = ((js + 1) / 36) * Math.PI * 2;
-          jetSegs.push(
-            Math.cos(ja0) * jRingR, jRingY, Math.sin(ja0) * jRingR,
-            Math.cos(ja1) * jRingR, jRingY, Math.sin(ja1) * jRingR,
-            0.42, 0.74, 1.0, 0.42, 0.74, 1.0
-          );
-        }
-      }
+    // 极向漂浮电离微尘/柔雾星点（让极向流出物也由细腻星尘构成，与周围环境融为一体）
+    var jdCount = state.degraded ? 400 : 900;
+    var jdPos = new Float32Array(jdCount * 3);
+    var jdCol = new Float32Array(jdCount * 3);
+    var jdSz = new Float32Array(jdCount);
+    var jdOrb = new Float32Array(jdCount * 3);
+    var jdRand = rng(0x31a9f042);
+    for (var jdi = 0; jdi < jdCount; jdi++) {
+      var jSign = (jdi % 2 === 0) ? 1 : -1;
+      var jFrac = Math.pow(jdRand(), 1.35);
+      var jy = jSign * (smbhR * 1.25 + jFrac * jetH * 1.05);
+      var jSpread = (smbhR * 0.55 + jFrac * GRAND_GALAXY_R * 0.052) * Math.pow(jdRand(), 0.65);
+      var jAng = jdRand() * Math.PI * 2;
+      jdPos[jdi * 3] = Math.cos(jAng) * jSpread;
+      jdPos[jdi * 3 + 1] = jy;
+      jdPos[jdi * 3 + 2] = Math.sin(jAng) * jSpread;
+      jdOrb[jdi * 3] = jSpread;
+      jdOrb[jdi * 3 + 1] = jAng;
+      jdOrb[jdi * 3 + 2] = jy;
+      var jFade = (1.0 - jFrac) * (0.45 + jdRand() * 0.55);
+      jdCol[jdi * 3] = lerp(0.95, 0.52, jFrac) * jFade;
+      jdCol[jdi * 3 + 1] = lerp(0.78, 0.64, jFrac) * jFade;
+      jdCol[jdi * 3 + 2] = lerp(0.58, 0.96, jFrac) * jFade;
+      jdSz[jdi] = 1.25 + Math.pow(jdRand(), 2.0) * 2.1;
     }
-    var jCount = jetSegs.length / 12;
-    var jPos = new Float32Array(jCount * 6), jCol = new Float32Array(jCount * 6);
-    for (var ji = 0; ji < jCount; ji++) {
-      for (var jp = 0; jp < 6; jp++) {
-        jPos[ji * 6 + jp] = jetSegs[ji * 12 + jp];
-        jCol[ji * 6 + jp] = jetSegs[ji * 12 + 6 + jp];
-      }
-    }
-    var jetGeo3D = new THREE.BufferGeometry();
-    jetGeo3D.setAttribute("position", new THREE.Float32BufferAttribute(jPos, 3));
-    jetGeo3D.setAttribute("color", new THREE.Float32BufferAttribute(jCol, 3));
-    var jetMat3D = new THREE.LineBasicMaterial({
-      vertexColors: true,
+    var jdGeo = new THREE.BufferGeometry();
+    jdGeo.setAttribute("position", new THREE.Float32BufferAttribute(jdPos, 3));
+    jdGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(jdCol, 3));
+    jdGeo.setAttribute("aSize", new THREE.Float32BufferAttribute(jdSz, 1));
+    jdGeo.setAttribute("aOrbit", new THREE.Float32BufferAttribute(jdOrb, 3));
+    var jetDustMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uSpin: { value: 0.16 },
+        uCoreR: { value: smbhR * 2.5 },
+        uPixelRatio: { value: state.dpr },
+        uSizeScale: { value: 3200.0 },
+        uOpacity: { value: 0.62 },
+        uDim: { value: 1.0 }
+      },
+      vertexShader: GRAND_GALAXY_STAR_VERT,
+      fragmentShader: GRAND_GALAXY_STAR_FRAG,
       transparent: true,
-      opacity: 0.0,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-    var jetLines3D = new THREE.LineSegments(jetGeo3D, jetMat3D);
-    jetLines3D.frustumCulled = false;
-    polarJets3D.add(jetLines3D);
+    var jetDustPts = new THREE.Points(jdGeo, jetDustMat);
+    jetDustPts.frustumCulled = false;
+    jetDustPts.renderOrder = 0;
+    polarJets3D.add(jetDustPts);
+    registerPoints(jetDustPts, jdCount);
     galGroup.add(polarJets3D);
 
     /* 6. 两座高清晰伴矮椭圆星系（M110 / M32：采用共面着色器圆盘 + 锐利星团，零模糊贴图且支持 2D 完全共面） */
@@ -2954,26 +3277,26 @@
       group: galGroup,
       diskMesh: diskMesh,
       diskMat: diskMat,
-      diskLayers3D: diskLayers3D,
-      diskLayerMats: diskLayerMats,
       core3DGroup: core3DGroup,
       bulgeVolMat: bulgeVolMat,
       smbhMat: smbhMat,
+      smbhLensMat: smbhLensMat,
+      smbhLensMesh: smbhLensMesh,
       accMat: accMat,
       accDiskMesh: accDiskMesh,
-      accLensMesh: accLensMesh,
-      torusMat: torusMat,
-      dustyTorusMesh: dustyTorusMesh,
-      sOrbMat: sOrbMat,
       ncMat: ncMat,
+      nebulaMat: nebulaMat,
+      dustMat: dustMat,
+      meteorMat: meteorMat,
       pts: pts,
       ptsMat: ptsMat,
       bulgeInner: bulgeInner,
       bulgeOuter: bulgeOuter,
+      galGridLines: galGridLines,
       galGridMat: galGridMat,
       polarJets3D: polarJets3D,
       jetConeMats: jetConeMats,
-      jetMat3D: jetMat3D,
+      jetDustMat: jetDustMat,
       companions: companions,
       center3D: center3D,
       center2D: center2D,
@@ -2981,7 +3304,8 @@
       quat2D: quat2D,
       axisX: axisX,
       axisY: axisY,
-      axisZ: axisZ
+      axisZ: axisZ,
+      tmpQuat: new THREE.Quaternion()
     };
     syncGalaxyDimensionMode();
   }
@@ -3112,25 +3436,11 @@
     if (gg) {
       if (simDt > 0) {
         gg.diskMesh.rotation.z += simDt * 0.012;
-        if (gg.diskLayerMats) {
-          for (var li = 0; li < gg.diskLayerMats.length; li++) {
-            gg.diskLayerMats[li].mesh.rotation.z += simDt * 0.012;
-          }
-        }
-        if (gg.dustyTorusMesh) gg.dustyTorusMesh.rotation.z += simDt * 0.045;
       }
       gg.diskMat.uniforms.uTime.value = t;
       gg.diskMat.uniforms.uDim.value = focusDim;
       var nearFade = lerp(0.56, 1.0, smoothstepJS(1600, 5600, state.radius));
       gg.diskMat.uniforms.uNearFade.value = nearFade;
-      if (gg.diskLayerMats) {
-        for (var lj = 0; lj < gg.diskLayerMats.length; lj++) {
-          var lm = gg.diskLayerMats[lj].mat;
-          lm.uniforms.uTime.value = t;
-          lm.uniforms.uDim.value = focusDim;
-          lm.uniforms.uNearFade.value = nearFade;
-        }
-      }
       if (gg.bulgeVolMat) {
         gg.bulgeVolMat.uniforms.uTime.value = t;
         gg.bulgeVolMat.uniforms.uDim.value = focusDim;
@@ -3141,31 +3451,45 @@
         gg.smbhMat.uniforms.uDim.value = focusDim;
         gg.smbhMat.uniforms.uNearFade.value = nearFade;
       }
+      if (gg.smbhLensMat && gg.smbhLensMesh && !state.envOnly && state.camera) {
+        gg.smbhLensMat.uniforms.uTime.value = t;
+        gg.smbhLensMat.uniforms.uDim.value = focusDim;
+        gg.smbhLensMat.uniforms.uNearFade.value = nearFade;
+        gg.tmpQuat.copy(gg.group.quaternion).invert().multiply(state.camera.quaternion);
+        gg.smbhLensMesh.quaternion.copy(gg.tmpQuat);
+      }
       if (gg.accMat) {
         gg.accMat.uniforms.uTime.value = t;
         gg.accMat.uniforms.uDim.value = focusDim;
         gg.accMat.uniforms.uNearFade.value = nearFade;
       }
-      if (gg.torusMat) {
-        gg.torusMat.uniforms.uTime.value = t;
-        gg.torusMat.uniforms.uDim.value = focusDim;
-        gg.torusMat.uniforms.uNearFade.value = nearFade;
-      }
       if (gg.ncMat) {
         gg.ncMat.uniforms.uTime.value = t;
         gg.ncMat.uniforms.uDim.value = focusDim;
       }
-      if (gg.sOrbMat) {
-        gg.sOrbMat.opacity = 0.28 * nearFade * focusDim;
+      if (gg.nebulaMat) {
+        gg.nebulaMat.uniforms.uTime.value = t;
+        gg.nebulaMat.uniforms.uDim.value = focusDim;
+        gg.nebulaMat.uniforms.uNearFade.value = nearFade;
+      }
+      if (gg.dustMat) {
+        gg.dustMat.uniforms.uTime.value = t;
+        gg.dustMat.uniforms.uDim.value = focusDim;
+        gg.dustMat.uniforms.uNearFade.value = nearFade;
+      }
+      if (gg.meteorMat) {
+        gg.meteorMat.uniforms.uTime.value = t;
+        gg.meteorMat.uniforms.uDim.value = focusDim;
+        gg.meteorMat.uniforms.uNearFade.value = nearFade;
       }
       gg.ptsMat.uniforms.uTime.value = t;
       gg.ptsMat.uniforms.uDim.value = focusDim;
-      var bPulse = state.reduced ? 1.0 : (1.0 + 0.04 * Math.sin(t * 0.95));
-      gg.bulgeInner.material.opacity = (state.envOnly ? 0.30 : 0.36) * nearFade * bPulse * focusDim;
-      gg.bulgeOuter.material.opacity = (state.envOnly ? 0.24 : 0.20) * nearFade * focusDim;
-      var galGridFade = smoothstepJS(4800, 11600, state.radius);
+      var bPulse = state.reduced ? 1.0 : (1.0 + 0.03 * Math.sin(t * 0.85));
+      gg.bulgeInner.material.opacity = (state.envOnly ? 0.26 : 0.34) * nearFade * bPulse * focusDim;
+      gg.bulgeOuter.material.opacity = (state.envOnly ? 0.18 : 0.22) * nearFade * focusDim;
+      var galGridFade = smoothstepJS(5600, 12600, state.radius);
       if (gg.galGridMat) {
-        gg.galGridMat.opacity = (state.envOnly ? 0.52 : 0.44) * galGridFade * focusDim;
+        gg.galGridMat.opacity = (state.envOnly ? 0.22 : 0.0) * galGridFade * focusDim;
       }
       if (gg.jetConeMats && !state.envOnly) {
         for (var jci = 0; jci < gg.jetConeMats.length; jci++) {
@@ -3174,8 +3498,9 @@
           gg.jetConeMats[jci].uniforms.uNearFade.value = nearFade;
         }
       }
-      if (gg.jetMat3D && !state.envOnly) {
-        gg.jetMat3D.opacity = 0.28 * galGridFade * bPulse * focusDim;
+      if (gg.jetDustMat && !state.envOnly) {
+        gg.jetDustMat.uniforms.uTime.value = t;
+        gg.jetDustMat.uniforms.uDim.value = focusDim;
       }
       if (gg.companions) {
         for (var ci0 = 0; ci0 < gg.companions.length; ci0++) {
@@ -4320,7 +4645,7 @@
     state.labels = [];
 
     var deepStarBudget = 18500; var sunlitDustBudget = 420;
-    var grandGalaxyStarBudget = Math.min(39500, MAX_PARTICLES - deepStarBudget - sunlitDustBudget - 3000);
+    var grandGalaxyStarBudget = Math.min(46000, MAX_PARTICLES - deepStarBudget - sunlitDustBudget - 15000);
     setupCosmicBackground(THREE, deepStarBudget);
 
     state.root = new THREE.Group(); state.scene.add(state.root);
