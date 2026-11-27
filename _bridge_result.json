@@ -1,7 +1,0 @@
-{
- "job_id": "20261127-022622-808120",
- "ts": 1795717592,
- "exit_code": 0,
- "ok": true,
- "output": "CADDY_FRAME_ANCESTORS_UPDATED\nCADDY_RELOADED_OK\ncontent-security-policy: frame-ancestors 'self' http://127.0.0.1:8765 http://localhost:8765\r\n"
-}
